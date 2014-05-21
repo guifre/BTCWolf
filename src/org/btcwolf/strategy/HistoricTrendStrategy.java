@@ -6,15 +6,15 @@ package org.btcwolf.strategy;
  */
 public class HistoricTrendStrategy extends AbstractStrategy {
 
-    public HistoricTrendStrategy(int fee, double cBitcoins, double treshold) {
-        super(fee, cBitcoins, treshold);
+    public HistoricTrendStrategy(int transactionFee, double cBitcoins) {
+        super(transactionFee, cBitcoins);
     }
 
-    void process(double newPrice) {
-        if (haveToBuy && newPrice >= (cBitcoints + opThreshold)) {
-            sell(newPrice);
-        } else if (!haveToBuy && newPrice <= (cBitcoints - opThreshold)) {
-            buy(newPrice);
-        }
+    boolean isWorthBuying(double newPrice) {
+       return false;
+    }
+
+    boolean isWorthSelling(double newPrice) {
+       return  false;
     }
 }

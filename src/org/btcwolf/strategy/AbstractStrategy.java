@@ -13,19 +13,26 @@ public abstract class AbstractStrategy implements Strategy {
     Double totalProfit = 0d;
 
     private int transactionFee;
-    Double cBitcoints;
-    Double opThreshold;
+    Double currentBitcoins;
 
-    public AbstractStrategy(int transactionFee, Double cBitcoints, Double opThreshold) {
+    public AbstractStrategy(int transactionFee, Double cBitcoints) {
         this.transactionFee = transactionFee;
-        this.cBitcoints = cBitcoints;
-        this.opThreshold = opThreshold;
+        this.currentBitcoins = cBitcoints;
         this.totalProfit =0d;
         this.haveToBuy = true;
     }
 
-    abstract void process(double newPrice);
+    abstract boolean isWorthBuying(double newPrice);
 
+    abstract boolean isWorthSelling(double newPrice);
+
+    void process(double newPrice) {
+        if (isWorthBuying(newPrice)) {
+            sell(newPrice);
+        } else if (isWorthSelling(newPrice)) {
+            buy(newPrice);
+        }
+    }
     public double run(List<Double> a) {
         for (double e : a) {
             process(e);
@@ -34,18 +41,26 @@ public abstract class AbstractStrategy implements Strategy {
     }
 
     void sell(double newPrice) {
-        double prof = (newPrice - cBitcoints - transactionFee);
-        //System.out.println("Selling for [" + value + "] bought for [" + cBitcoints + "] got [+" + prof + "]");
-        cBitcoints = newPrice;
+        if (haveToBuy) {
+            return;
+        }
+        double prof = (newPrice - currentBitcoins - transactionFee);
+        //System.out.println("Selling for [" + value + "] bought for [" + currentBitcoins + "] got [+" + prof + "]");
+        currentBitcoins = newPrice;
         haveToBuy = false;
         totalProfit = totalProfit + prof;
+        totalNumberOfTransactions++;
     }
 
     void buy(double newPrice) {
-        double prof = (cBitcoints - newPrice - transactionFee);
-        //System.out.println("Buying for [" + value + "] sold for [" + cBitcoints + "] got [+" + prof + "]");
-        cBitcoints = newPrice;
+        if (!haveToBuy) {
+            return;
+        }
+        double prof = (currentBitcoins - newPrice - transactionFee);
+        //System.out.println("Buying for [" + value + "] sold for [" + currentBitcoins + "] got [+" + prof + "]");
+        currentBitcoins = newPrice;
         totalProfit = totalProfit + prof;
         haveToBuy = true;
+        totalNumberOfTransactions++;
     }
 }

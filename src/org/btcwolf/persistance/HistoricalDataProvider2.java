@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Created by guifre on 20/05/14.
  */
-public class HistoricalDataProvider2 {
+public class  HistoricalDataProvider2 {
 
     private static PollingMarketDataService marketDataService;
 
