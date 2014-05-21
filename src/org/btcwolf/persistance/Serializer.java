@@ -33,7 +33,7 @@ public class Serializer {
         List<Double> o = (List<Double>) decoder.readObject();
         decoder.close();
         if (o instanceof List) {
-            return (List<Double>)o;
+            return o;
         }
         throw new RuntimeException("did not get a list");
     }
