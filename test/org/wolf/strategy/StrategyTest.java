@@ -1,6 +1,7 @@
-package org.btcwolf.strategy;
+package org.wolf.strategy;
 
 import com.xeiam.xchange.examples.bitcoinwolf.persitance.HistoricalDataProvider;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,22 +11,22 @@ import java.util.Random;
 /**
  * Created by guifre on 20/05/14.
  */
-public class StrategyTester {
+public class StrategyTest {
 
     Double curr;
     Double diff = 2d;
     Double profit = 0d;
     boolean buy = true;
 
-    public static void main(String[] args) throws Exception {
-        new StrategyTester().test();
+    @Test
+    public void testHistoricData(String[] args) throws Exception {
+        new StrategyTest().test();
     }
     private HistoricalDataProvider dataProvider;
 
-    public StrategyTester() throws IOException {
+    public StrategyTest() throws IOException {
         dataProvider = new HistoricalDataProvider();
     }
-
 
 
 

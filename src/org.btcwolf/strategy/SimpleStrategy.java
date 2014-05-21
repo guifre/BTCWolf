@@ -10,14 +10,12 @@ import java.util.List;
 public class SimpleStrategy implements Strategy {
 
 
-         int fee = 2;
+        int fee = 2;
         private int Noperations = 0;
         private Double cBitcoints;
         Double opThreshold;
         Double profit = 0d;
         boolean haveToBuy = false;
-
-
 
         private  void sell(double value) {
             double prof = (value - cBitcoints - fee);

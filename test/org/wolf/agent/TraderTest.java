@@ -1,4 +1,4 @@
-package org.btcwolf.persitance;
+package org.wolf.agent;
 
 
 import com.xeiam.xchange.Exchange;
