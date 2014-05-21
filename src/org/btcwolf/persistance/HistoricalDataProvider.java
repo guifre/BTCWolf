@@ -1,11 +1,10 @@
-package org.btcwolf.persitance;
+package org.btcwolf.persistance;
 
 import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.ExchangeFactory;
 import com.xeiam.xchange.coinbase.CoinbaseExchange;
 import com.xeiam.xchange.coinbase.dto.marketdata.*;
 import com.xeiam.xchange.coinbase.service.polling.CoinbaseMarketDataService;
-import com.xeiam.xchange.examples.bitcoinwolf.persitance.Serializer;
 import com.xeiam.xchange.service.polling.PollingMarketDataService;
 
 import java.io.IOException;

@@ -1,20 +1,12 @@
-package org.btcwolf.persitance;
+package org.btcwolf.persistance;
 
 import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.ExchangeFactory;
-import com.xeiam.xchange.coinbase.CoinbaseExchange;
-import com.xeiam.xchange.coinbase.dto.marketdata.*;
-import com.xeiam.xchange.coinbase.service.polling.CoinbaseMarketDataService;
-import com.xeiam.xchange.currency.Currencies;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.service.polling.PollingMarketDataService;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by guifre on 20/05/14.

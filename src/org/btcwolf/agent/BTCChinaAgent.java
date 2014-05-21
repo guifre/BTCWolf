@@ -1,4 +1,4 @@
-package org.btcwolf.persitance;
+package org.btcwolf.agent;
 
 import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.ExchangeFactory;
@@ -7,7 +7,6 @@ import com.xeiam.xchange.btcchina.BTCChinaExchange;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.account.AccountInfo;
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import com.xeiam.xchange.examples.btcchina.BTCChinaExamplesUtils;
 import com.xeiam.xchange.service.polling.PollingAccountService;
 import com.xeiam.xchange.service.polling.PollingMarketDataService;
 import com.xeiam.xchange.service.polling.PollingTradeService;

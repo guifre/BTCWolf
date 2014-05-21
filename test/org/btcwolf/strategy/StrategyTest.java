@@ -1,6 +1,6 @@
-package org.wolf.strategy;
+package org.btcwolf.strategy;
 
-import com.xeiam.xchange.examples.bitcoinwolf.persitance.HistoricalDataProvider;
+import org.btcwolf.persistance.HistoricalDataProvider;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -19,9 +19,10 @@ public class StrategyTest {
     boolean buy = true;
 
     @Test
-    public void testHistoricData(String[] args) throws Exception {
+    public void testHistoricData() throws Exception {
         new StrategyTest().test();
     }
+
     private HistoricalDataProvider dataProvider;
 
     public StrategyTest() throws IOException {
@@ -44,7 +45,11 @@ public class StrategyTest {
         }
         return subsetList;
     }
-    private void test() throws IOException {
+
+    @Test
+    public void test() throws IOException {
+        dataProvider = new HistoricalDataProvider();
+        dataProvider.persistData();
         List<Double> data = dataProvider.getData();
         List<Double> rand = null;
         SimpleStrategy strategy;

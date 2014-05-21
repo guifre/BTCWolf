@@ -1,4 +1,4 @@
-package org.btcwolf.persitance;
+package org.btcwolf.persistance;
 
 import com.xeiam.xchange.coinbase.dto.marketdata.CoinbaseHistoricalSpotPrice;
 
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Serializer {
 
-    private static final String FILE = "historic";
+    private static final String FILE = "resources/historic";
 
     public static void write(List<CoinbaseHistoricalSpotPrice> o) throws FileNotFoundException {
         XMLEncoder encoder = new XMLEncoder(

@@ -1,25 +1,20 @@
-package org.wolf.agent;
+package org.btcwolf.agent;
 
 
-import com.xeiam.xchange.Exchange;
-import com.xeiam.xchange.anx.v2.dto.ANXException;
 import com.xeiam.xchange.bitcoinium.BitcoiniumExchange;
-import com.xeiam.xchange.bitcurex.Bitcurex;
 import com.xeiam.xchange.bitcurex.BitcurexExchange;
 import com.xeiam.xchange.bitfinex.v1.BitfinexExchange;
-import com.xeiam.xchange.bitstamp.Bitstamp;
 import com.xeiam.xchange.bitstamp.BitstampExchange;
 import com.xeiam.xchange.blockchain.BlockchainExchange;
 import com.xeiam.xchange.btcchina.BTCChinaExchange;
 import com.xeiam.xchange.btce.v3.BTCEExchange;
 import com.xeiam.xchange.bter.BTERExchange;
 import com.xeiam.xchange.campbx.CampBXExchange;
-import com.xeiam.xchange.cexio.CexIOExchange;
 import com.xeiam.xchange.coinbase.CoinbaseExchange;
 import com.xeiam.xchange.coinfloor.CoinfloorExchange;
 import com.xeiam.xchange.cryptotrade.CryptoTradeExchange;
-import com.xeiam.xchange.itbit.v1.ItBitExchange;
 import com.xeiam.xchange.kraken.KrakenExchange;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -28,7 +23,8 @@ import java.io.IOException;
  */
 public class TraderTest {
 
-    public static void main(String[] args) throws IOException {
+    @Test
+    public void testOperatorsExchange() throws IOException {
 
         new TraderTest().test(BTCChinaExchange.class);
         new TraderTest().test(BitstampExchange.class);
@@ -46,10 +42,10 @@ public class TraderTest {
     }
 
     private void test(Class c) {
-        Trader trader = new Trader(c.getName());
+        org.btcwolf.agent.Trader trader = new org.btcwolf.agent.Trader(c.getName());
         try {
-            System.out.println( c.getName() +" "+trader.getTicker());
-        } catch (Exception e){
+            System.out.println( c.getName() + " " + trader.getTicker());
+        } catch (Exception e) {
         }
     }
 
