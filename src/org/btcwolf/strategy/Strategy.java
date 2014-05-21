@@ -1,6 +1,5 @@
 package org.btcwolf.strategy;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -8,6 +7,6 @@ import java.util.List;
  */
 public interface Strategy {
 
-    public double run(List<Double> a) throws IOException;
+    public double run(List<Double> a);
 
 }

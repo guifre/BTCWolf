@@ -1,12 +1,12 @@
+
 package org.btcwolf.strategy;
 
 /**
  * Created by guifre on 20/05/14.
  */
-public class SimpleStrategy extends AbstractStrategy {
+public class HistoricTrendStrategy extends AbstractStrategy {
 
-
-    public SimpleStrategy(int fee, double cBitcoins, double treshold) {
+    public HistoricTrendStrategy(int fee, double cBitcoins, double treshold) {
         super(fee, cBitcoins, treshold);
     }
 
