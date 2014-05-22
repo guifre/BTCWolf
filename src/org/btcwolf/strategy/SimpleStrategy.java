@@ -13,17 +13,31 @@ package org.btcwolf.strategy;
 public class SimpleStrategy extends AbstractStrategy {
 
     private Double opThreshold;
+    private double lastPriceUsed =0d;
 
-    public SimpleStrategy(int fee, double cBitcoins, double opThreshold) {
-        super(fee, cBitcoins);
-        this.opThreshold = opThreshold;
+
+    public SimpleStrategy(int fee, double startDollars, double opThreshold) {
+        super(fee, startDollars);
+        this.opThreshold = opThreshold + fee;
     }
 
-    boolean isWorthBuying(double newPrice) {
-        return newPrice >= (currentBitcoins + opThreshold);
+    boolean isWorthGettingBitCoins(double newPrice) {
+        if (newPrice < (this.lastPriceUsed + this.opThreshold)) {
+            lastPriceUsed = newPrice;
+            return true;
+        }
+        return false;
     }
 
-    boolean isWorthSelling(double newPrice) {
-        return  newPrice <= (currentBitcoins - opThreshold);
+    boolean isWorthGettingDollars(double newPrice) {
+        if (newPrice > (this.lastPriceUsed + this.opThreshold)) {
+            lastPriceUsed = newPrice;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    void onReceiveNewPrice(double newPrice) {
     }
 }

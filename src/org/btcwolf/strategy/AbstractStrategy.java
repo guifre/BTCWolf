@@ -8,29 +8,31 @@ import java.util.List;
 public abstract class AbstractStrategy implements Strategy {
 
 
-    boolean haveToBuy = false;
     int totalNumberOfTransactions = 0;
     Double totalProfit = 0d;
 
-    private int transactionFee;
-    Double currentBitcoins;
+    int transactionFee;
+    Double mDollars;
+    Double mBitcoins;
 
-    public AbstractStrategy(int transactionFee, Double cBitcoints) {
+    public AbstractStrategy(int transactionFee, Double startDollars) {
         this.transactionFee = transactionFee;
-        this.currentBitcoins = cBitcoints;
+        this.mDollars = startDollars;
+        this.mBitcoins = 0d;
         this.totalProfit =0d;
-        this.haveToBuy = true;
     }
 
-    abstract boolean isWorthBuying(double newPrice);
+    abstract boolean isWorthGettingBitCoins(double newPrice);
+    abstract boolean isWorthGettingDollars(double newPrice);
 
-    abstract boolean isWorthSelling(double newPrice);
+    abstract void onReceiveNewPrice(double newPrice);
 
     void process(double newPrice) {
-        if (isWorthBuying(newPrice)) {
-            sell(newPrice);
-        } else if (isWorthSelling(newPrice)) {
-            buy(newPrice);
+        onReceiveNewPrice(newPrice);
+        if (isWorthGettingBitCoins(newPrice)) {
+            getBitCoins(newPrice);
+        } else if (isWorthGettingDollars(newPrice)) {
+            getDollars(newPrice);
         }
     }
     public double run(List<Double> a) {
@@ -40,27 +42,29 @@ public abstract class AbstractStrategy implements Strategy {
         return totalProfit;
     }
 
-    void sell(double newPrice) {
-        if (haveToBuy) {
+    void getBitCoins(double newPrice) {
+        if (this.mDollars == 0d) {
             return;
         }
-        double prof = (newPrice - currentBitcoins - transactionFee);
-        //System.out.println("Selling for [" + value + "] bought for [" + currentBitcoins + "] got [+" + prof + "]");
-        currentBitcoins = newPrice;
-        haveToBuy = false;
-        totalProfit = totalProfit + prof;
-        totalNumberOfTransactions++;
+        double newBitCoins = (this.mDollars / newPrice) - this.transactionFee/newPrice;
+        double prof = newBitCoins * newPrice - this.mDollars;
+        //System.out.println("getting bitcoins for [" + newPrice + "] current [" + newBitCoins + "] profit [+" + prof + "]");
+        this.mBitcoins = newBitCoins;
+        this.mDollars = 0d;
+        this.totalProfit = this.totalProfit + prof;
+        this.totalNumberOfTransactions++;
     }
 
-    void buy(double newPrice) {
-        if (!haveToBuy) {
+    void getDollars(double newPrice) {
+        if (this.mBitcoins == 0d) {
             return;
         }
-        double prof = (currentBitcoins - newPrice - transactionFee);
-        //System.out.println("Buying for [" + value + "] sold for [" + currentBitcoins + "] got [+" + prof + "]");
-        currentBitcoins = newPrice;
-        totalProfit = totalProfit + prof;
-        haveToBuy = true;
-        totalNumberOfTransactions++;
+        double newDollars = (this.mBitcoins * newPrice) - this.transactionFee;
+        double prof = newDollars / newPrice - this.mDollars;
+        //System.out.println("getting dollars for [" + newPrice + "] current [" + newDollars + "] profit [+" + prof + "]");
+        this.mDollars = newDollars;
+        this.mBitcoins = 0d;
+        this.totalProfit = this.totalProfit + prof;
+        this.totalNumberOfTransactions++;
     }
 }

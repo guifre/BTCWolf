@@ -47,21 +47,75 @@ public class StrategyTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void testSimpleStrategy() throws IOException {
+        int fee = 0;
+        double startDollars = 500;
+        double opThreshold = 2;
         dataProvider = new HistoricalDataProvider();
-        dataProvider.persistData();
         List<Double> data = dataProvider.getData();
         List<Double> rand = null;
         SimpleStrategy strategy;
+        strategy = new SimpleStrategy(fee, startDollars, opThreshold);
+        rand = getRandomSubset(data);
+        double cu = strategy.run(rand);
+        System.out.println(cu);
+    }
 
-        for (int i  =0; i <1000; i++) {     // run the test 1000 times
+    @Test
+    public void testHistoricStrategy() throws IOException {
+        int fee = 1;
+        double startDollars = 500;
+        int histricThreshold = 0;
+        double simpleThreshold = 0.1;
+        dataProvider = new HistoricalDataProvider();
+        List<Double> data = dataProvider.getData();
+        List<Double> rand = null;
+        HistoricTrendStrategy histor = new HistoricTrendStrategy(fee, startDollars, histricThreshold);
+        SimpleStrategy simple = new SimpleStrategy(fee, startDollars, simpleThreshold);
+
+        rand = getRandomSubset(data);
+
+        double histM = histor.run(rand);
+        double simM = simple.run(rand);
+        System.out.println("historic " + histM + " simple " + simM );
+
+    }
+
+    @Test
+    public void testNewApproach() throws IOException {
+        double fee = 0.5;
+        double startDollars = 500;
+        int histricThreshold = 0;
+        double simpleThreshold = 0.1;
+        dataProvider = new HistoricalDataProvider();
+        List<Double> data = dataProvider.getData();
+        List<Double> rand = null;
+
+        AveragePrice averageStrategy = new AveragePrice(fee, startDollars);
+
+        rand = getRandomSubset(data);
+        double histM = averageStrategy.run(rand);
+        System.out.println("historic " + histM  );
+    }
+
+    @Test
+    public void test() throws IOException {
+        int fee = 0;
+        double cBitcoins =1500;
+        double opThreshold = 1;
+
+        dataProvider = new HistoricalDataProvider();
+        //dataProvider.persistData();
+        List<Double> data = dataProvider.getData();
+        List<Double> rand = null;
+        SimpleStrategy strategy;
+        for (int i  =0; i <200; i++) {     // run the test 1000 times
             double inter = 0.1;double max = 0;double bestT=-1d;
             while (inter < 10) { //find the best threshold
 
-                double won=0; int retries=1000;
+                double won=0; int retries=100;
                 for (int k=0;k<retries; k++) {
-                    strategy = new SimpleStrategy();
-                    strategy.opThreshold = inter;
+                    strategy = new SimpleStrategy(fee, cBitcoins, opThreshold);
                     rand = getRandomSubset(data);
                     double cu = strategy.run(rand);
                     won+=cu;
@@ -75,8 +129,7 @@ public class StrategyTest {
 
             double won = 0;int retries=10;
             for (int j  =0; j <retries; j++) {//run with the best 100 times and get the average won
-                strategy = new SimpleStrategy();
-                strategy.opThreshold = bestT;
+                strategy = new SimpleStrategy(fee, cBitcoins, bestT);
                 rand = getRandomSubset(data);
                 won += strategy.run(rand);
             }
