@@ -1,70 +1,83 @@
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.dto.marketdata.Ticker;
+
+import java.math.BigDecimal;
 import java.util.List;
+
+import static java.math.BigDecimal.valueOf;
 
 /**
  * Created by guifre on 20/05/14.
  */
 public abstract class AbstractStrategy implements Strategy {
 
-
     int totalNumberOfTransactions = 0;
-    Double totalProfit = 0d;
+    BigDecimal transactionFee;
+    BigDecimal mCurrency;
+    BigDecimal mBitCoins;
+    BigDecimal totalProfit;
 
-    int transactionFee;
-    Double mDollars;
-    Double mBitcoins;
-
-    public AbstractStrategy(int transactionFee, Double startDollars) {
+    public AbstractStrategy(BigDecimal transactionFee, BigDecimal startDollars) {
         this.transactionFee = transactionFee;
-        this.mDollars = startDollars;
-        this.mBitcoins = 0d;
-        this.totalProfit =0d;
+        this.mCurrency = startDollars;
+        this.mBitCoins = valueOf(0);
+        this.totalProfit = valueOf(0);
+        this.totalProfit = valueOf(0);
     }
 
-    abstract boolean isWorthGettingBitCoins(double newPrice);
-    abstract boolean isWorthGettingDollars(double newPrice);
+    abstract BigDecimal getBitCoinsToSell();
+    abstract BigDecimal getBitCoinsToBuy();
 
-    abstract void onReceiveNewPrice(double newPrice);
+    abstract void onReceiveTicker(Ticker ticker);
 
-    void process(double newPrice) {
-        onReceiveNewPrice(newPrice);
-        if (isWorthGettingBitCoins(newPrice)) {
-            getBitCoins(newPrice);
-        } else if (isWorthGettingDollars(newPrice)) {
-            getDollars(newPrice);
+
+    void process(Ticker ticker) { //main method that triggers the logic we apply fee
+
+        onReceiveTicker(ticker);
+
+        BigDecimal bitCoinsToBuy = getBitCoinsToBuy();
+
+        if (bitCoinsToBuy.doubleValue() > 0d) {
+            buyBitCoins(bitCoinsToBuy, ticker);
+        }
+
+        BigDecimal bitCoinsToSell = getBitCoinsToSell();
+        if (bitCoinsToSell.doubleValue() > 0d) {
+            sellBitCoins(bitCoinsToSell, ticker);
         }
     }
-    public double run(List<Double> a) {
-        for (double e : a) {
-            process(e);
+
+    public BigDecimal run(List<Ticker> list) {
+        for (Ticker ticker : list) {
+            process(ticker);
         }
-        return totalProfit;
+        return this.totalProfit;
     }
 
-    void getBitCoins(double newPrice) {
-        if (this.mDollars == 0d) {
+    void buyBitCoins(BigDecimal bitCoinsToBuy, Ticker ticker) {
+        if (this.mCurrency.doubleValue() == 0d) {
             return;
         }
-        double newBitCoins = (this.mDollars / newPrice) - this.transactionFee/newPrice;
-        double prof = newBitCoins * newPrice - this.mDollars;
-        //System.out.println("getting bitcoins for [" + newPrice + "] current [" + newBitCoins + "] profit [+" + prof + "]");
-        this.mBitcoins = newBitCoins;
-        this.mDollars = 0d;
-        this.totalProfit = this.totalProfit + prof;
+        BigDecimal boughtBitCoins = (bitCoinsToBuy.divide(ticker.getBid()));
+        BigDecimal profitAfterTheOperation = boughtBitCoins.multiply(ticker.getBid()).remainder(bitCoinsToBuy);
+        this.mBitCoins = this.mBitCoins.add(boughtBitCoins);
+        this.mCurrency = this.mCurrency.remainder(bitCoinsToBuy);
+        this.totalProfit = this.totalProfit.add(profitAfterTheOperation);
         this.totalNumberOfTransactions++;
+        //System.out.println("getting bitcoins for [" + ticker[0] + "] current [" + newBitCoins + "] profit [+" + prof + "]");
     }
 
-    void getDollars(double newPrice) {
-        if (this.mBitcoins == 0d) {
+    void sellBitCoins(BigDecimal bitCoinsToSell, Ticker ticker) {
+        if (this.mBitCoins.doubleValue() == 0d) {
             return;
         }
-        double newDollars = (this.mBitcoins * newPrice) - this.transactionFee;
-        double prof = newDollars / newPrice - this.mDollars;
-        //System.out.println("getting dollars for [" + newPrice + "] current [" + newDollars + "] profit [+" + prof + "]");
-        this.mDollars = newDollars;
-        this.mBitcoins = 0d;
-        this.totalProfit = this.totalProfit + prof;
+        BigDecimal currencyBought = bitCoinsToSell.multiply(ticker.getAsk());
+        BigDecimal profitAfterTheOperation = currencyBought.divide(ticker.getAsk()).remainder(bitCoinsToSell);
+        this.mCurrency = currencyBought;
+        this.mBitCoins = this.mBitCoins.remainder(bitCoinsToSell);
+        this.totalProfit = this.totalProfit.add(profitAfterTheOperation);
         this.totalNumberOfTransactions++;
+        System.out.println("getting dollars for [" + ticker.getAsk() + "] current [" + this.mCurrency + "] profit [+" + profitAfterTheOperation + "]");
     }
 }

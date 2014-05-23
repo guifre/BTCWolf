@@ -21,14 +21,15 @@ public class HistoricalDataProvider {
     public HistoricalDataProvider() throws IOException {
     }
 
-    public   void persistData() throws IOException {
+    public void persistData() throws IOException {
         Exchange coinbaseExchange = ExchangeFactory.INSTANCE.createExchange(CoinbaseExchange.class.getName());
         PollingMarketDataService marketDataService = coinbaseExchange.getPollingMarketDataService();
-        Serializer.write(raw((CoinbaseMarketDataService) marketDataService));
+       // Serializer.write(raw((MyTicker) marketDataService));
     }
 
-    public   List<Double> getData() throws IOException {
-        return Serializer.read();
+    public List<Double> getData() throws IOException {
+     //   return Serializer.read();
+        return null;
     }
 
     public List<CoinbaseHistoricalSpotPrice> raw(CoinbaseMarketDataService marketDataService) throws IOException {

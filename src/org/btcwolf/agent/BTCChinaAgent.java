@@ -6,67 +6,84 @@ import com.xeiam.xchange.ExchangeSpecification;
 import com.xeiam.xchange.btcchina.BTCChinaExchange;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.account.AccountInfo;
-import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.service.polling.PollingAccountService;
 import com.xeiam.xchange.service.polling.PollingMarketDataService;
 import com.xeiam.xchange.service.polling.PollingTradeService;
+import org.btcwolf.persistance.MyTicker;
+import org.btcwolf.persistance.Serializer;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by guifre on 21/05/14.
  */
-public class BTCChinaAgent {
+public class BTCChinaAgent implements TraderAgent {
 
-    //Make it accesisable trough whole class instead of main void.
-    static PollingTradeService tradeService;
+    private static final String SECRET_KEY_ENV = "SecretKey";
+    private static final String API_KEY_ENV = "APIKey";
+    private static final String PASSWORD_ENV = "Password";
 
-    static List<Double> askList = new ArrayList<Double>();
-    static List<Double> bidList = new ArrayList<Double>();
+    public PollingTradeService tradeService;
+    public PollingAccountService accountService;
+    public PollingMarketDataService marketDataService;
+    public Exchange exchange;
 
-    public static void main (String[] args) throws Exception {
-        //Bot variables;
-        final int avarageOfHowmanyAsks = 10;
-        final int avarageofHowmanyBids = avarageOfHowmanyAsks;
 
-        final double minumumAskBidDifferenceToDoAnything = 0.25;
-
-        final String bidPriceUnderCurrentBid = /*CNY*/"25";
-        final String askPriceAboveCurrentAsk = /*CNY*/"50";
-        //End variables.
-
-        //The declaration stuff, nothing fancy just copy paste and CTRL+V.
-        //Add some final stuff to look less copy paste and noob.
-        //Do not edit under here if you have no clue what you do. Its for you're own good.
-        final Exchange btcchina = BTCChinaExamplesUtils.getExchange();
-        final PollingAccountService accountService = btcchina.getPollingAccountService();
-        final Exchange btcchinaa = ExchangeFactory.INSTANCE.createExchange(BTCChinaExchange.class.getName());
-        final PollingMarketDataService marketDataService = btcchinaa.getPollingMarketDataService();
-
-        tradeService = btcchina.getPollingTradeService();
-
-        AccountInfo accountInfo = accountService.getAccountInfo();
-        System.out.println("AccountInfo as String: " + accountInfo.toString());
-        System.out.println("Printing current open orders;");
-        System.out.println("End of open orders.");
-
-        Ticker ticker = marketDataService.getTicker(CurrencyPair.BTC_CNY);
+    public BTCChinaAgent() {
+        this.exchange = buildExchange();
+        this.accountService = exchange.getPollingAccountService();
+        this.marketDataService = exchange.getPollingMarketDataService();
+        this.tradeService = exchange.getPollingTradeService();
     }
 
-    public static class BTCChinaExamplesUtils
-    {
-        public static Exchange getExchange()
-        {
-            ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
-            exSpec.setSecretKey("");
-            exSpec.setApiKey("");
-            exSpec.setPassword("");
+    public void printAccountInfo() {
+        try {
+            AccountInfo accountInfo = null;
+            System.out.println("AccountInfo as String: " + accountInfo.toString());
+            System.out.println("Printing current open orders;");
+            System.out.println("adre " + accountService.requestDepositAddress(""));
+            System.out.println(this.exchange.getPollingMarketDataService().getOrderBook(CurrencyPair.BTC_CNY));
+            System.out.println(this.exchange.getPollingMarketDataService().getTrades(CurrencyPair.BTC_CNY));
+            accountInfo = accountService.getAccountInfo();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void getTricker() {
+        List<MyTicker> list = new ArrayList<MyTicker>();
 
-            return ExchangeFactory.INSTANCE.createExchange(exSpec);
+//        for (int i = 0; i < 1000; i++) {
+//            Ticker ticker = marketDataService.getTicker(CurrencyPair.BTC_CNY);
+//            list.add(TickerAdapter.adapt(ticker));
+//            System.out.println(ticker.toString());
+//            Thread.sleep(15000);
+//        }
+        List<MyTicker> list2 = null;
+        try {
+            list2 = Serializer.read();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        for (MyTicker myTicker : list2) {
+            System.out.println(myTicker);
         }
     }
 
-}
 
-        //Starting stuff for first orders
+    private Exchange buildExchange() {
+        ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
+        exSpec.setSecretKey(System.getProperty(SECRET_KEY_ENV));
+        exSpec.setApiKey(System.getProperty(API_KEY_ENV));
+        exSpec.setPassword(System.getProperty(PASSWORD_ENV));
+        return ExchangeFactory.INSTANCE.createExchange(exSpec);
+    }
+
+
+    @Override
+    public void run() {
+
+    }
+}

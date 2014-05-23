@@ -4,6 +4,7 @@ import org.btcwolf.persistance.HistoricalDataProvider;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -48,8 +49,8 @@ public class StrategyTest {
 
     @Test
     public void testSimpleStrategy() throws IOException {
-        int fee = 0;
-        double startDollars = 500;
+        BigDecimal fee = 0;
+        BigDecimal startDollars = 500;
         double opThreshold = 2;
         dataProvider = new HistoricalDataProvider();
         List<Double> data = dataProvider.getData();
@@ -63,8 +64,8 @@ public class StrategyTest {
 
     @Test
     public void testHistoricStrategy() throws IOException {
-        int fee = 1;
-        double startDollars = 500;
+        BigDecimal fee = 1;
+        BigDecimal startDollars = 500;
         int histricThreshold = 0;
         double simpleThreshold = 0.1;
         dataProvider = new HistoricalDataProvider();
@@ -100,8 +101,8 @@ public class StrategyTest {
 
     @Test
     public void test() throws IOException {
-        int fee = 0;
-        double cBitcoins =1500;
+        BigDecimal fee = 0;
+        BigDecimal cBitcoins =1500;
         double opThreshold = 1;
 
         dataProvider = new HistoricalDataProvider();

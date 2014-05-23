@@ -1,10 +1,13 @@
 package org.btcwolf.persistance;
 
-import com.xeiam.xchange.coinbase.dto.marketdata.CoinbaseHistoricalSpotPrice;
+import com.xeiam.xchange.currency.CurrencyPair;
+import com.xeiam.xchange.dto.marketdata.Ticker;
 
+import java.beans.PersistenceDelegate;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,26 +18,27 @@ public class Serializer {
 
     private static final String FILE = "resources/historic";
 
-    public static void write(List<CoinbaseHistoricalSpotPrice> o) throws FileNotFoundException {
-        XMLEncoder encoder = new XMLEncoder(
-                new BufferedOutputStream(
-                        new FileOutputStream(FILE)));
-        List<Double> converted = new ArrayList<Double>();
-        for (CoinbaseHistoricalSpotPrice e : o) {
-            converted.add(e.getSpotRate().doubleValue());
+    public static void  write(List<Ticker> tickerList) throws FileNotFoundException {
+        XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(FILE)));
+        PersistenceDelegate pd=encoder.getPersistenceDelegate(Integer.class);
+        encoder.setPersistenceDelegate(BigDecimal.class,pd );
+        encoder.setPersistenceDelegate(CurrencyPair.class, pd);
+        List<MyTicker> myTickerList = new ArrayList<MyTicker>();
+        for (Ticker ticker : tickerList) {
+            myTickerList.add(TickerAdapter.adapt(ticker));
         }
-        encoder.writeObject(converted);
+        encoder.writeObject(myTickerList);
         encoder.close();
     }
-    public static List<Double> read() throws FileNotFoundException {
-        XMLDecoder decoder = new XMLDecoder(
-                new BufferedInputStream(
-                        new FileInputStream(FILE)));
-        List<Double> o = (List<Double>) decoder.readObject();
+
+    public static List<Ticker> read() throws FileNotFoundException {
+        XMLDecoder decoder = new XMLDecoder(new BufferedInputStream(new FileInputStream(FILE)));
+        List<MyTicker> myTickerList = (List<MyTicker>) decoder.readObject();
         decoder.close();
-        if (o instanceof List) {
-            return o;
+        List<Ticker> tickerList = new ArrayList<Ticker>();
+        for (MyTicker myTicker : myTickerList) {
+            tickerList.add(TickerAdapter.adapt(myTicker));
         }
-        throw new RuntimeException("did not get a list");
+        return tickerList;
     }
 }

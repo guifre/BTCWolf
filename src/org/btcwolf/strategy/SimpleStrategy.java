@@ -1,5 +1,10 @@
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.dto.marketdata.Ticker;
+
+import java.math.BigDecimal;
+import java.util.List;
+
 /**
  * SimpleStrategy uses a simple approach
  *  It sells if the current price is higher than the one of buying time + fees + threshold.
@@ -12,32 +17,43 @@ package org.btcwolf.strategy;
  */
 public class SimpleStrategy extends AbstractStrategy {
 
-    private Double opThreshold;
-    private double lastPriceUsed =0d;
+    private BigDecimal opThreshold;
+    private BigDecimal lastPriceUsed = BigDecimal.ZERO;
 
+    private BigDecimal bitCoinsToSell;
+    private BigDecimal bitCoinsToBuy;
 
-    public SimpleStrategy(int fee, double startDollars, double opThreshold) {
+    public SimpleStrategy(BigDecimal fee, BigDecimal startDollars, BigDecimal opThreshold) {
         super(fee, startDollars);
-        this.opThreshold = opThreshold + fee;
+        this.opThreshold = opThreshold;
     }
 
     boolean isWorthGettingBitCoins(double newPrice) {
-        if (newPrice < (this.lastPriceUsed + this.opThreshold)) {
+        if (newPrice < (this.lastPriceUsed.add(this.opThreshold).doubleValue())) {
             lastPriceUsed = newPrice;
             return true;
         }
         return false;
     }
 
-    boolean isWorthGettingDollars(double newPrice) {
-        if (newPrice > (this.lastPriceUsed + this.opThreshold)) {
-            lastPriceUsed = newPrice;
-            return true;
-        }
-        return false;
+
+    @Override
+    BigDecimal getBitCoinsToSell() {
+       return this.bitCoinsToSell;
     }
 
     @Override
-    void onReceiveNewPrice(double newPrice) {
+    BigDecimal getBitCoinsToBuy() {
+        return this.bitCoinsToBuy;
+    }
+
+    @Override
+    void onReceiveTicker(Ticker ticker) {
+
+    }
+
+    @Override
+    public double run(List<Double> a) {
+        return 0;
     }
 }
