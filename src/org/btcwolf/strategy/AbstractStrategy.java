@@ -4,6 +4,7 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
@@ -12,6 +13,8 @@ import static java.math.BigDecimal.valueOf;
  * Created by guifre on 20/05/14.
  */
 public abstract class AbstractStrategy implements Strategy {
+
+    static final Logger logger = Logger.getLogger(AbstractStrategy.class.getSimpleName());
 
     int totalNumberOfTransactions = 0;
     BigDecimal transactionFee;
@@ -30,12 +33,12 @@ public abstract class AbstractStrategy implements Strategy {
     abstract BigDecimal getBitCoinsToSell();
     abstract BigDecimal getBitCoinsToBuy();
 
-    abstract void onReceiveTicker(Ticker ticker);
+    abstract void analyzeTicker(Ticker ticker);
 
 
-    void process(Ticker ticker) { //main method that triggers the logic we apply fee
-
-        onReceiveTicker(ticker);
+    public void onTickerReceived(Ticker ticker) { //main method that triggers the logic we apply fee
+        logger.info("new ticker "+ticker);
+        analyzeTicker(ticker);
 
         BigDecimal bitCoinsToBuy = getBitCoinsToBuy();
 
@@ -49,9 +52,9 @@ public abstract class AbstractStrategy implements Strategy {
         }
     }
 
-    public BigDecimal run(List<Ticker> list) {
+    BigDecimal run(List<Ticker> list) {
         for (Ticker ticker : list) {
-            process(ticker);
+            analyzeTicker(ticker);
         }
         return this.totalProfit;
     }
@@ -64,7 +67,7 @@ public abstract class AbstractStrategy implements Strategy {
         this.mBitCoins = this.mBitCoins.add(boughtBitCoins);
         this.mCurrency = BigDecimal.valueOf(0);
         this.totalNumberOfTransactions++;
-        System.out.println("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
+        logger.info("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
     }
 
     void sellBitCoins(BigDecimal bitCoinsToSell, Ticker ticker) {
@@ -75,6 +78,6 @@ public abstract class AbstractStrategy implements Strategy {
         this.mCurrency = currencyBought;
         this.mBitCoins = BigDecimal.valueOf(0);
         this.totalNumberOfTransactions++;
-        System.out.println("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
+        logger.info("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
     }
 }

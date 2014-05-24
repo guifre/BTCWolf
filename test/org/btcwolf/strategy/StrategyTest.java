@@ -7,6 +7,9 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.logging.Logger;
+
+import static java.util.logging.Level.ALL;
 
 public class StrategyTest {
 
@@ -15,19 +18,22 @@ public class StrategyTest {
         try {
             list2 = Serializer.read();
         } catch (FileNotFoundException e) {
-            e.printStackTrace(
-
-            );
+            e.printStackTrace();
         }
         return list2;
     }
 
     @Test
     public void testStrategy() {
-        BigDecimal yuan = BigDecimal.valueOf(1496); //about £1k
+        Logger logger = Logger.getLogger(AbstractStrategy.class.getSimpleName());
+        logger.setLevel(ALL);
+        BigDecimal bitThreshold = BigDecimal.valueOf(6);
+        BigDecimal currThreshold = BigDecimal.valueOf(6);
+        BigDecimal yuan = BigDecimal.valueOf(10496); //about £1k
         List<Ticker> data = getTicker();
-        Strategy testedStrategy = new WinWinStrategy(BigDecimal.valueOf(0), yuan, BigDecimal.valueOf(1));
-        System.out.println("profit " + String.format("%.4f", testedStrategy.run(data)));
-
+        Strategy testedStrategy = new WinWinStrategy(BigDecimal.valueOf(0), yuan, bitThreshold, currThreshold);
+        logger.info("BTC threshold[" + String.format("%.1f", bitThreshold) +
+                "] Curr Threshold[" + String.format("%.1f", currThreshold) +
+                "] Profit [" + String.format("%.4f", ((WinWinStrategy)testedStrategy).run(data)) + "]");
     }
 }
