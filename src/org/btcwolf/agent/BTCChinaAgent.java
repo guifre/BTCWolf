@@ -9,13 +9,8 @@ import com.xeiam.xchange.dto.account.AccountInfo;
 import com.xeiam.xchange.service.polling.PollingAccountService;
 import com.xeiam.xchange.service.polling.PollingMarketDataService;
 import com.xeiam.xchange.service.polling.PollingTradeService;
-import org.btcwolf.persistance.MyTicker;
-import org.btcwolf.persistance.Serializer;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by guifre on 21/05/14.
@@ -52,25 +47,7 @@ public class BTCChinaAgent implements TraderAgent {
             e.printStackTrace();
         }
     }
-    public void getTricker() {
-        List<MyTicker> list = new ArrayList<MyTicker>();
 
-//        for (int i = 0; i < 1000; i++) {
-//            Ticker ticker = marketDataService.getTicker(CurrencyPair.BTC_CNY);
-//            list.add(TickerAdapter.adapt(ticker));
-//            System.out.println(ticker.toString());
-//            Thread.sleep(15000);
-//        }
-        List<MyTicker> list2 = null;
-        try {
-            list2 = Serializer.read();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        for (MyTicker myTicker : list2) {
-            System.out.println(myTicker);
-        }
-    }
 
 
     private Exchange buildExchange() {
@@ -84,6 +61,7 @@ public class BTCChinaAgent implements TraderAgent {
 
     @Override
     public void run() {
+
 
     }
 }

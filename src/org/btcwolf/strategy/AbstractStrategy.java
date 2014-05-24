@@ -5,6 +5,7 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
 
 /**
@@ -18,9 +19,9 @@ public abstract class AbstractStrategy implements Strategy {
     BigDecimal mBitCoins;
     BigDecimal totalProfit;
 
-    public AbstractStrategy(BigDecimal transactionFee, BigDecimal startDollars) {
+    public AbstractStrategy(BigDecimal transactionFee, BigDecimal startCurrency) {
         this.transactionFee = transactionFee;
-        this.mCurrency = startDollars;
+        this.mCurrency = startCurrency;
         this.mBitCoins = valueOf(0);
         this.totalProfit = valueOf(0);
         this.totalProfit = valueOf(0);
@@ -59,13 +60,11 @@ public abstract class AbstractStrategy implements Strategy {
         if (this.mCurrency.doubleValue() == 0d) {
             return;
         }
-        BigDecimal boughtBitCoins = (bitCoinsToBuy.divide(ticker.getBid()));
-        BigDecimal profitAfterTheOperation = boughtBitCoins.multiply(ticker.getBid()).remainder(bitCoinsToBuy);
+        BigDecimal boughtBitCoins = bitCoinsToBuy.divide(ticker.getBid(), 20, ROUND_DOWN);
         this.mBitCoins = this.mBitCoins.add(boughtBitCoins);
-        this.mCurrency = this.mCurrency.remainder(bitCoinsToBuy);
-        this.totalProfit = this.totalProfit.add(profitAfterTheOperation);
+        this.mCurrency = BigDecimal.valueOf(0);
         this.totalNumberOfTransactions++;
-        //System.out.println("getting bitcoins for [" + ticker[0] + "] current [" + newBitCoins + "] profit [+" + prof + "]");
+        System.out.println("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
     }
 
     void sellBitCoins(BigDecimal bitCoinsToSell, Ticker ticker) {
@@ -73,11 +72,9 @@ public abstract class AbstractStrategy implements Strategy {
             return;
         }
         BigDecimal currencyBought = bitCoinsToSell.multiply(ticker.getAsk());
-        BigDecimal profitAfterTheOperation = currencyBought.divide(ticker.getAsk()).remainder(bitCoinsToSell);
         this.mCurrency = currencyBought;
-        this.mBitCoins = this.mBitCoins.remainder(bitCoinsToSell);
-        this.totalProfit = this.totalProfit.add(profitAfterTheOperation);
+        this.mBitCoins = BigDecimal.valueOf(0);
         this.totalNumberOfTransactions++;
-        System.out.println("getting dollars for [" + ticker.getAsk() + "] current [" + this.mCurrency + "] profit [+" + profitAfterTheOperation + "]");
+        System.out.println("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
     }
 }

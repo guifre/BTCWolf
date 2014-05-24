@@ -42,9 +42,7 @@ public class TraderTest {
     }
 
     private void test(Class c) {
-        org.btcwolf.agent.Trader trader = new org.btcwolf.agent.Trader(c.getName());
         try {
-            System.out.println( c.getName() + " " + trader.getTicker());
         } catch (Exception e) {
         }
     }

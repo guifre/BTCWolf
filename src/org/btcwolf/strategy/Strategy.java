@@ -1,5 +1,7 @@
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.dto.marketdata.Ticker;
+
 import java.util.List;
 
 /**
@@ -7,6 +9,6 @@ import java.util.List;
  */
 public interface Strategy {
 
-    public double run(List<Double> a);
+    public java.math.BigDecimal run(List<Ticker> a);
 
 }
