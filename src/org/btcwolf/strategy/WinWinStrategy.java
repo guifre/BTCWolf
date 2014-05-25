@@ -64,7 +64,7 @@ public class WinWinStrategy extends AbstractStrategy {
             currencyToBuy = mBitCoins.multiply(ticker.getAsk());
             BigDecimal profitAfterTheOperation = mBitCoins.multiply(ticker.getAsk().subtract(lastPriceUsedToSell));
             totalProfit = totalProfit.add(profitAfterTheOperation);
-            logger.config("Ask [" + ticker.getAsk() + "] previous [" + lastPriceUsedToSell + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
+            logger.debug("Ask [" + ticker.getAsk() + "] previous [" + lastPriceUsedToSell + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
             lastPriceUsedToSell = ticker.getAsk();
             lastPriceUsedToBuy=ticker.getBid();
         }
@@ -75,7 +75,7 @@ public class WinWinStrategy extends AbstractStrategy {
             bitCoinsToBuy = mCurrency.divide(ticker.getBid(),20, ROUND_DOWN);
             BigDecimal profitAfterTheOperation =  bitCoinsToBuy.multiply(lastPriceUsedToBuy.subtract(ticker.getBid()));
             totalProfit = totalProfit.add(profitAfterTheOperation);
-            logger.config("Bid [" + ticker.getBid() + "] previous [" + lastPriceUsedToBuy + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
+            logger.debug("Bid [" + ticker.getBid() + "] previous [" + lastPriceUsedToBuy + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
             lastPriceUsedToBuy = ticker.getBid();
             lastPriceUsedToSell=ticker.getAsk();
 

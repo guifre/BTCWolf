@@ -1,13 +1,14 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.persistance.Serializer;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class StrategyTest {
 
@@ -23,8 +24,10 @@ public class StrategyTest {
 
     @Test
     public void testStrategy() {
-        Logger logger = Logger.getLogger(AbstractStrategy.class.getSimpleName());
-       // logger.setLevel(ALL);
+        String log4jConfPath = "resources/logger.properties";
+        PropertyConfigurator.configure(log4jConfPath);
+
+        Logger logger = Logger.getLogger(AbstractStrategy.class.getName());
         BigDecimal bitThreshold = BigDecimal.valueOf(5);
         BigDecimal currThreshold = BigDecimal.valueOf(3);
         BigDecimal yuan = BigDecimal.valueOf(1496); //about £1k

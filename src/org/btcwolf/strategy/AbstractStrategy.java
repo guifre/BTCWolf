@@ -1,10 +1,10 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
