@@ -18,18 +18,22 @@
 package org.btcwolf;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.AgentsFactory;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategy;
 import org.btcwolf.strategy.TradingStrategyProvider;
 
 
-public class BitCoinWolf {
+public class BTCWolf {
 
-    private static final Logger LOGGER =Logger.getLogger(BitCoinWolf.class.getName());
+    private static final Logger LOGGER =Logger.getLogger(BTCWolf.class);
+    private static final String LOG4J_PATH = "./resources/log4j.properties";
     private static final long POLLING_TIME = 30000;
 
     public static void main(String[] args) {
+
+        PropertyConfigurator.configure(LOG4J_PATH);
 
         TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
         TradingStrategy tradingStrategy = TradingStrategyProvider.getDefaultWinWinStrategy(traderAgent);
@@ -44,7 +48,7 @@ public class BitCoinWolf {
         try {
             Thread.sleep(POLLING_TIME);
         } catch (InterruptedException e) {
-            LOGGER.warn("thread interrupted, ignoring, this is bad.");
+            LOGGER.warn("thread interrupted, ignoring, this is bad." + e);
             makeSomeCoffee();
         }
     }

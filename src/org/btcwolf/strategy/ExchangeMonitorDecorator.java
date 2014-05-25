@@ -18,7 +18,6 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import com.xeiam.xchange.dto.trade.OpenOrders;
 
 public class ExchangeMonitorDecorator implements TradingStrategy {
 
@@ -34,26 +33,22 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
 
     @Override
     public void onTickerReceived(Ticker ticker) {
-        logStatus();
+        pollExchangeStatus();
         tradingStrategy.onTickerReceived(ticker);
     }
 
     private void pollExchangeStatus() {
-        if (pollingCounter < POLLING_FREQ) {
-            pollingCounter++;
-            return;
+        if (pollingCounter > POLLING_FREQ) {
+            pollingCounter = 0;
+            logStatus();
         }
-        pollingCounter = 0;
-        logStatus();
+        pollingCounter++;
     }
+
     private void logStatus() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("BitCoin Balance [" + tradingStrategy.traderAgent.getBitCoinBalance() +
-                "] Currency Balance [" +tradingStrategy.traderAgent.getCurrencyBalance()+"]");
-        OpenOrders openOrders = tradingStrategy.traderAgent.getOpenOrders();
-        if (openOrders != null) {
-            stringBuilder.append("Open Orders [" + openOrders.toString());
-        }
-        tradingStrategy.logger.info(stringBuilder.toString());
+        tradingStrategy.logger.debug(new String("BitCoin Balance [" +
+                tradingStrategy.traderAgent.getBitCoinBalance() +
+                "] Currency Balance [" +tradingStrategy.traderAgent.getCurrencyBalance() +
+                "]" + "Open Orders [" + tradingStrategy.traderAgent.getOpenOrders().toString() + "]."));
     }
 }

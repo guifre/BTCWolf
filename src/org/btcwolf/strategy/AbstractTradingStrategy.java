@@ -58,7 +58,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
 
 
     public void onTickerReceived(Ticker ticker) { //main method that triggers the logic we apply fee
-        logger.info("received ticker " + ticker);
+        logger.debug("New " + ticker);
         analyzeTicker(ticker);
 
         BigDecimal bitCoinsToBuy = getBitCoinsToBuy();

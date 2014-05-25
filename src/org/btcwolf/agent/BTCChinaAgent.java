@@ -28,7 +28,7 @@ import com.xeiam.xchange.dto.trade.MarketOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
-import org.btcwolf.BitCoinWolf;
+import org.btcwolf.BTCWolf;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -67,7 +67,7 @@ public class BTCChinaAgent implements TraderAgent {
             return exchange.getPollingMarketDataService().getTicker(CURRENCY);
         } catch (IOException e) {
             logger.warn("oops when getting ticker " + e.getMessage());
-            BitCoinWolf.makeSomeCoffee();
+            BTCWolf.makeSomeCoffee();
             return pollTicker();
         }
     }
