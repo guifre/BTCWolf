@@ -30,11 +30,11 @@ import static java.math.BigDecimal.valueOf;
 
 public abstract class AbstractTradingStrategy implements TradingStrategy {
 
-    static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class.getSimpleName());
+    static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
 
     protected static final int DIVISION_LEVELS_ACCURACY = 20;
 
-    private final TraderAgent traderAgent;
+    final TraderAgent traderAgent;
     protected BigDecimal mCurrency;
     protected BigDecimal mBitCoins;
     protected BigDecimal totalProfit;

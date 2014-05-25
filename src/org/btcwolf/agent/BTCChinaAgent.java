@@ -25,8 +25,10 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.MarketOrder;
+import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
+import org.btcwolf.BitCoinWolf;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -48,6 +50,11 @@ public class BTCChinaAgent implements TraderAgent {
     }
 
     private Exchange buildExchange() {
+        if (System.getProperty(SECRET_KEY_ENV) == null || System.getProperty(PASSWORD_ENV) == null || System.getProperty(API_KEY_ENV) == null) {
+            String msg = "Could not find credential arguments " + SECRET_KEY_ENV + System.getProperty(SECRET_KEY_ENV) + ", " + PASSWORD_ENV+System.getProperty(PASSWORD_ENV) + ", " + API_KEY_ENV + System.getProperty(API_KEY_ENV);
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
         ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
         exSpec.setSecretKey(System.getProperty(SECRET_KEY_ENV));
         exSpec.setApiKey(System.getProperty(API_KEY_ENV));
@@ -59,7 +66,8 @@ public class BTCChinaAgent implements TraderAgent {
         try {
             return exchange.getPollingMarketDataService().getTicker(CURRENCY);
         } catch (IOException e) {
-            logger.warn("oops " + e.getMessage());
+            logger.warn("oops when getting ticker " + e.getMessage());
+            BitCoinWolf.makeSomeCoffee();
             return pollTicker();
         }
     }
@@ -99,6 +107,15 @@ public class BTCChinaAgent implements TraderAgent {
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
             return getCurrencyBalance();
+        }
+    }
+
+    public OpenOrders getOpenOrders() {
+        try {
+            return this.exchange.getPollingTradeService().getOpenOrders();
+        } catch (IOException e) {
+            logger.warn("oops " + e.getMessage());
+            return getOpenOrders();
         }
     }
 }

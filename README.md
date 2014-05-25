@@ -15,7 +15,7 @@ Running BTCWolf
 For security reasons, you need to specify at runtime the exchanger credentials, as follows:
 
 
-    $ java -jar dist/BTCWolf.jar -DAPIKey="xxxx" -DSecretKey="yyyy" -DPassword="zzzz" -Dlog4j.configuration=resources/log4j.properties
+    $ java -DAPIKey="xxxx" -DSecretKey="yyyy" -DPassword="zzzz"  -Dlog4j.configuration="./resources/log4j.properties" -jar dist/BTCWolf.jar
 
 
 Bugs & Contact

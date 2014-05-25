@@ -40,7 +40,7 @@ public class BitCoinWolf {
         }
     }
 
-    private static void makeSomeCoffee() {
+    public static void makeSomeCoffee() {
         try {
             Thread.sleep(POLLING_TIME);
         } catch (InterruptedException e) {
