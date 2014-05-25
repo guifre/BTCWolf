@@ -1,15 +1,13 @@
 What's BTCWolf?
 -------------
-BTCWolf a simple automated trader agent for the bitCoin exchange market.
+BTCWolf a simple automated trader agent for the bitCoin exchange market. I is aimed at monitoring the bitCoin market to automatically take trade decisions and raise the user's capital. It relies on the xchange library so it can be used for any exchanger website.
 
-I is aimed at monitoring the bitCoin market to automatically take trade decisions and raise the user's capital.
-
-It relies on the xchange library so it can be used for any exchanger website.
 
 Why BTCWolf?
 -------------
-In a nutshell, its trading strategy is to sell stock when the price rises the one used at buying time, plus a specific threshold dynamically set by the market volatily. Likewise, it buys stock when the exchange rate decreased the one of buying time. Therefore, no money can be lost as a result of performing trading operations.
+In a nutshell, its trading strategy is to sell stock when the price exceeds the one used at buying time, plus a specific threshold dynamically set by the market volatily. Likewise, it buys stock when the exchange rate decreased the one of buying time. Therefore, no money can be lost as a result of performing trading operations.
 
+Both the strategies used and te exchange market are decoupled from the rest of the tool, so it is very easy to use new ones.
 
 Requirements
 ------------
