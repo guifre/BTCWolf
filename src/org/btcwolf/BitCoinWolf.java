@@ -17,15 +17,35 @@
 
 package org.btcwolf;
 
+import org.apache.log4j.Logger;
 import org.btcwolf.agent.AgentsFactory;
+import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.TradingStrategy;
 import org.btcwolf.strategy.TradingStrategyProvider;
+
 
 public class BitCoinWolf {
 
+    private static final Logger LOGGER =Logger.getLogger(BitCoinWolf.class.getName());
+    private static final long POLLING_TIME = 30000;
+
     public static void main(String[] args) {
-        
-        AgentsFactory.buildTraderAgent(
-                TradingStrategyProvider.getDefaultStrategy()
-        ).run();
+
+        TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
+        TradingStrategy tradingStrategy = TradingStrategyProvider.getDefaultWinWinStrategy(traderAgent);
+
+        while(true) {
+            tradingStrategy.onTickerReceived(traderAgent.pollTicker());
+            makeSomeCoffee();
+        }
+    }
+
+    private static void makeSomeCoffee() {
+        try {
+            Thread.sleep(POLLING_TIME);
+        } catch (InterruptedException e) {
+            LOGGER.warn("thread interrupted, ignoring, this is bad.");
+            makeSomeCoffee();
+        }
     }
 }

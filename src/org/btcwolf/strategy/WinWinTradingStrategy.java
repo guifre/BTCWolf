@@ -18,27 +18,30 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import org.btcwolf.agent.TraderAgent;
 
 import java.math.BigDecimal;
 
 import static java.math.BigDecimal.ROUND_DOWN;
 
-public class WinWinStrategy extends AbstractStrategy {
+public class WinWinTradingStrategy extends AbstractTradingStrategy {
+
 
     private final BigDecimal opBitCoinThreshold;
     private final BigDecimal opCurrencyThreshold;
+
     private BigDecimal currencyToBuy= BigDecimal.valueOf(0d);
     private BigDecimal bitCoinsToBuy = BigDecimal.valueOf(0d);
 
     private BigDecimal lastPriceUsedToSell = BigDecimal.ZERO;;
     private BigDecimal lastPriceUsedToBuy = BigDecimal.ZERO;;
 
-    public WinWinStrategy(BigDecimal fee, BigDecimal startCurrency, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
-        super(fee, startCurrency);
+
+    public WinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
+        super(traderAgent);
         this.opBitCoinThreshold = opBitCoinThreshold;
         this.opCurrencyThreshold = opCurrencyThreshold;
     }
-
 
     @Override
     BigDecimal getBitCoinsToSell() {
@@ -54,18 +57,8 @@ public class WinWinStrategy extends AbstractStrategy {
     void analyzeTicker(Ticker ticker) {
         bitCoinsToBuy = BigDecimal.valueOf(0);
         currencyToBuy = BigDecimal.valueOf(0);
-        if (lastPriceUsedToBuy.doubleValue() == 0d && lastPriceUsedToSell.doubleValue() == 0d) {
-            placeFirstOrder(ticker);
-        } else {
-            computeWorthinessBuyingBitCoins(ticker);
-            computeWorthinessSellingBitCoins(ticker);
-        }
-    }
-
-    private void placeFirstOrder(Ticker ticker) {
-        bitCoinsToBuy = mCurrency.divide(ticker.getBid(), ROUND_DOWN);
-        lastPriceUsedToBuy = ticker.getBid();
-        lastPriceUsedToSell = ticker.getAsk();
+        computeWorthinessBuyingBitCoins(ticker);
+        computeWorthinessSellingBitCoins(ticker);
     }
 
     private void computeWorthinessSellingBitCoins(Ticker ticker) {
@@ -81,7 +74,7 @@ public class WinWinStrategy extends AbstractStrategy {
 
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
         if (ticker.getBid().doubleValue() < lastPriceUsedToBuy.doubleValue()- opBitCoinThreshold.doubleValue() && mCurrency.doubleValue() > 0) {
-            bitCoinsToBuy = mCurrency.divide(ticker.getBid(),20, ROUND_DOWN);
+            bitCoinsToBuy = mCurrency.divide(ticker.getBid(), DIVISION_LEVELS_ACCURACY, ROUND_DOWN);
             BigDecimal profitAfterTheOperation =  bitCoinsToBuy.multiply(lastPriceUsedToBuy.subtract(ticker.getBid()));
             totalProfit = totalProfit.add(profitAfterTheOperation);
             logger.debug("Bid [" + ticker.getBid() + "] previous [" + lastPriceUsedToBuy + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");

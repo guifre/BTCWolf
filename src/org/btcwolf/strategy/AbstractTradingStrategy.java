@@ -17,8 +17,10 @@
 
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
+import org.btcwolf.agent.TraderAgent;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,25 +28,27 @@ import java.util.List;
 import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
 
-/**
- * Created by guifre on 20/05/14.
- */
-public abstract class AbstractStrategy implements Strategy {
+public abstract class AbstractTradingStrategy implements TradingStrategy {
 
-    static final Logger logger = Logger.getLogger(AbstractStrategy.class.getSimpleName());
+    static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class.getSimpleName());
 
-    int totalNumberOfTransactions = 0;
-    BigDecimal transactionFee;
-    BigDecimal mCurrency;
-    BigDecimal mBitCoins;
-    BigDecimal totalProfit;
+    protected static final int DIVISION_LEVELS_ACCURACY = 20;
 
-    public AbstractStrategy(BigDecimal transactionFee, BigDecimal startCurrency) {
-        this.transactionFee = transactionFee;
-        this.mCurrency = startCurrency;
-        this.mBitCoins = valueOf(0);
+    private final TraderAgent traderAgent;
+    protected BigDecimal mCurrency;
+    protected BigDecimal mBitCoins;
+    protected BigDecimal totalProfit;
+
+    public AbstractTradingStrategy(TraderAgent traderAgent) {
+        this.traderAgent = traderAgent;
         this.totalProfit = valueOf(0);
         this.totalProfit = valueOf(0);
+        getAccountInfo();
+    }
+
+    private void getAccountInfo() {
+        this.mBitCoins = traderAgent.getBitCoinBalance();
+        this.mCurrency = traderAgent.getCurrencyBalance();
     }
 
     abstract BigDecimal getBitCoinsToSell();
@@ -54,7 +58,7 @@ public abstract class AbstractStrategy implements Strategy {
 
 
     public void onTickerReceived(Ticker ticker) { //main method that triggers the logic we apply fee
-        logger.info("new ticker "+ticker);
+        logger.info("received ticker " + ticker);
         analyzeTicker(ticker);
 
         BigDecimal bitCoinsToBuy = getBitCoinsToBuy();
@@ -80,21 +84,23 @@ public abstract class AbstractStrategy implements Strategy {
         if (this.mCurrency.doubleValue() == 0d) {
             return;
         }
-        BigDecimal boughtBitCoins = bitCoinsToBuy.divide(ticker.getBid(), 20, ROUND_DOWN);
-        this.mBitCoins = this.mBitCoins.add(boughtBitCoins);
+        BigDecimal bitCoinsAboutToBuy = bitCoinsToBuy.divide(ticker.getBid(), DIVISION_LEVELS_ACCURACY, ROUND_DOWN);
+        this.mBitCoins = this.mBitCoins.add(bitCoinsAboutToBuy);
         this.mCurrency = BigDecimal.valueOf(0);
-        this.totalNumberOfTransactions++;
-        logger.info("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
+        logger.info("BTC [" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
+        String orderResult = traderAgent.placeOrder(Order.OrderType.BID, bitCoinsAboutToBuy);
+        logger.info("Order of buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
     }
 
     void sellBitCoins(BigDecimal bitCoinsToSell, Ticker ticker) {
         if (this.mBitCoins.doubleValue() == 0d) {
             return;
         }
-        BigDecimal currencyBought = bitCoinsToSell.multiply(ticker.getAsk());
-        this.mCurrency = currencyBought;
+        BigDecimal currencyAboutToBuy = bitCoinsToSell.multiply(ticker.getAsk());
+        this.mCurrency = currencyAboutToBuy;
         this.mBitCoins = BigDecimal.valueOf(0);
-        this.totalNumberOfTransactions++;
-        logger.info("BTC["+this.mBitCoins+"] Yu["+this.mCurrency+"]\n" );
+        logger.info("BTC[" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
+        String orderResult = traderAgent.placeOrder(Order.OrderType.ASK, currencyAboutToBuy);
+        logger.info("Order of buying [ " + currencyAboutToBuy + "] currency placed, result [" + orderResult + "]");
     }
 }

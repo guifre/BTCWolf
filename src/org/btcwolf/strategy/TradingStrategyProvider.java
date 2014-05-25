@@ -17,14 +17,17 @@
 
 package org.btcwolf.strategy;
 
+import org.btcwolf.agent.TraderAgent;
+
 import java.math.BigDecimal;
 
 public class TradingStrategyProvider {
 
-    public static final Strategy getDefaultStrategy() {
-        return getAgent(BigDecimal.ZERO, BigDecimal.valueOf(5000), BigDecimal.valueOf(10), BigDecimal.valueOf(10));
+    public static final TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
+        return new WinWinTradingStrategy(traderAgent, BigDecimal.valueOf(2), BigDecimal.valueOf(2));
     }
-    public static final Strategy getAgent(BigDecimal fee, BigDecimal startCurrency, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
-        return new WinWinStrategy(fee, startCurrency, opBitCoinThreshold, opCurrencyThreshold);
+
+    public static final TradingStrategy getAgent(TraderAgent traderAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
+        return new WinWinTradingStrategy(traderAgent, opBitCoinThreshold, opCurrencyThreshold);
     }
 }

@@ -17,12 +17,10 @@
 
 package org.btcwolf.agent;
 
-import org.btcwolf.strategy.Strategy;
-
 public class AgentsFactory {
 
-    public static TraderAgent buildTraderAgent(Strategy strategy) {
-       return new BTCChinaAgent(strategy);
+    public static TraderAgent buildTraderAgent() {
+       return new BTCChinaAgent();
     }
 
 }

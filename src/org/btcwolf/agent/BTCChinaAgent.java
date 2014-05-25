@@ -21,14 +21,12 @@ import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.ExchangeFactory;
 import com.xeiam.xchange.ExchangeSpecification;
 import com.xeiam.xchange.btcchina.BTCChinaExchange;
-import com.xeiam.xchange.campbx.CampBX;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.MarketOrder;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
-import org.btcwolf.strategy.Strategy;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -41,16 +39,12 @@ public class BTCChinaAgent implements TraderAgent {
     private static final String API_KEY_ENV = "APIKey";
     private static final String PASSWORD_ENV = "Password";
 
-    private static final long POLLING_TIME = 30000;
-
     private static final CurrencyPair CURRENCY = CurrencyPair.BTC_CNY;
 
-    private final Strategy tradingStrategy;
     private final Exchange exchange;
 
-    public BTCChinaAgent(Strategy tradingStrategy) {
+    public BTCChinaAgent() {
         this.exchange = buildExchange();
-        this.tradingStrategy = tradingStrategy;
     }
 
     private Exchange buildExchange() {
@@ -61,20 +55,7 @@ public class BTCChinaAgent implements TraderAgent {
         return ExchangeFactory.INSTANCE.createExchange(exSpec);
     }
 
-    @Override
-    public void run() {
-        while(true) {
-            Ticker ticker = pollTicker();
-            this.tradingStrategy.onTickerReceived(ticker);
-            try {
-                Thread.sleep(POLLING_TIME);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("interrupted bye");
-            }
-        }
-    }
-
-    Ticker pollTicker() {
+    public Ticker pollTicker() {
         try {
             return exchange.getPollingMarketDataService().getTicker(CURRENCY);
         } catch (IOException e) {
@@ -82,8 +63,8 @@ public class BTCChinaAgent implements TraderAgent {
             return pollTicker();
         }
     }
-    
-    public String placeOrder(CampBX.OrderType orderType, BigDecimal amount) {
+
+    public String placeOrder(Order.OrderType orderType, BigDecimal amount) {
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().doubleValue() > 0) {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
