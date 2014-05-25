@@ -21,6 +21,7 @@ import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,6 +36,8 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     protected static final int DIVISION_LEVELS_ACCURACY = 20;
 
     final TraderAgent traderAgent;
+    final TwitterAgent twitterAgent;
+
     protected BigDecimal mCurrency;
     protected BigDecimal mBitCoins;
     protected BigDecimal totalProfit;
@@ -44,6 +47,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         this.totalProfit = valueOf(0);
         this.totalProfit = valueOf(0);
         getAccountInfo();
+        twitterAgent = new TwitterAgent();
     }
 
     private void getAccountInfo() {
@@ -89,7 +93,8 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         this.mCurrency = BigDecimal.valueOf(0);
         logger.info("BTC [" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
         String orderResult = traderAgent.placeOrder(Order.OrderType.BID, bitCoinsAboutToBuy);
-        logger.info("Order of buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
+        logger.info("Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
+        twitterAgent.publish("Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
     }
 
     void sellBitCoins(BigDecimal bitCoinsToSell, Ticker ticker) {
@@ -102,5 +107,6 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         logger.info("BTC[" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
         String orderResult = traderAgent.placeOrder(Order.OrderType.ASK, currencyAboutToBuy);
         logger.info("Order of buying [ " + currencyAboutToBuy + "] currency placed, result [" + orderResult + "]");
+        twitterAgent.publish("Buying [ " + currencyAboutToBuy + "] currency placed, result [" + orderResult + "]");
     }
 }

@@ -22,9 +22,6 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-/**
- * Created by guifre on 25/05/14.
- */
 public class TwitterAgent {
 
     private static final Logger LOGGER = Logger.getLogger(TwitterAgent.class);
@@ -38,10 +35,10 @@ public class TwitterAgent {
     public TwitterAgent() {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(CONSUMER_KEY)
-                .setOAuthConsumerSecret(CONSUMER_SECRET)
-                .setOAuthAccessToken(ACCESS_TOKEN)
-                .setOAuthAccessTokenSecret(TOKEN_SECRET).setUseSSL(true);
+                .setOAuthConsumerKey(System.getProperty(CONSUMER_KEY))
+                .setOAuthConsumerSecret(System.getProperty(CONSUMER_SECRET))
+                .setOAuthAccessToken(System.getProperty(ACCESS_TOKEN))
+                .setOAuthAccessTokenSecret(System.getProperty(TOKEN_SECRET));
         this.twitter = new TwitterFactory(cb.build());
     }
 
