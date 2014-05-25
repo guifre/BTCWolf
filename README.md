@@ -23,7 +23,6 @@ Bugs & Contact
 Feel free to mail me with any problem, bug, suggestions or fixes at:
 Guifre Ruiz <guifre.ruiz@gmail.com>
 
-Visit http://owasp.github.io/NINJA-PingU for more information about NINJA PingU.
 
 License
 -------
