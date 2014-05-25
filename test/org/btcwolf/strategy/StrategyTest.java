@@ -9,8 +9,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.ALL;
-
 public class StrategyTest {
 
     public List<Ticker> getTicker() {
@@ -26,10 +24,10 @@ public class StrategyTest {
     @Test
     public void testStrategy() {
         Logger logger = Logger.getLogger(AbstractStrategy.class.getSimpleName());
-        logger.setLevel(ALL);
-        BigDecimal bitThreshold = BigDecimal.valueOf(6);
-        BigDecimal currThreshold = BigDecimal.valueOf(6);
-        BigDecimal yuan = BigDecimal.valueOf(10496); //about £1k
+       // logger.setLevel(ALL);
+        BigDecimal bitThreshold = BigDecimal.valueOf(5);
+        BigDecimal currThreshold = BigDecimal.valueOf(3);
+        BigDecimal yuan = BigDecimal.valueOf(1496); //about £1k
         List<Ticker> data = getTicker();
         Strategy testedStrategy = new WinWinStrategy(BigDecimal.valueOf(0), yuan, bitThreshold, currThreshold);
         logger.info("BTC threshold[" + String.format("%.1f", bitThreshold) +

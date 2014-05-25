@@ -3,6 +3,7 @@ package org.btcwolf.agent;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.btcwolf.persistance.Serializer;
 import org.btcwolf.strategy.TradingStrategyProvider;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -22,6 +23,7 @@ public class BTCChinaAgentTest {
         System.out.println("walet " + agent.getWallet().getCurrency()  + agent.getWallet().getDescription() + agent.getWallet().getBalance());
     }
 
+    @Ignore
     @Test
     public void getMoreSamples() throws FileNotFoundException {
         BTCChinaAgent agent = new BTCChinaAgent(TradingStrategyProvider.getDefaultStrategy());
