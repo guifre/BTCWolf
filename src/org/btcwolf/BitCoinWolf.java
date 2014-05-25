@@ -1,9 +1,9 @@
 package org.btcwolf;
 
-import org.btcwolf.agent.AgentsFactory;
-import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.Strategy;
 import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.agent.AgentsFactory;
+import org.btcwolf.agent.TraderAgent;
 
 /**
  * Created by guifre on 20/05/14.

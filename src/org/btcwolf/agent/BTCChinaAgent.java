@@ -1,5 +1,6 @@
 package org.btcwolf.agent;
 
+import org.btcwolf.strategy.Strategy;
 import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.ExchangeFactory;
 import com.xeiam.xchange.ExchangeSpecification;
@@ -11,7 +12,6 @@ import com.xeiam.xchange.dto.account.AccountInfo;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.MarketOrder;
 import com.xeiam.xchange.dto.trade.Wallet;
-import org.btcwolf.strategy.Strategy;
 
 import java.io.IOException;
 import java.math.BigDecimal;

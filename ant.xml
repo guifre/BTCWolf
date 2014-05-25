@@ -1,0 +1,20 @@
+<project name="BTCWolf" default="remove-signatures" basedir=".">
+    <description>
+        removes the signed stuff from the jar
+    </description>
+    <!-- set global properties for this build -->
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+    <property name="dist"  location="dist"/>
+
+    <target name="remove-signatures">
+        <exec executable="zip">
+            <arg value="-d"/>
+            <arg value="dist/BTCWolf.jar"/>
+            <arg value="*.RSA"/>
+            <arg value="*.SF"/>
+            <arg value="*.DSA"/>
+        </exec>
+    </target>
+
+</project>
