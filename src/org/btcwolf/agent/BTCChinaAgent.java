@@ -17,7 +17,6 @@
 
 package org.btcwolf.agent;
 
-import org.btcwolf.strategy.Strategy;
 import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.ExchangeFactory;
 import com.xeiam.xchange.ExchangeSpecification;
@@ -25,52 +24,34 @@ import com.xeiam.xchange.btcchina.BTCChinaExchange;
 import com.xeiam.xchange.campbx.CampBX;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
-import com.xeiam.xchange.dto.account.AccountInfo;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.MarketOrder;
 import com.xeiam.xchange.dto.trade.Wallet;
+import org.apache.log4j.Logger;
+import org.btcwolf.strategy.Strategy;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.logging.Logger;
 
-/**
- * Created by guifre on 21/05/14.
- */
 public class BTCChinaAgent implements TraderAgent {
 
-
     private static final Logger logger = Logger.getLogger(TraderAgent.class.getName());
+
     private static final String SECRET_KEY_ENV = "SecretKey";
     private static final String API_KEY_ENV = "APIKey";
     private static final String PASSWORD_ENV = "Password";
+
     private static final long POLLING_TIME = 30000;
+
     private static final CurrencyPair CURRENCY = CurrencyPair.BTC_CNY;
 
     private final Strategy tradingStrategy;
-    private Exchange exchange;
-
+    private final Exchange exchange;
 
     public BTCChinaAgent(Strategy tradingStrategy) {
         this.exchange = buildExchange();
         this.tradingStrategy = tradingStrategy;
     }
-
-    public void printAccountInfo() {
-        try {
-            AccountInfo accountInfo = null;
-            System.out.println("AccountInfo as String: " + accountInfo.toString());
-            System.out.println("Printing current open orders;");
-            System.out.println("adre " + exchange.getPollingAccountService().requestDepositAddress(""));
-            System.out.println(this.exchange.getPollingMarketDataService().getOrderBook(CURRENCY));
-            System.out.println(this.exchange.getPollingMarketDataService().getTrades(CURRENCY));
-            accountInfo = exchange.getPollingAccountService().getAccountInfo();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
 
     private Exchange buildExchange() {
         ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
@@ -97,7 +78,7 @@ public class BTCChinaAgent implements TraderAgent {
         try {
             return exchange.getPollingMarketDataService().getTicker(CURRENCY);
         } catch (IOException e) {
-            logger.warning("oops " + e.getMessage());
+            logger.warn("oops " + e.getMessage());
             return pollTicker();
         }
     }
@@ -117,7 +98,8 @@ public class BTCChinaAgent implements TraderAgent {
         try {
             return this.exchange.getPollingAccountService().getAccountInfo().getWallets().get(this.exchange.getPollingAccountService().getAccountInfo().getWallets().size()-1);
         } catch (IOException e) {
-            throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
+            logger.warn("oops " + e.getMessage());
+            return getWallet();
         }
     }   
     
@@ -125,7 +107,8 @@ public class BTCChinaAgent implements TraderAgent {
         try {
             return this.exchange.getPollingAccountService().getAccountInfo().getBalance("BTC");
         } catch (IOException e) {
-            throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
+            logger.warn("oops " + e.getMessage());
+            return getBitCoinBalance();
         }
     }
 
@@ -133,7 +116,8 @@ public class BTCChinaAgent implements TraderAgent {
         try {
             return this.exchange.getPollingAccountService().getAccountInfo().getBalance("CNY");
         } catch (IOException e) {
-            throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
+            logger.warn("oops " + e.getMessage());
+            return getCurrencyBalance();
         }
     }
 }

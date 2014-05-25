@@ -22,9 +22,6 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import java.math.BigDecimal;
 import java.util.Date;
 
-/**
- * Created by guifre on 23/05/14.
- */
 public class MyTicker {
 
     private BigDecimal bid;

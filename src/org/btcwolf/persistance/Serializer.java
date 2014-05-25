@@ -28,9 +28,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by guifre on 20/05/14.
- */
 public class Serializer {
 
     private static final String FILE = "resources/historic";

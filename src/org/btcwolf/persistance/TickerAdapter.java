@@ -20,9 +20,6 @@ package org.btcwolf.persistance;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 
-/**
- * Created by guifre on 23/05/14.
- */
 public class TickerAdapter {
 
     public static MyTicker adapt(Ticker ticker) {
