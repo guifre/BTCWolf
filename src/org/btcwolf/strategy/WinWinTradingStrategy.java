@@ -62,7 +62,8 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private void computeWorthinessSellingBitCoins(Ticker ticker) {
-        if (ticker.getAsk().doubleValue() > lastPriceUsedToSell.doubleValue()+opCurrencyThreshold.doubleValue()&& mBitCoins.doubleValue() > 0) {
+        if (ticker.getAsk().doubleValue() > lastPriceUsedToSell.doubleValue()+opCurrencyThreshold.doubleValue() &&
+                mBitCoins.doubleValue() > 0) {
             currencyToBuy = mBitCoins.multiply(ticker.getAsk());
             BigDecimal profitAfterTheOperation = mBitCoins.multiply(ticker.getAsk().subtract(lastPriceUsedToSell));
             totalProfit = totalProfit.add(profitAfterTheOperation);
@@ -73,7 +74,8 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
-        if (ticker.getBid().doubleValue() < lastPriceUsedToBuy.doubleValue()- opBitCoinThreshold.doubleValue() && mCurrency.doubleValue() > 0) {
+        if (ticker.getBid().doubleValue() < lastPriceUsedToBuy.doubleValue()- opBitCoinThreshold.doubleValue() &&
+                mCurrency.doubleValue() > 0) {
             bitCoinsToBuy = mCurrency.divide(ticker.getBid(), DIVISION_LEVELS_ACCURACY, ROUND_DOWN);
             BigDecimal profitAfterTheOperation =  bitCoinsToBuy.multiply(lastPriceUsedToBuy.subtract(ticker.getBid()));
             totalProfit = totalProfit.add(profitAfterTheOperation);
