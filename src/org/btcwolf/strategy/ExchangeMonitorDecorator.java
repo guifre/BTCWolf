@@ -24,6 +24,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     private static final int POLLING_FREQ = 8;
 
     private AbstractTradingStrategy tradingStrategy;
+
     private int pollingCounter;
 
     public ExchangeMonitorDecorator(TradingStrategy tradingStrategy) {
@@ -49,6 +50,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
         tradingStrategy.logger.debug(new String("BitCoin Balance [" +
                 tradingStrategy.traderAgent.getBitCoinBalance() +
                 "] Currency Balance [" +tradingStrategy.traderAgent.getCurrencyBalance() +
-                "]" + "Open Orders [" + tradingStrategy.traderAgent.getOpenOrders().toString() + "]."));
+                "]" + "Open Orders [" + tradingStrategy.traderAgent.getOpenOrders().toString() +
+                "]."));
     }
 }

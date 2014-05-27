@@ -49,8 +49,6 @@ public class TwitterAgent {
         } catch (TwitterException e) {
             LOGGER.error("could not publish status " + e.getMessage());
         }
-
-
     }
 
 }
