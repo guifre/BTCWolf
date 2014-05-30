@@ -1,6 +1,7 @@
 package org.btcwolf.agent;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import org.apache.log4j.Logger;
 import org.btcwolf.persistance.Serializer;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 public class BTCChinaAgentTest {
 
     private static final long POLLING_TIME = 30000l;
+    private static final Logger logger = Logger.getLogger(BTCChinaAgentTest.class);
+
     @Test
     public void simpleTest() throws IOException {
         BTCChinaAgent agent = new BTCChinaAgent();

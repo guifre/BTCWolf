@@ -14,7 +14,7 @@ import java.util.List;
 public class TradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
-    private static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class.getName());
+    private static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
 
     public List<Ticker> getTicker() {
         List<Ticker> list2 = null;
