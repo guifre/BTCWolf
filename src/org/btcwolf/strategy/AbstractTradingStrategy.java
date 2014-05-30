@@ -56,6 +56,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     }
 
     abstract BigDecimal getBitCoinsToSell();
+
     abstract BigDecimal getBitCoinsToBuy();
 
     abstract void analyzeTicker(Ticker ticker);

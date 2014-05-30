@@ -49,7 +49,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     private void logStatus() {
         tradingStrategy.logger.debug(new String("BitCoin Balance [" +
                 tradingStrategy.traderAgent.getBitCoinBalance() +
-                "] Currency Balance [" +tradingStrategy.traderAgent.getCurrencyBalance() +
+                "] Currency Balance [" + tradingStrategy.traderAgent.getCurrencyBalance() +
                 "]" + "Open Orders [" + tradingStrategy.traderAgent.getOpenOrders().toString() +
                 "]."));
     }

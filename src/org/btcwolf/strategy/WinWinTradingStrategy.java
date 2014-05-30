@@ -30,12 +30,11 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     private final BigDecimal opBitCoinThreshold;
     private final BigDecimal opCurrencyThreshold;
 
-    private BigDecimal currencyToBuy= BigDecimal.valueOf(0d);
+    private BigDecimal currencyToBuy = BigDecimal.valueOf(0d);
     private BigDecimal bitCoinsToBuy = BigDecimal.valueOf(0d);
 
-    private BigDecimal lastPriceUsedToSell = BigDecimal.ZERO;;
-    private BigDecimal lastPriceUsedToBuy = BigDecimal.ZERO;;
-
+    private BigDecimal lastPriceUsedToSell = BigDecimal.ZERO;
+    private BigDecimal lastPriceUsedToBuy = BigDecimal.ZERO;
 
     public WinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
         super(traderAgent);
@@ -45,7 +44,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
     @Override
     BigDecimal getBitCoinsToSell() {
-       return currencyToBuy;
+        return currencyToBuy;
     }
 
     @Override
@@ -62,26 +61,26 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private void computeWorthinessSellingBitCoins(Ticker ticker) {
-        if (ticker.getAsk().doubleValue() > lastPriceUsedToSell.doubleValue()+opCurrencyThreshold.doubleValue() &&
+        if (ticker.getAsk().doubleValue() > lastPriceUsedToSell.doubleValue() + opCurrencyThreshold.doubleValue() &&
                 mBitCoins.doubleValue() > 0) {
             currencyToBuy = mBitCoins.multiply(ticker.getAsk());
             BigDecimal profitAfterTheOperation = mBitCoins.multiply(ticker.getAsk().subtract(lastPriceUsedToSell));
             totalProfit = totalProfit.add(profitAfterTheOperation);
             logger.debug("Ask [" + ticker.getAsk() + "] previous [" + lastPriceUsedToSell + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
             lastPriceUsedToSell = ticker.getAsk();
-            lastPriceUsedToBuy=ticker.getBid();
+            lastPriceUsedToBuy = ticker.getBid();
         }
     }
 
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
-        if (ticker.getBid().doubleValue() < lastPriceUsedToBuy.doubleValue()- opBitCoinThreshold.doubleValue() &&
+        if (ticker.getBid().doubleValue() < lastPriceUsedToBuy.doubleValue() - opBitCoinThreshold.doubleValue() &&
                 mCurrency.doubleValue() > 0) {
             bitCoinsToBuy = mCurrency.divide(ticker.getBid(), DIVISION_LEVELS_ACCURACY, ROUND_DOWN);
-            BigDecimal profitAfterTheOperation =  bitCoinsToBuy.multiply(lastPriceUsedToBuy.subtract(ticker.getBid()));
+            BigDecimal profitAfterTheOperation = bitCoinsToBuy.multiply(lastPriceUsedToBuy.subtract(ticker.getBid()));
             totalProfit = totalProfit.add(profitAfterTheOperation);
             logger.debug("Bid [" + ticker.getBid() + "] previous [" + lastPriceUsedToBuy + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
             lastPriceUsedToBuy = ticker.getBid();
-            lastPriceUsedToSell=ticker.getAsk();
+            lastPriceUsedToSell = ticker.getAsk();
 
         }
     }
