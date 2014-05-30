@@ -14,6 +14,7 @@ import java.util.ArrayList;
  */
 public class BTCChinaAgentTest {
 
+    private static final long POLLING_TIME = 30000l;
     @Test
     public void simpleTest() throws IOException {
         BTCChinaAgent agent = new BTCChinaAgent();
@@ -25,12 +26,15 @@ public class BTCChinaAgentTest {
     @Ignore
     @Test
     public void getMoreSamples() throws FileNotFoundException {
+
         BTCChinaAgent agent = new BTCChinaAgent();
+
         java.util.List<Ticker> tickers = new ArrayList<Ticker>();
+
         for (int i = 0; i < 700; i++) {
             tickers.add(agent.pollTicker());
             try {
-                Thread.sleep(30000);
+                Thread.sleep(POLLING_TIME);
             } catch (InterruptedException e) {
                 //
             }
