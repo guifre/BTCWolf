@@ -94,7 +94,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         this.mCurrency = BigDecimal.valueOf(0);
         logger.info("BTC [" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
         String orderResult = traderAgent.placeOrder(Order.OrderType.BID, bitCoinsAboutToBuy);
-        logger.info("Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
+        logger.info("Order of Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
         twitterAgent.publish("Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
     }
 

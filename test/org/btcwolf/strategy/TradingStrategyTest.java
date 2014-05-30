@@ -33,7 +33,6 @@ public class TradingStrategyTest {
 
         BigDecimal bitThreshold = BigDecimal.valueOf(5);
         BigDecimal currThreshold = BigDecimal.valueOf(3);
-        BigDecimal yuan = BigDecimal.valueOf(1496); //about £1k
 
         List<Ticker> data = getTicker();
         TradingStrategy testedStrategy = new WinWinTradingStrategy(new BTCChinaAgent(), bitThreshold, currThreshold);

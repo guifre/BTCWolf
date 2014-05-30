@@ -10,9 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by guifre on 24/05/14.
- */
 public class BTCChinaAgentTest {
 
     private static final long POLLING_TIME = 30000l;
@@ -21,8 +18,8 @@ public class BTCChinaAgentTest {
     @Test
     public void simpleTest() throws IOException {
         BTCChinaAgent agent = new BTCChinaAgent();
-        System.out.println("yuans" + agent.getCurrencyBalance());
-        System.out.println("yuans" + agent.getBitCoinBalance());
+        logger.info("Yu " + agent.getCurrencyBalance());
+        logger.info("BTC " + agent.getBitCoinBalance());
         System.out.println("wallet " + agent.getWallet().getCurrency()  + agent.getWallet().getDescription() + agent.getWallet().getBalance());
     }
 
