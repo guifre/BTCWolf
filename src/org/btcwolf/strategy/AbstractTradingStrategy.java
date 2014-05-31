@@ -51,8 +51,8 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     }
 
     private void getAccountInfo() {
-        this.mBitCoins = traderAgent.getBitCoinBalance();
-        this.mCurrency = traderAgent.getCurrencyBalance();
+        this.mBitCoins = BigDecimal.valueOf(1d);//traderAgent.getBitCoinBalance();
+        this.mCurrency = BigDecimal.valueOf(1d);//traderAgent.getCurrencyBalance();
     }
 
     abstract BigDecimal getBitCoinsToSell();
@@ -95,7 +95,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         logger.info("BTC [" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
         String orderResult = traderAgent.placeOrder(Order.OrderType.BID, bitCoinsAboutToBuy);
         logger.info("Order of Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
-        twitterAgent.publish("Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
+        twitterAgent.publish("Buying [ " + bitCoinsAboutToBuy + "] BTC for [" + ticker.getBid() + "] YU");
     }
 
     void sellBitCoins(BigDecimal bitCoinsToSell, Ticker ticker) {
@@ -108,6 +108,6 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         logger.info("BTC[" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
         String orderResult = traderAgent.placeOrder(Order.OrderType.ASK, currencyAboutToBuy);
         logger.info("Order of buying [ " + currencyAboutToBuy + "] currency placed, result [" + orderResult + "]");
-        twitterAgent.publish("Buying [ " + currencyAboutToBuy + "] currency placed, result [" + orderResult + "]");
+        twitterAgent.publish("Buying [ " + currencyAboutToBuy + "] YU for [" + ticker.getAsk() + "] BTC.");
     }
 }

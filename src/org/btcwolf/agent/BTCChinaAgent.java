@@ -78,8 +78,9 @@ public class BTCChinaAgent implements TraderAgent {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
             return exchange.getPollingTradeService().placeMarketOrder(new MarketOrder(Order.OrderType.ASK, amount, CURRENCY));
-        } catch (IOException e) {
-            throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
+        } catch (Exception e) {
+            return e.getMessage();
+          //  throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
         }
     }
     
