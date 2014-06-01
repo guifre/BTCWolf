@@ -22,7 +22,7 @@ import org.btcwolf.agent.TraderAgent;
 
 import java.math.BigDecimal;
 
-import static java.math.BigDecimal.ROUND_DOWN;
+import static java.math.BigDecimal.ZERO;
 
 public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
@@ -30,11 +30,11 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     private final BigDecimal opBitCoinThreshold;
     private final BigDecimal opCurrencyThreshold;
 
-    private BigDecimal currencyToBuy = BigDecimal.valueOf(0d);
+    private BigDecimal bitCoinsToSell = BigDecimal.valueOf(0d);
     private BigDecimal bitCoinsToBuy = BigDecimal.valueOf(0d);
 
-    private BigDecimal lastPriceUsedToSell = BigDecimal.ZERO;
-    private BigDecimal lastPriceUsedToBuy = BigDecimal.ZERO;
+    private BigDecimal previousAskUsed = BigDecimal.ZERO;
+    private BigDecimal previousBidUsed = BigDecimal.ZERO;
 
     public WinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
         super(traderAgent);
@@ -44,7 +44,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
     @Override
     BigDecimal getBitCoinsToSell() {
-        return currencyToBuy;
+        return bitCoinsToSell;
     }
 
     @Override
@@ -55,34 +55,58 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     @Override
     void analyzeTicker(Ticker ticker) {
         bitCoinsToBuy = BigDecimal.valueOf(0);
-        currencyToBuy = BigDecimal.valueOf(0);
+        bitCoinsToSell = BigDecimal.valueOf(0);
         computeWorthinessBuyingBitCoins(ticker);
         computeWorthinessSellingBitCoins(ticker);
     }
 
     private void computeWorthinessSellingBitCoins(Ticker ticker) {
-        if (ticker.getAsk().doubleValue() > lastPriceUsedToSell.doubleValue() + opCurrencyThreshold.doubleValue() &&
-                mBitCoins.doubleValue() > 0) {
-            currencyToBuy = mBitCoins.multiply(ticker.getAsk());
-            BigDecimal profitAfterTheOperation = mBitCoins.multiply(ticker.getAsk().subtract(lastPriceUsedToSell));
-            totalProfit = totalProfit.add(profitAfterTheOperation);
-            logger.debug("Ask [" + ticker.getAsk() + "] previous [" + lastPriceUsedToSell + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
-            lastPriceUsedToSell = ticker.getAsk();
-            lastPriceUsedToBuy = ticker.getBid();
+
+        BigDecimal myBitCoins = this.traderAgent.getBitCoinBalance();
+        BigDecimal priceDifference = previousAskUsed.subtract(ticker.getAsk());
+        if (ticker.getAsk().compareTo(previousAskUsed.add(opCurrencyThreshold)) == 1 &&
+                myBitCoins.compareTo(ZERO) == 1) { // new ask higher than the last one plus the threshold and be have money
+
+            BigDecimal opProfit = priceDifference.multiply(myBitCoins);
+            bitCoinsToSell = myBitCoins.multiply(ticker.getAsk());
+            totalProfit = totalProfit.add(priceDifference);
+
+            log("Placed order ASK [" + myBitCoins + "]BTC to YU for [" + String.format("%.1f", ticker.getAsk()) +
+                    "]. Last used [" + String.format("%.1f", previousAskUsed + "]. Profit %[" +
+                    String.format("%.1f", priceDifference)+"]. Net[" + String.format("%.4f", (opProfit)))+ "]");
+
+
+            previousAskUsed = ticker.getAsk();
+            previousBidUsed = ticker.getBid();
         }
+        logger.debug("Ask [" + ticker.getAsk() + "] previous [" + previousAskUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "]"+ "] threshold [" + String.format("%.4f",opCurrencyThreshold.doubleValue()) + "].");
     }
+
 
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
-        if (ticker.getBid().doubleValue() < lastPriceUsedToBuy.doubleValue() - opBitCoinThreshold.doubleValue() &&
-                mCurrency.doubleValue() > 0) {
-            bitCoinsToBuy = mCurrency.divide(ticker.getBid(), DIVISION_LEVELS_ACCURACY, ROUND_DOWN);
-            BigDecimal profitAfterTheOperation = bitCoinsToBuy.multiply(lastPriceUsedToBuy.subtract(ticker.getBid()));
-            totalProfit = totalProfit.add(profitAfterTheOperation);
-            logger.debug("Bid [" + ticker.getBid() + "] previous [" + lastPriceUsedToBuy + "] profit of [" + String.format("%.4f", profitAfterTheOperation) + "] current profit [" + String.format("%.4f", totalProfit) + "]");
-            lastPriceUsedToBuy = ticker.getBid();
-            lastPriceUsedToSell = ticker.getAsk();
 
+        BigDecimal myCurrency = this.traderAgent.getCurrencyBalance();
+        BigDecimal priceDifference = previousBidUsed.subtract(ticker.getBid());
+
+        if ( (previousBidUsed.add(opBitCoinThreshold)).compareTo(ticker.getBid()) == 1 &&
+                myCurrency.compareTo(ZERO) == 1) { // new bid is lower than the last one plus the threshold and be have money
+
+            BigDecimal opProfit = priceDifference.multiply(myCurrency);
+            bitCoinsToBuy = myCurrency.multiply(ticker.getBid());
+            totalProfit = totalProfit.add(priceDifference);
+
+            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]YU to [" + String.format("%.4f",bitCoinsToBuy) + "BTC for [" + String.format("%.1f", ticker.getBid()) +
+                    "]. Last used [" + String.format("%.1f", previousBidUsed + "]. Profit %[" +
+                    String.format("%.1f", priceDifference) + "]. Net[" + String.format("%.4f", (opProfit))) + "]");
+
+            previousAskUsed = ticker.getAsk();
+            previousBidUsed = ticker.getBid();
         }
+        logger.debug("Bid [" + ticker.getBid() + "] previous [" + previousBidUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "] threshold [" + String.format("%.4f",opBitCoinThreshold.doubleValue()) + "].");
     }
 
+    private void log(String message) {
+        logger.info(message);
+        twitterAgent.publish(message);
+    }
 }

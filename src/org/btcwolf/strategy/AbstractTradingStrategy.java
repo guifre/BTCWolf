@@ -17,7 +17,6 @@
 
 package org.btcwolf.strategy;
 
-import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
@@ -26,7 +25,9 @@ import org.btcwolf.twitter.TwitterAgent;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static java.math.BigDecimal.ROUND_DOWN;
+import static com.xeiam.xchange.dto.Order.OrderType.ASK;
+import static com.xeiam.xchange.dto.Order.OrderType.BID;
+import static java.math.BigDecimal.ZERO;
 import static java.math.BigDecimal.valueOf;
 
 public abstract class AbstractTradingStrategy implements TradingStrategy {
@@ -38,21 +39,12 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     final TraderAgent traderAgent;
     final TwitterAgent twitterAgent;
 
-    protected BigDecimal mCurrency;
-    protected BigDecimal mBitCoins;
-    protected BigDecimal totalProfit;
+   protected BigDecimal totalProfit;
 
     public AbstractTradingStrategy(TraderAgent traderAgent) {
         this.traderAgent = traderAgent;
         this.totalProfit = valueOf(0);
-        this.totalProfit = valueOf(0);
-        getAccountInfo();
-        twitterAgent = new TwitterAgent();
-    }
-
-    private void getAccountInfo() {
-        this.mBitCoins = BigDecimal.valueOf(1d);//traderAgent.getBitCoinBalance();
-        this.mCurrency = BigDecimal.valueOf(1d);//traderAgent.getCurrencyBalance();
+        this.twitterAgent = new TwitterAgent();
     }
 
     abstract BigDecimal getBitCoinsToSell();
@@ -68,46 +60,43 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
 
         BigDecimal bitCoinsToBuy = getBitCoinsToBuy();
 
-        if (bitCoinsToBuy.doubleValue() > 0d) {
-            buyBitCoins(bitCoinsToBuy, ticker);
+        if (bitCoinsToBuy.compareTo(ZERO) == 1) {
+            buyBitCoins(bitCoinsToBuy);
         }
 
-        BigDecimal bitCoinsToSell = getBitCoinsToSell();
-        if (bitCoinsToSell.doubleValue() > 0d) {
-            sellBitCoins(bitCoinsToSell, ticker);
+        BigDecimal currencyToBuy = getBitCoinsToSell();
+        if (currencyToBuy.compareTo(ZERO) == 1) {
+            buyCurrency(currencyToBuy);
         }
     }
+
+    void buyBitCoins(BigDecimal bitCoinsToBuy) {
+
+        BigDecimal myCurrency = traderAgent.getCurrencyBalance();
+        if (myCurrency.compareTo(ZERO) == 0) {
+            return;
+        }
+        logger.info("Placing order BID from [" + bitCoinsToBuy + "] YU");
+        String orderResult = traderAgent.placeOrder(BID, bitCoinsToBuy);
+        logger.info("Order of BID [ " + bitCoinsToBuy + "]YU placed, result [" + orderResult + "]");
+    }
+
+    void buyCurrency(BigDecimal bitCoinsToSell) {
+
+        BigDecimal myBitCoins = traderAgent.getBitCoinBalance();
+        if (myBitCoins.compareTo(ZERO) == 0) {
+            return;
+        }
+        logger.info("Placing order ASK of [" + bitCoinsToSell + "] BTC");
+        String orderResult = traderAgent.placeOrder(ASK, bitCoinsToSell);
+        logger.info("Order of ASK [ " + bitCoinsToSell + "]BTC placed, result [" + orderResult + "]");
+    }
+
 
     BigDecimal run(List<Ticker> list) {
         for (Ticker ticker : list) {
             analyzeTicker(ticker);
         }
         return this.totalProfit;
-    }
-
-    void buyBitCoins(BigDecimal bitCoinsToBuy, Ticker ticker) {
-        if (this.mCurrency.doubleValue() == 0d) {
-            return;
-        }
-        BigDecimal bitCoinsAboutToBuy = bitCoinsToBuy.divide(ticker.getBid(), DIVISION_LEVELS_ACCURACY, ROUND_DOWN);
-        this.mBitCoins = this.mBitCoins.add(bitCoinsAboutToBuy);
-        this.mCurrency = BigDecimal.valueOf(0);
-        logger.info("BTC [" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
-        String orderResult = traderAgent.placeOrder(Order.OrderType.BID, bitCoinsAboutToBuy);
-        logger.info("Order of Buying [ " + bitCoinsAboutToBuy + "] currency placed, result [" + orderResult + "]");
-        twitterAgent.publish("Buying [ " + bitCoinsAboutToBuy + "] BTC for [" + ticker.getBid() + "] YU");
-    }
-
-    void sellBitCoins(BigDecimal bitCoinsToSell, Ticker ticker) {
-        if (this.mBitCoins.doubleValue() == 0d) {
-            return;
-        }
-        BigDecimal currencyAboutToBuy = bitCoinsToSell.multiply(ticker.getAsk());
-        this.mCurrency = currencyAboutToBuy;
-        this.mBitCoins = BigDecimal.valueOf(0);
-        logger.info("BTC[" + this.mBitCoins + "] Yu[" + this.mCurrency + "]\n");
-        String orderResult = traderAgent.placeOrder(Order.OrderType.ASK, currencyAboutToBuy);
-        logger.info("Order of buying [ " + currencyAboutToBuy + "] currency placed, result [" + orderResult + "]");
-        twitterAgent.publish("Buying [ " + currencyAboutToBuy + "] YU for [" + ticker.getAsk() + "] BTC.");
     }
 }

@@ -74,13 +74,14 @@ public class BTCChinaAgent implements TraderAgent {
 
     public String placeOrder(Order.OrderType orderType, BigDecimal amount) {
         try {
-            if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().doubleValue() > 0) {
+            if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
             return exchange.getPollingTradeService().placeMarketOrder(new MarketOrder(Order.OrderType.ASK, amount, CURRENCY));
         } catch (Exception e) {
-            return e.getMessage();
-          //  throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
+            return placeOrder(orderType, amount);
+            //return e.getMessage();
+            //  throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
         }
     }
     
