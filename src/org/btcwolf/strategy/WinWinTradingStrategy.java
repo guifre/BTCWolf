@@ -26,7 +26,6 @@ import static java.math.BigDecimal.ZERO;
 
 public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
-
     private final BigDecimal opBitCoinThreshold;
     private final BigDecimal opCurrencyThreshold;
 
@@ -54,8 +53,8 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
     @Override
     void analyzeTicker(Ticker ticker) {
-        bitCoinsToBuy = BigDecimal.valueOf(0);
-        bitCoinsToSell = BigDecimal.valueOf(0);
+        bitCoinsToBuy = ZERO;
+        bitCoinsToSell = ZERO;
         computeWorthinessBuyingBitCoins(ticker);
         computeWorthinessSellingBitCoins(ticker);
     }
@@ -71,15 +70,14 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToSell = myBitCoins.multiply(ticker.getAsk());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order ASK [" + myBitCoins + "]BTC to YU for [" + String.format("%.1f", ticker.getAsk()) +
-                    "]. Last used [" + String.format("%.1f", previousAskUsed + "]. Profit %[" +
-                    String.format("%.1f", priceDifference)+"]. Net[" + String.format("%.4f", (opProfit)))+ "]");
-
+            log("Placed order ASK [" + String.format("%.5f", myBitCoins) + "]BTC to YU for [" + String.format("%.1f", ticker.getAsk()) +
+                    "]. Last used [" + String.format("%.1f", previousAskUsed) + "]. Profit %[" +
+                    String.format("%.1f", priceDifference)+"]. Net[" + String.format("%.4f", opProfit)+ "]");
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         }
-        logger.debug("Ask [" + ticker.getAsk() + "] previous [" + previousAskUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "]"+ "] threshold [" + String.format("%.4f",opCurrencyThreshold.doubleValue()) + "].");
+     //   logger.debug("Ask [" + ticker.getAsk() + "] previous [" + previousAskUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "]"+ "] threshold [" + String.format("%.4f",opCurrencyThreshold.doubleValue()) + "].");
     }
 
 
@@ -95,14 +93,14 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToBuy = myCurrency.multiply(ticker.getBid());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]YU to [" + String.format("%.4f",bitCoinsToBuy) + "BTC for [" + String.format("%.1f", ticker.getBid()) +
-                    "]. Last used [" + String.format("%.1f", previousBidUsed + "]. Profit %[" +
-                    String.format("%.1f", priceDifference) + "]. Net[" + String.format("%.4f", (opProfit))) + "]");
+            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]YU to [" + String.format("%.4f",bitCoinsToBuy) +
+                    "BTC for [" + String.format("%.1f", ticker.getBid()) + "]. Last used [" + String.format("%.1f", previousBidUsed) +
+                    "]. Profit %[" + String.format("%.1f", priceDifference) + "]. Net[" + String.format("%.4f", (opProfit)) + "]");
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         }
-        logger.debug("Bid [" + ticker.getBid() + "] previous [" + previousBidUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "] threshold [" + String.format("%.4f",opBitCoinThreshold.doubleValue()) + "].");
+      //  logger.debug("Bid [" + ticker.getBid() + "] previous [" + previousBidUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "] threshold [" + String.format("%.4f",opBitCoinThreshold.doubleValue()) + "].");
     }
 
     private void log(String message) {

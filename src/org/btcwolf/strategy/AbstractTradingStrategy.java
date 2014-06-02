@@ -23,7 +23,6 @@ import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
 import static com.xeiam.xchange.dto.Order.OrderType.BID;
@@ -90,13 +89,5 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         logger.info("Placing order ASK of [" + bitCoinsToSell + "] BTC");
         String orderResult = traderAgent.placeOrder(ASK, bitCoinsToSell);
         logger.info("Order of ASK [ " + bitCoinsToSell + "]BTC placed, result [" + orderResult + "]");
-    }
-
-
-    BigDecimal run(List<Ticker> list) {
-        for (Ticker ticker : list) {
-            analyzeTicker(ticker);
-        }
-        return this.totalProfit;
     }
 }

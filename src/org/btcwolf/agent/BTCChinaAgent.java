@@ -50,7 +50,9 @@ public class BTCChinaAgent implements TraderAgent {
     }
 
     private Exchange buildExchange() {
-        if (System.getProperty(SECRET_KEY_ENV) == null || System.getProperty(PASSWORD_ENV) == null || System.getProperty(API_KEY_ENV) == null) {
+        if (System.getProperty(SECRET_KEY_ENV) == null ||
+                System.getProperty(PASSWORD_ENV) == null ||
+                System.getProperty(API_KEY_ENV) == null) {
             String msg = "Could not find credential arguments " + SECRET_KEY_ENV + System.getProperty(SECRET_KEY_ENV) + ", " + PASSWORD_ENV+System.getProperty(PASSWORD_ENV) + ", " + API_KEY_ENV + System.getProperty(API_KEY_ENV);
             logger.error(msg);
             throw new RuntimeException(msg);

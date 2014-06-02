@@ -48,6 +48,8 @@ public class TwitterAgent {
             twitter.getInstance().updateStatus(message);
         } catch (TwitterException e) {
             LOGGER.error("could not publish status " + e.getMessage());
+        } catch (IllegalStateException e) {
+            LOGGER.error("could not publish status " + e.getMessage());
         }
     }
 
