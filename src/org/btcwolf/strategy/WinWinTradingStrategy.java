@@ -77,7 +77,6 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         }
-     //   logger.debug("Ask [" + ticker.getAsk() + "] previous [" + previousAskUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "]"+ "] threshold [" + String.format("%.4f",opCurrencyThreshold.doubleValue()) + "].");
     }
 
 
@@ -100,7 +99,6 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         }
-      //  logger.debug("Bid [" + ticker.getBid() + "] previous [" + previousBidUsed + "] profit of [" + String.format("%.4f", priceDifference) + "] current profit [" + String.format("%.4f", totalProfit) + "] threshold [" + String.format("%.4f",opBitCoinThreshold.doubleValue()) + "].");
     }
 
     private void log(String message) {
