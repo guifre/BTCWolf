@@ -19,6 +19,8 @@ package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
 
+import static org.btcwolf.strategy.AbstractTradingStrategy.*;
+
 public class ExchangeMonitorDecorator implements TradingStrategy {
 
     private static final int POLLING_FREQ = 8;
@@ -47,9 +49,9 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     }
 
     private void logStatus() {
-        tradingStrategy.logger.debug(
-         new String("BitCoin Balance [" + tradingStrategy.traderAgent.getBitCoinBalance() +
-                    "] Currency Balance [" + tradingStrategy.traderAgent.getCurrencyBalance() +
-                    "]" + "Open Orders [" + tradingStrategy.traderAgent.getOpenOrders().toString() + "]."));
+        logger.debug(
+                "BitCoin Balance [" + tradingStrategy.traderAgent.getBitCoinBalance() +
+                "] Currency Balance [" + tradingStrategy.traderAgent.getCurrencyBalance() +
+                "]" + "Open Orders [" + tradingStrategy.traderAgent.getOpenOrders().toString() + "].");
     }
 }

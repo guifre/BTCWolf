@@ -1,6 +1,7 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.Order;
+import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
@@ -8,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.Serializer;
+import org.btcwolf.twitter.TwitterAgent;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -38,7 +40,7 @@ public class TradingStrategyTest {
         BigDecimal currThreshold = BigDecimal.valueOf(3);
 
         TraderAgent testerAgent = new MyAgent(BigDecimal.TEN, BigDecimal.TEN);
-        TradingStrategy testedStrategy = new WinWinTradingStrategy(testerAgent, bitThreshold, currThreshold);
+        TradingStrategy testedStrategy = new WinWinTradingStrategy(testerAgent, new TwitterAgent(), bitThreshold, currThreshold);
 
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {
@@ -114,6 +116,11 @@ public class TradingStrategyTest {
 
         @Override
         public OpenOrders getOpenOrders() {
+            return null;
+        }
+
+        @Override
+        public OrderBook getOrderBook() {
             return null;
         }
     }

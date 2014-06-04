@@ -33,17 +33,15 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
 
     static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
 
-    protected static final int DIVISION_LEVELS_ACCURACY = 20;
-
     final TraderAgent traderAgent;
     final TwitterAgent twitterAgent;
 
-   protected BigDecimal totalProfit;
+    BigDecimal totalProfit;
 
-    public AbstractTradingStrategy(TraderAgent traderAgent) {
+    public AbstractTradingStrategy(TraderAgent traderAgent, TwitterAgent twitterAgent) {
         this.traderAgent = traderAgent;
         this.totalProfit = valueOf(0);
-        this.twitterAgent = new TwitterAgent();
+        this.twitterAgent = twitterAgent;
     }
 
     abstract BigDecimal getBitCoinsToSell();
@@ -53,7 +51,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     abstract void analyzeTicker(Ticker ticker);
 
 
-    public void onTickerReceived(Ticker ticker) { //main method that triggers the logic we apply fee
+    public void onTickerReceived(Ticker ticker) {
         logger.debug("New " + ticker);
         analyzeTicker(ticker);
 
@@ -70,7 +68,6 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     }
 
     void buyBitCoins(BigDecimal bitCoinsToBuy) {
-
         BigDecimal myCurrency = traderAgent.getCurrencyBalance();
         if (myCurrency.compareTo(ZERO) == 0) {
             return;
@@ -81,7 +78,6 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     }
 
     void buyCurrency(BigDecimal bitCoinsToSell) {
-
         BigDecimal myBitCoins = traderAgent.getBitCoinBalance();
         if (myBitCoins.compareTo(ZERO) == 0) {
             return;

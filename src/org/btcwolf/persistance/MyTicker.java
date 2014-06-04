@@ -34,7 +34,6 @@ public class MyTicker {
     private CurrencyPair currencyPair;
 
 
-
     public MyTicker() {
     }
 

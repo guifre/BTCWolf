@@ -18,16 +18,17 @@
 package org.btcwolf.strategy;
 
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 
 public class TradingStrategyProvider {
 
-    public static final TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
-        return getAgent(traderAgent, BigDecimal.valueOf(1), BigDecimal.valueOf(1));
+    public static final TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent, TwitterAgent twitterAgent) {
+        return getAgent(traderAgent, twitterAgent, BigDecimal.valueOf(1), BigDecimal.valueOf(1));
     }
 
-    public static final TradingStrategy getAgent(TraderAgent traderAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
-        return new ExchangeMonitorDecorator(new WinWinTradingStrategy(traderAgent, opBitCoinThreshold, opCurrencyThreshold));
+    public static final TradingStrategy getAgent(TraderAgent traderAgent, TwitterAgent twitterAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
+        return new ExchangeMonitorDecorator(new WinWinTradingStrategy(traderAgent, twitterAgent, opBitCoinThreshold, opCurrencyThreshold));
     }
 }

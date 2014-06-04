@@ -52,5 +52,4 @@ public class TwitterAgent {
             LOGGER.error("could not publish status " + e.getMessage());
         }
     }
-
 }

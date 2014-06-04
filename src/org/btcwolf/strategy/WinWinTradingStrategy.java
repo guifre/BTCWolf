@@ -17,8 +17,10 @@
 
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 
@@ -32,13 +34,14 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     private BigDecimal bitCoinsToSell = BigDecimal.valueOf(0d);
     private BigDecimal bitCoinsToBuy = BigDecimal.valueOf(0d);
 
-    private BigDecimal previousAskUsed = BigDecimal.ZERO;
-    private BigDecimal previousBidUsed = BigDecimal.ZERO;
+    private BigDecimal previousAskUsed;
+    private BigDecimal previousBidUsed;
 
-    public WinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
-        super(traderAgent);
+    public WinWinTradingStrategy(TraderAgent traderAgent, TwitterAgent twitterAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
+        super(traderAgent, twitterAgent);
         this.opBitCoinThreshold = opBitCoinThreshold;
         this.opCurrencyThreshold = opCurrencyThreshold;
+        processOrders();
     }
 
     @Override
@@ -79,7 +82,6 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
-
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
 
         BigDecimal myCurrency = this.traderAgent.getCurrencyBalance();
@@ -98,6 +100,20 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
+        }
+    }
+
+    private void processOrders() {
+        OrderBook orders = this.traderAgent.getOrderBook();
+        if (!orders.getAsks().isEmpty()) {
+            previousAskUsed = orders.getAsks().get(orders.getAsks().size()-1).getLimitPrice();
+        } else {
+            previousAskUsed = ZERO;
+        }
+        if (!orders.getAsks().isEmpty()) {
+            previousBidUsed = orders.getBids().get(orders.getAsks().size()-1).getLimitPrice();
+        } else {
+            previousBidUsed = ZERO;
         }
     }
 

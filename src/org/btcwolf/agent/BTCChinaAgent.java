@@ -23,6 +23,7 @@ import com.xeiam.xchange.ExchangeSpecification;
 import com.xeiam.xchange.btcchina.BTCChinaExchange;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
+import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.MarketOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
@@ -81,9 +82,8 @@ public class BTCChinaAgent implements TraderAgent {
             }
             return exchange.getPollingTradeService().placeMarketOrder(new MarketOrder(Order.OrderType.ASK, amount, CURRENCY));
         } catch (Exception e) {
+            logger.warn("oops " + e.getMessage());
             return placeOrder(orderType, amount);
-            //return e.getMessage();
-            //  throw new RuntimeException("something went wrong when polling" + e.getMessage() +e.getCause()+e.getStackTrace());
         }
     }
     
@@ -120,6 +120,15 @@ public class BTCChinaAgent implements TraderAgent {
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
             return getOpenOrders();
+        }
+    }
+
+    public OrderBook getOrderBook() {
+        try {
+            return this.exchange.getPollingMarketDataService().getOrderBook(CURRENCY);
+        } catch (IOException e) {
+            logger.warn("oops " + e.getMessage());
+            return getOrderBook();
         }
     }
 }
