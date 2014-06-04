@@ -24,7 +24,6 @@ import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategy;
 import org.btcwolf.strategy.TradingStrategyProvider;
 
-
 public class BTCWolf {
 
     private static final Logger LOGGER =Logger.getLogger(BTCWolf.class);
