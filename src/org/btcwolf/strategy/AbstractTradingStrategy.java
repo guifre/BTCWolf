@@ -50,7 +50,6 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
 
     abstract void analyzeTicker(Ticker ticker);
 
-
     public void onTickerReceived(Ticker ticker) {
         logger.debug("New " + ticker);
         analyzeTicker(ticker);
