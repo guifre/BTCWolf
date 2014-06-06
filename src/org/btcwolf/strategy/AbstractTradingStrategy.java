@@ -51,7 +51,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
     abstract void analyzeTicker(Ticker ticker);
 
     public void onTickerReceived(Ticker ticker) {
-        logger.debug("New " + ticker);
+        logger.debug("Got new " + ticker);
         analyzeTicker(ticker);
 
         BigDecimal bitCoinsToBuy = getBitCoinsToBuy();
@@ -71,9 +71,9 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         if (myCurrency.compareTo(ZERO) == 0) {
             return;
         }
-        logger.info("Placing order BID from [" + bitCoinsToBuy + "] YU");
+        logger.info("Placing order BID from [" + bitCoinsToBuy + "]CNY");
         String orderResult = traderAgent.placeOrder(BID, bitCoinsToBuy);
-        logger.info("Order of BID [ " + bitCoinsToBuy + "]YU placed, result [" + orderResult + "]");
+        logger.info("Order of BID [ " + bitCoinsToBuy + "]CNY placed, result [" + orderResult + "]");
     }
 
     void buyCurrency(BigDecimal bitCoinsToSell) {
@@ -81,7 +81,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         if (myBitCoins.compareTo(ZERO) == 0) {
             return;
         }
-        logger.info("Placing order ASK of [" + bitCoinsToSell + "] BTC");
+        logger.info("Placing order ASK of [" + bitCoinsToSell + "]BTC");
         String orderResult = traderAgent.placeOrder(ASK, bitCoinsToSell);
         logger.info("Order of ASK [ " + bitCoinsToSell + "]BTC placed, result [" + orderResult + "]");
     }

@@ -35,14 +35,15 @@ public class BTCChinaAgentTest {
     @Test
     public void simpleTest() throws IOException {
         BTCChinaAgent agent = new BTCChinaAgent();
-        logger.info("Yu " + agent.getCurrencyBalance());
         logger.info("BTC " + agent.getBitCoinBalance());
-        System.out.println("wallet " + agent.getWallet().getCurrency()  + agent.getWallet().getDescription() + agent.getWallet().getBalance());
+        logger.info("CNY " + agent.getCurrencyBalance());
+        logger.info("Open Orders " + agent.getOpenOrders().getOpenOrders().size());
+        logger.info(agent.getOrderBook());
     }
 
     @Ignore
     @Test
-    public void getMoreSamples() throws FileNotFoundException {
+    public void serializeMoreTickers() throws FileNotFoundException {
 
         BTCChinaAgent agent = new BTCChinaAgent();
 

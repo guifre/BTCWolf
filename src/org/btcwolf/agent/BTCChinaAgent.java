@@ -33,6 +33,7 @@ import org.btcwolf.BTCWolf;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class BTCChinaAgent implements TraderAgent {
 
@@ -42,7 +43,9 @@ public class BTCChinaAgent implements TraderAgent {
     private static final String API_KEY_ENV = "APIKey";
     private static final String PASSWORD_ENV = "Password";
 
-    private static final CurrencyPair CURRENCY = CurrencyPair.BTC_CNY;
+    private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.BTC_CNY;
+    private static final String CURRENCY_BTC = "BTC";
+    private static final String CURRENCY_CNY = "CNY";
 
     private final Exchange exchange;
 
@@ -67,7 +70,7 @@ public class BTCChinaAgent implements TraderAgent {
 
     public Ticker pollTicker() {
         try {
-            return exchange.getPollingMarketDataService().getTicker(CURRENCY);
+            return exchange.getPollingMarketDataService().getTicker(CURRENCY_PAIR);
         } catch (IOException e) {
             logger.warn("oops when getting ticker " + e.getMessage());
             BTCWolf.makeSomeCoffee();
@@ -80,25 +83,34 @@ public class BTCChinaAgent implements TraderAgent {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
-            return exchange.getPollingTradeService().placeMarketOrder(new MarketOrder(Order.OrderType.ASK, amount, CURRENCY));
+            return exchange.getPollingTradeService().placeMarketOrder(new MarketOrder(Order.OrderType.ASK, amount, CURRENCY_PAIR));
         } catch (Exception e) {
             logger.warn("oops " + e.getMessage());
             return placeOrder(orderType, amount);
         }
     }
-    
-    public Wallet getWallet() {
+
+    public List<Wallet> getWallets() {
         try {
-            return this.exchange.getPollingAccountService().getAccountInfo().getWallets().get(this.exchange.getPollingAccountService().getAccountInfo().getWallets().size()-1);
+            return this.exchange.getPollingAccountService().getAccountInfo().getWallets();
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
-            return getWallet();
+            return getWallets();
         }
-    }   
-    
+    }
+
     public BigDecimal getBitCoinBalance() {
         try {
-            return this.exchange.getPollingAccountService().getAccountInfo().getBalance("BTC");
+            Wallet myWallet = null;
+            for (Wallet wallet : this.exchange.getPollingAccountService().getAccountInfo().getWallets()) {
+                if (CURRENCY_BTC.equals(wallet.getCurrency())) {
+                    myWallet = wallet;
+                }
+            }
+            if (myWallet != null) {
+                return myWallet.getBalance();
+            }
+            throw new RuntimeException("could not find currency");
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
             return getBitCoinBalance();
@@ -107,10 +119,19 @@ public class BTCChinaAgent implements TraderAgent {
 
     public BigDecimal getCurrencyBalance() {
         try {
-            return this.exchange.getPollingAccountService().getAccountInfo().getBalance("CNY");
+            Wallet myWallet = null;
+            for (Wallet wallet : this.exchange.getPollingAccountService().getAccountInfo().getWallets()) {
+                if (CURRENCY_CNY.equals(wallet.getCurrency())) {
+                    myWallet = wallet;
+                }
+            }
+            if (myWallet != null) {
+                return myWallet.getBalance();
+            }
+            throw new RuntimeException("could not find currency");
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
-            return getCurrencyBalance();
+            return getBitCoinBalance();
         }
     }
 
@@ -125,7 +146,7 @@ public class BTCChinaAgent implements TraderAgent {
 
     public OrderBook getOrderBook() {
         try {
-            return this.exchange.getPollingMarketDataService().getOrderBook(CURRENCY);
+            return this.exchange.getPollingMarketDataService().getOrderBook(CURRENCY_PAIR);
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
             return getOrderBook();

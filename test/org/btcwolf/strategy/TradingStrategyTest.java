@@ -17,9 +17,11 @@
 
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
@@ -31,6 +33,7 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TradingStrategyTest {
@@ -78,11 +81,11 @@ public class TradingStrategyTest {
         private final List<Ticker> data;
         private int index = 0;
 
-        private BigDecimal mBitcoins;
+        private BigDecimal mBitCoins;
         private BigDecimal mCurrency;
 
         public MyAgent(BigDecimal bitcoins, BigDecimal currency) {
-            mBitcoins = bitcoins;
+            mBitCoins = bitcoins;
             mCurrency = currency;
             try {
                 this.data = Serializer.read();
@@ -105,19 +108,19 @@ public class TradingStrategyTest {
             logger.info("placed order [" + orderType + "] of [" + amount + "]");
             if (orderType == Order.OrderType.ASK) {
                 this.mCurrency = amount;
-                this.mBitcoins = BigDecimal.ZERO;
+                this.mBitCoins = BigDecimal.ZERO;
             } else if (orderType == Order.OrderType.BID) {
                 this.mCurrency = BigDecimal.ZERO;
-                this.mBitcoins = amount;
+                this.mBitCoins = amount;
             } else {
 
             }
-            logger.info("wallet of [" + mBitcoins + "]BTC and [" + mCurrency + "]YU");
+            logger.info("wallet of [" + mBitCoins + "]BTC and [" + mCurrency + "]CNY");
             return "ok";
         }
 
         @Override
-        public Wallet getWallet() {
+        public List<Wallet> getWallets() {
             return null;
         }
 
@@ -128,17 +131,26 @@ public class TradingStrategyTest {
 
         @Override
         public BigDecimal getBitCoinBalance() {
-            return this.mBitcoins;
+            return this.mBitCoins;
         }
 
         @Override
         public OpenOrders getOpenOrders() {
-            return null;
+            Order order = new MyOrder();
+            List orderList = new ArrayList(1);
+            orderList.add(order);
+            return new OpenOrders(orderList);
         }
 
         @Override
         public OrderBook getOrderBook() {
-            return null;
+            return new OrderBook(null, new ArrayList<LimitOrder>(), new ArrayList<LimitOrder>());
+        }
+    }
+    class MyOrder extends Order {
+
+        public MyOrder() {
+            super(OrderType.ASK, BigDecimal.TEN, CurrencyPair.BTC_CNY, "", null);
         }
     }
 }

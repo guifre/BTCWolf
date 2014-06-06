@@ -19,6 +19,7 @@ package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.trade.LimitOrder;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.twitter.TwitterAgent;
 
@@ -58,8 +59,14 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     void analyzeTicker(Ticker ticker) {
         bitCoinsToBuy = ZERO;
         bitCoinsToSell = ZERO;
-        computeWorthinessBuyingBitCoins(ticker);
-        computeWorthinessSellingBitCoins(ticker);
+        if (traderAgent.getOpenOrders().getOpenOrders().size() > 0) {
+            for (LimitOrder limitOrder : traderAgent.getOpenOrders().getOpenOrders()) {
+                logger.info("Open Order " + limitOrder.getLimitPrice());
+            }
+        } else {
+            computeWorthinessBuyingBitCoins(ticker);
+            computeWorthinessSellingBitCoins(ticker);
+        }
     }
 
     private void computeWorthinessSellingBitCoins(Ticker ticker) {
@@ -73,7 +80,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToSell = myBitCoins.multiply(ticker.getAsk());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order ASK [" + String.format("%.5f", myBitCoins) + "]BTC to YU for [" + String.format("%.1f", ticker.getAsk()) +
+            log("Placed order ASK [" + String.format("%.5f", myBitCoins) + "]BTC to CNY for [" + String.format("%.1f", ticker.getAsk()) +
                     "]. Last used [" + String.format("%.1f", previousAskUsed) + "]. Profit %[" +
                     String.format("%.1f", priceDifference)+"]. Net[" + String.format("%.4f", opProfit)+ "]");
 
@@ -94,7 +101,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToBuy = myCurrency.multiply(ticker.getBid());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]YU to [" + String.format("%.4f",bitCoinsToBuy) +
+            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]CNY to [" + String.format("%.4f",bitCoinsToBuy) +
                     "BTC for [" + String.format("%.1f", ticker.getBid()) + "]. Last used [" + String.format("%.1f", previousBidUsed) +
                     "]. Profit %[" + String.format("%.1f", priceDifference) + "]. Net[" + String.format("%.4f", (opProfit)) + "]");
 

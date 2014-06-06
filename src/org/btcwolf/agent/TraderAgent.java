@@ -24,11 +24,12 @@ import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface TraderAgent {
     Ticker pollTicker();
     String placeOrder(Order.OrderType orderType, BigDecimal amount);
-    Wallet getWallet();
+    List<Wallet> getWallets();
     BigDecimal getCurrencyBalance();
     BigDecimal getBitCoinBalance();
     OpenOrders getOpenOrders();
