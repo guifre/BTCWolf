@@ -60,8 +60,8 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         bitCoinsToBuy = ZERO;
         bitCoinsToSell = ZERO;
         if (traderAgent.getOpenOrders().getOpenOrders().size() > 0) {
-            for (LimitOrder limitOrder : traderAgent.getOpenOrders().getOpenOrders()) {
-                logger.info("Open Order " + limitOrder.getLimitPrice());
+            for (LimitOrder order : traderAgent.getOpenOrders().getOpenOrders()) {
+                logger.info("Open Order " + order.getTradableAmount());
             }
         } else {
             computeWorthinessBuyingBitCoins(ticker);
@@ -101,9 +101,9 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToBuy = myCurrency.multiply(ticker.getBid());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]CNY to [" + String.format("%.4f",bitCoinsToBuy) +
+            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]CNY to [" + String.format("%.5f",bitCoinsToBuy) +
                     "BTC for [" + String.format("%.1f", ticker.getBid()) + "]. Last used [" + String.format("%.1f", previousBidUsed) +
-                    "]. Profit %[" + String.format("%.1f", priceDifference) + "]. Net[" + String.format("%.4f", (opProfit)) + "]");
+                    "]. Profit %[" + String.format("%.2f", priceDifference) + "]. Net[" + String.format("%.4f", (opProfit)) + "]");
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
