@@ -18,8 +18,8 @@
 package org.btcwolf.agent;
 
 import com.xeiam.xchange.dto.Order;
-import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 
@@ -28,10 +28,10 @@ import java.util.List;
 
 public interface TraderAgent {
     Ticker pollTicker();
-    String placeOrder(Order.OrderType orderType, BigDecimal amount);
+    String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker);
     List<Wallet> getWallets();
     BigDecimal getCurrencyBalance();
     BigDecimal getBitCoinBalance();
     OpenOrders getOpenOrders();
-    OrderBook getOrderBook();
+    Trades getTrades();
 }

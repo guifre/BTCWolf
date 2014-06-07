@@ -38,7 +38,6 @@ public class BTCChinaAgentTest {
         logger.info("BTC " + agent.getBitCoinBalance());
         logger.info("CNY " + agent.getCurrencyBalance());
         logger.info("Open Orders " + agent.getOpenOrders().getOpenOrders().size());
-        logger.info(agent.getOrderBook());
     }
 
     @Ignore

@@ -17,14 +17,16 @@
 
 package org.btcwolf.strategy;
 
-import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 
+import static com.xeiam.xchange.dto.Order.OrderType.ASK;
+import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ZERO;
 
 public class WinWinTradingStrategy extends AbstractTradingStrategy {
@@ -57,6 +59,12 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
     @Override
     void analyzeTicker(Ticker ticker) {
+        if (previousAskUsed == null || previousBidUsed == null) {
+            previousAskUsed = ticker.getAsk();
+            previousBidUsed = ticker.getBid();
+            logger.info("No older orders, setting prev BID[" + previousBidUsed + "] ASK [" + previousAskUsed + "]");
+            return;
+        }
         bitCoinsToBuy = ZERO;
         bitCoinsToSell = ZERO;
         if (traderAgent.getOpenOrders().getOpenOrders().size() > 0) {
@@ -72,7 +80,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     private void computeWorthinessSellingBitCoins(Ticker ticker) {
 
         BigDecimal myBitCoins = this.traderAgent.getBitCoinBalance();
-        BigDecimal priceDifference = previousAskUsed.subtract(ticker.getAsk());
+        BigDecimal priceDifference = ticker.getAsk().subtract(previousAskUsed);
         if (ticker.getAsk().compareTo(previousAskUsed.add(opCurrencyThreshold)) == 1 &&
                 myBitCoins.compareTo(ZERO) == 1) { // new ask higher than the last one plus the threshold and be have money
 
@@ -80,15 +88,17 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToSell = myBitCoins.multiply(ticker.getAsk());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order ASK [" + String.format("%.5f", myBitCoins) + "]BTC to CNY for [" +
-                    String.format("%.1f", ticker.getAsk()) + "]. Last used [" +
-                    String.format("%.1f", previousAskUsed) + "]. Profit %[" +
-                    String.format("%.1f", priceDifference)+"]. Net[" + String.format("%.4f", opProfit)+ "]");
+            log("Placed Order ASK [" +
+                    String.format("%.5f", myBitCoins) + "]BTC to [" +
+                    String.format("%.1f", ticker.getAsk()) + "]CNY. Last used [" +
+                    String.format("%.1f", previousAskUsed) + "]. Profit Rel[" +
+                    String.format("%.1f", priceDifference)+"]. Abs[" +
+                    String.format("%.4f", opProfit)+ "]CNY");
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         } else {
-            logger.debug("Old ASK[" + String.format("%.2f", previousAskUsed) +
+            logger.debug("Prev ASK[" + String.format("%.2f", previousAskUsed) +
                     "] new ASK[" + String.format("%.2f", ticker.getAsk()) +
                     "] th[" + opCurrencyThreshold + "] nothing to do.");
         }
@@ -97,7 +107,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
 
         BigDecimal myCurrency = this.traderAgent.getCurrencyBalance();
-        BigDecimal priceDifference = previousBidUsed.subtract(ticker.getBid());
+        BigDecimal priceDifference = ticker.getBid().subtract(previousBidUsed);
 
         if ( (previousBidUsed.add(opBitCoinThreshold)).compareTo(ticker.getBid()) == 1 &&
                 myCurrency.compareTo(ZERO) == 1) { // new bid is lower than the last one plus the threshold and be have money
@@ -106,33 +116,40 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToBuy = myCurrency.multiply(ticker.getBid());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]CNY to [" +
-                    String.format("%.5f",bitCoinsToBuy) + "BTC for [" +
+            log("Placed Order BID [" +
+                    String.format("%.1f", myCurrency) + "]CNY to [" +
+                    String.format("%.5f", bitCoinsToBuy) + "]BTC for [" +
                     String.format("%.1f", ticker.getBid()) + "]. Last used [" +
-                    String.format("%.1f", previousBidUsed) +
-                    "]. Profit %[" + String.format("%.2f", priceDifference) + "]. Net[" +
-                    String.format("%.4f", (opProfit)) + "]");
+                    String.format("%.1f", previousBidUsed) + "]. Profit Rel[" +
+                    String.format("%.2f", priceDifference) + "]. Abs[" +
+                    String.format("%.4f", opProfit) + "]CNY");
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         } else {
-            logger.debug("old BID[" + String.format("%.2f", previousBidUsed) + "] new BID[" +
+            logger.debug("Prev BID[" + String.format("%.2f", previousBidUsed) + "] new BID[" +
                     String.format("%.2f", ticker.getBid()) +
                     "] th[" + opBitCoinThreshold + "] nothing to do.");
         }
     }
 
     private void processHisotircOrders() {
-        OrderBook orders = this.traderAgent.getOrderBook();
-        if (!orders.getAsks().isEmpty()) {
-            previousAskUsed = orders.getAsks().get(orders.getAsks().size()-1).getLimitPrice();
+        Trades trades = this.traderAgent.getTrades();
+        if (trades.getTrades() == null || trades.getTrades().isEmpty()) {
+            logger.info("empty historic, waiting for next ticker.");
         } else {
-            previousAskUsed = ZERO;
-        }
-        if (!orders.getAsks().isEmpty()) {
-            previousBidUsed = orders.getBids().get(orders.getAsks().size()-1).getLimitPrice();
-        } else {
-            previousBidUsed = ZERO;
+            int i = trades.getTrades().size() - 1;
+            while (previousAskUsed == null && previousBidUsed == null && i >= 0) {
+
+                if (ASK.equals(trades.getTrades().get(i).getType()) && previousAskUsed == null) {
+                    previousAskUsed = trades.getTrades().get(i).getPrice();
+                    logger.info("setting previous ask to [" + previousAskUsed + "]");
+                } else if (BID.equals(trades.getTrades().get(i).getType()) && previousBidUsed == null) {
+                    previousBidUsed = trades.getTrades().get(i).getPrice();
+                    logger.info("setting previous bid to [" + previousBidUsed + "]");
+                }
+                i--;
+            }
         }
     }
 

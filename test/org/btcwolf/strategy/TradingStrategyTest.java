@@ -19,9 +19,8 @@ package org.btcwolf.strategy;
 
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
-import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import com.xeiam.xchange.dto.trade.LimitOrder;
+import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
@@ -104,7 +103,7 @@ public class TradingStrategyTest {
         }
 
         @Override
-        public String placeOrder(Order.OrderType orderType, BigDecimal amount) {
+        public String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
             logger.info("placed order [" + orderType + "] of [" + amount + "]");
             if (orderType == Order.OrderType.ASK) {
                 this.mCurrency = amount;
@@ -143,8 +142,8 @@ public class TradingStrategyTest {
         }
 
         @Override
-        public OrderBook getOrderBook() {
-            return new OrderBook(null, new ArrayList<LimitOrder>(), new ArrayList<LimitOrder>());
+        public Trades getTrades() {
+            return null;// new OrderBook(null, new ArrayList<LimitOrder>(), new ArrayList<LimitOrder>());
         }
     }
     class MyOrder extends Order {

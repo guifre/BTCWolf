@@ -22,10 +22,9 @@ import com.xeiam.xchange.ExchangeFactory;
 import com.xeiam.xchange.ExchangeSpecification;
 import com.xeiam.xchange.btcchina.BTCChinaExchange;
 import com.xeiam.xchange.currency.CurrencyPair;
-import com.xeiam.xchange.dto.Order;
-import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import com.xeiam.xchange.dto.trade.MarketOrder;
+import com.xeiam.xchange.dto.marketdata.Trades;
+import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
@@ -33,7 +32,12 @@ import org.btcwolf.BTCWolf;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+
+import static com.xeiam.xchange.dto.Order.OrderType;
+import static com.xeiam.xchange.dto.Order.OrderType.ASK;
+import static com.xeiam.xchange.dto.Order.OrderType.BID;
 
 public class BTCChinaAgent implements TraderAgent {
 
@@ -78,15 +82,22 @@ public class BTCChinaAgent implements TraderAgent {
         }
     }
 
-    public String placeOrder(Order.OrderType orderType, BigDecimal amount) {
+    public String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
-            return exchange.getPollingTradeService().placeMarketOrder(new MarketOrder(Order.OrderType.ASK, amount, CURRENCY_PAIR));
+            if (ASK.equals(orderType)) {
+                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR,"rand",new Date(), ticker.getAsk()));
+            } else if (BID.equals(orderType)) {
+                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR,"rand",new Date(), ticker.getBid()));
+            } else {
+                logger.error("Could not process " + orderType);
+                return "Error. Could not process " + orderType;
+            }
         } catch (Exception e) {
-            logger.warn("oops " + e.getMessage());
-            return placeOrder(orderType, amount);
+            logger.warn("oops " + e.getMessage() + " " + e.toString());
+            return placeOrder(orderType, amount, ticker);
         }
     }
 
@@ -144,12 +155,12 @@ public class BTCChinaAgent implements TraderAgent {
         }
     }
 
-    public OrderBook getOrderBook() {
+    public Trades getTrades() {
         try {
-            return this.exchange.getPollingMarketDataService().getOrderBook(CURRENCY_PAIR);
+            return exchange.getPollingTradeService().getTradeHistory();
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
-            return getOrderBook();
+            return getTrades();
         }
     }
 }
