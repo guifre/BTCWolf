@@ -42,7 +42,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         super(traderAgent, twitterAgent);
         this.opBitCoinThreshold = opBitCoinThreshold;
         this.opCurrencyThreshold = opCurrencyThreshold;
-        processOrders();
+        processHisotircOrders();
     }
 
     @Override
@@ -80,12 +80,17 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToSell = myBitCoins.multiply(ticker.getAsk());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order ASK [" + String.format("%.5f", myBitCoins) + "]BTC to CNY for [" + String.format("%.1f", ticker.getAsk()) +
-                    "]. Last used [" + String.format("%.1f", previousAskUsed) + "]. Profit %[" +
+            log("Placed order ASK [" + String.format("%.5f", myBitCoins) + "]BTC to CNY for [" +
+                    String.format("%.1f", ticker.getAsk()) + "]. Last used [" +
+                    String.format("%.1f", previousAskUsed) + "]. Profit %[" +
                     String.format("%.1f", priceDifference)+"]. Net[" + String.format("%.4f", opProfit)+ "]");
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
+        } else {
+            logger.debug("Old ASK[" + String.format("%.2f", previousAskUsed) +
+                    "] new ASK[" + String.format("%.2f", ticker.getAsk()) +
+                    "] th[" + opCurrencyThreshold + "] nothing to do.");
         }
     }
 
@@ -101,16 +106,23 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
             bitCoinsToBuy = myCurrency.multiply(ticker.getBid());
             totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]CNY to [" + String.format("%.5f",bitCoinsToBuy) +
-                    "BTC for [" + String.format("%.1f", ticker.getBid()) + "]. Last used [" + String.format("%.1f", previousBidUsed) +
-                    "]. Profit %[" + String.format("%.2f", priceDifference) + "]. Net[" + String.format("%.4f", (opProfit)) + "]");
+            log("Placed order of BID [" + String.format("%.1f",myCurrency) + "]CNY to [" +
+                    String.format("%.5f",bitCoinsToBuy) + "BTC for [" +
+                    String.format("%.1f", ticker.getBid()) + "]. Last used [" +
+                    String.format("%.1f", previousBidUsed) +
+                    "]. Profit %[" + String.format("%.2f", priceDifference) + "]. Net[" +
+                    String.format("%.4f", (opProfit)) + "]");
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
+        } else {
+            logger.debug("old BID[" + String.format("%.2f", previousBidUsed) + "] new BID[" +
+                    String.format("%.2f", ticker.getBid()) +
+                    "] th[" + opBitCoinThreshold + "] nothing to do.");
         }
     }
 
-    private void processOrders() {
+    private void processHisotircOrders() {
         OrderBook orders = this.traderAgent.getOrderBook();
         if (!orders.getAsks().isEmpty()) {
             previousAskUsed = orders.getAsks().get(orders.getAsks().size()-1).getLimitPrice();
