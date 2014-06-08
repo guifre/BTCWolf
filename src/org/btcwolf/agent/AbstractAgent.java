@@ -18,9 +18,6 @@
 package org.btcwolf.agent;
 
 import com.xeiam.xchange.Exchange;
-import com.xeiam.xchange.ExchangeFactory;
-import com.xeiam.xchange.ExchangeSpecification;
-import com.xeiam.xchange.btcchina.BTCChinaExchange;
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
@@ -39,42 +36,28 @@ import static com.xeiam.xchange.dto.Order.OrderType;
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
 import static com.xeiam.xchange.dto.Order.OrderType.BID;
 
-public class BTCChinaAgent implements TraderAgent {
+public abstract class AbstractAgent implements TraderAgent {
 
     private static final Logger logger = Logger.getLogger(TraderAgent.class.getName());
 
-    private static final String SECRET_KEY_ENV = "SecretKey";
-    private static final String API_KEY_ENV = "APIKey";
-    private static final String PASSWORD_ENV = "Password";
-
-    private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.BTC_CNY;
-    private static final String CURRENCY_BTC = "BTC";
-    private static final String CURRENCY_CNY = "CNY";
-
     private final Exchange exchange;
 
-    public BTCChinaAgent() {
+    private final CurrencyPair currencyPair;
+
+    public AbstractAgent(CurrencyPair currencyPair) {
+        this.currencyPair = currencyPair;
         this.exchange = buildExchange();
     }
 
-    private Exchange buildExchange() {
-        if (System.getProperty(SECRET_KEY_ENV) == null ||
-                System.getProperty(PASSWORD_ENV) == null ||
-                System.getProperty(API_KEY_ENV) == null) {
-            String msg = "Could not find credential arguments " + SECRET_KEY_ENV + System.getProperty(SECRET_KEY_ENV) + ", " + PASSWORD_ENV+System.getProperty(PASSWORD_ENV) + ", " + API_KEY_ENV + System.getProperty(API_KEY_ENV);
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
-        ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
-        exSpec.setSecretKey(System.getProperty(SECRET_KEY_ENV));
-        exSpec.setApiKey(System.getProperty(API_KEY_ENV));
-        exSpec.setPassword(System.getProperty(PASSWORD_ENV));
-        return ExchangeFactory.INSTANCE.createExchange(exSpec);
+    protected abstract Exchange buildExchange();
+
+    public CurrencyPair getCurrencyPair() {
+        return currencyPair;
     }
 
     public Ticker pollTicker() {
         try {
-            return exchange.getPollingMarketDataService().getTicker(CURRENCY_PAIR);
+            return exchange.getPollingMarketDataService().getTicker(currencyPair);
         } catch (IOException e) {
             logger.warn("oops when getting ticker " + e.getMessage());
             BTCWolf.makeSomeCoffee();
@@ -83,15 +66,15 @@ public class BTCChinaAgent implements TraderAgent {
     }
 
     public String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
-        logger.info("placing order " + orderType + " amount " + amount + "currency" + CURRENCY_PAIR + "limitprace " + ticker.getAsk());
+        logger.info("placing order " + orderType + " amount " + amount + "currency" + currencyPair + "limitprace " + ticker.getAsk());
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
             if (ASK.equals(orderType)) {
-                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR, "0", new Date(), ticker.getAsk()));
+                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, currencyPair, "0", new Date(), ticker.getAsk()));
             } else if (BID.equals(orderType)) {
-                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR, "0", new Date(), ticker.getBid()));
+                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, currencyPair, "0", new Date(), ticker.getBid()));
             } else {
                 logger.error("Could not process " + orderType);
                 return "Error. Could not process " + orderType;
@@ -101,8 +84,7 @@ public class BTCChinaAgent implements TraderAgent {
             for (StackTraceElement stackTraceElement : e.getStackTrace()) {
                 logger.warn(stackTraceElement.toString());
             }
-            System.exit(1);
-            return placeOrder(orderType, amount, ticker);
+            return "KO";
         }
     }
 
@@ -119,7 +101,7 @@ public class BTCChinaAgent implements TraderAgent {
         try {
             Wallet myWallet = null;
             for (Wallet wallet : this.exchange.getPollingAccountService().getAccountInfo().getWallets()) {
-                if (CURRENCY_BTC.equals(wallet.getCurrency())) {
+                if (currencyPair.baseSymbol.equals(wallet.getCurrency())) {
                     myWallet = wallet;
                 }
             }
@@ -137,7 +119,7 @@ public class BTCChinaAgent implements TraderAgent {
         try {
             Wallet myWallet = null;
             for (Wallet wallet : this.exchange.getPollingAccountService().getAccountInfo().getWallets()) {
-                if (CURRENCY_CNY.equals(wallet.getCurrency())) {
+                if (currencyPair.counterSymbol.equals(wallet.getCurrency())) {
                     myWallet = wallet;
                 }
             }

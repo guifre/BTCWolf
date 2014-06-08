@@ -17,6 +17,8 @@
 
 package org.btcwolf.agent;
 
+import org.btcwolf.agent.impl.BTCChinaAgent;
+
 public class AgentsFactory {
 
     public static TraderAgent buildTraderAgent() {

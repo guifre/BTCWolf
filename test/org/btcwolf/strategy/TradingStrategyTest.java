@@ -144,6 +144,11 @@ public class TradingStrategyTest {
         public Trades getTrades() {
             return null;// new OrderBook(null, new ArrayList<LimitOrder>(), new ArrayList<LimitOrder>());
         }
+
+        @Override
+        public CurrencyPair getCurrencyPair() {
+            return null;
+        }
     }
     class MyOrder extends Order {
 

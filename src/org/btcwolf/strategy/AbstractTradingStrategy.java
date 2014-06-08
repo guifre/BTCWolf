@@ -67,7 +67,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
             return;
         }
         String orderResult = traderAgent.placeOrder(BID, bitCoinsToBuy, ticker);
-        logAfterBID(bitCoinsToBuy, orderResult);
+        logAfterBID(myCurrency, orderResult);
     }
 
     void buyCurrency(BigDecimal bitCoinsToSell, Ticker ticker) {

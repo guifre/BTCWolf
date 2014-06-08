@@ -17,41 +17,29 @@
 
 package org.btcwolf.agent;
 
-import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import com.xeiam.xchange.dto.marketdata.Trade;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.impl.BTCChinaAgent;
+import org.btcwolf.agent.impl.BTCEAgent;
 import org.btcwolf.persistance.Serializer;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class BTCChinaAgentTest {
+public class BTCEAgentTest {
 
     private static final long POLLING_TIME = 30000l;
-    private static final Logger logger = Logger.getLogger(BTCChinaAgentTest.class);
+    private static final Logger logger = Logger.getLogger(BTCEAgentTest.class);
 
     @Test
     public void simpleTest() throws IOException {
-        BTCChinaAgent agent = new BTCChinaAgent();
+        BTCEAgent agent = new BTCEAgent();
         System.out.println(agent.getCurrencyPair().baseSymbol + " " + agent.getBitCoinBalance());
         System.out.println(agent.getCurrencyPair().counterSymbol + " " + agent.getCurrencyBalance());
         System.out.println("Open Orders " + agent.getOpenOrders().getOpenOrders().size());
-        for (Trade trade : agent.getTrades().getTrades()) {
-            System.out.println(trade);
-        }
-    }
-
-    @Ignore
-    @Test
-    public void testBugTrade() throws IOException {
-        BTCChinaAgent agent = new BTCChinaAgent();
-        agent.placeOrder(Order.OrderType.ASK, BigDecimal.ZERO,agent.pollTicker());
     }
 
     @Ignore

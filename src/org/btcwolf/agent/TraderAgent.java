@@ -17,6 +17,7 @@
 
 package org.btcwolf.agent;
 
+import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
@@ -34,4 +35,5 @@ public interface TraderAgent {
     BigDecimal getBitCoinBalance();
     OpenOrders getOpenOrders();
     Trades getTrades();
+    CurrencyPair getCurrencyPair();
 }

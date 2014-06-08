@@ -69,20 +69,22 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     }
 
     static void logNotASK(Ticker ticker, BigDecimal previousAskUsed, BigDecimal opCurrencyThreshold) {
-        logger.debug("Prev ASK[" + String.format("%.2f", previousAskUsed) +
-                "] new ASK[" + String.format("%.2f", ticker.getAsk()) +
+        logger.debug("Prev price [" +
+                String.format("%.2f", previousAskUsed) + "] new ASK[" +
+                String.format("%.2f", ticker.getAsk()) +
                 "] th[" + opCurrencyThreshold + "] nothing to do.");
     }
 
     static void logNotBID(Ticker ticker, BigDecimal previousBidUsed, BigDecimal opBitCoinThreshold) {
-        logger.debug("Prev BID[" + String.format("%.2f", previousBidUsed) + "] new BID[" +
+        logger.debug("Prev price [" +
+                String.format("%.2f", previousBidUsed) + "] new BID[" +
                 String.format("%.2f", ticker.getBid()) +
                 "] th[" + opBitCoinThreshold + "] nothing to do.");
     }
 
     static void logASK(Ticker ticker, BigDecimal myBitCoins, BigDecimal previousAskUsed, BigDecimal priceDifference, BigDecimal opProfit) {
         log("Placed Order ASK [" +
-                String.format("%.5f", myBitCoins) + "]BTC to [" +
+                String.format("%.5f", myBitCoins) + "]BTC to expected [" +
                 String.format("%.1f", ticker.getAsk()) + "]CNY. Last used [" +
                 String.format("%.1f", previousAskUsed) + "]. Profit Rel[" +
                 String.format("%.1f", priceDifference)+"]. Abs[" +
@@ -91,7 +93,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
 
     static void logBID(Ticker ticker, BigDecimal myCurrency, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
         log("Placed Order BID [" +
-                String.format("%.1f", myCurrency) + "]CNY to [" +
+                String.format("%.1f", myCurrency) + "]CNY to expected [" +
                 String.format("%.5f", bitCoinsToBuy) + "]BTC for [" +
                 String.format("%.1f", ticker.getBid()) + "]. Last used [" +
                 String.format("%.1f", previousBidUsed) + "]. Profit Rel[" +
