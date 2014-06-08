@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.Serializer;
-import org.btcwolf.twitter.TwitterAgent;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -59,7 +58,7 @@ public class TradingStrategyTest {
         BigDecimal currThreshold = BigDecimal.valueOf(3);
 
         TraderAgent testerAgent = new MyAgent(BigDecimal.TEN, BigDecimal.TEN);
-        TradingStrategy testedStrategy = new WinWinTradingStrategy(testerAgent, new TwitterAgent(), bitThreshold, currThreshold);
+        TradingStrategy testedStrategy = new WinWinTradingStrategy(testerAgent, bitThreshold, currThreshold);
 
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {

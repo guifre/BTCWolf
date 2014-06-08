@@ -23,7 +23,6 @@ import org.btcwolf.agent.AgentsFactory;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategy;
 import org.btcwolf.strategy.TradingStrategyProvider;
-import org.btcwolf.twitter.TwitterAgent;
 
 public class BTCWolf {
 
@@ -35,9 +34,8 @@ public class BTCWolf {
 
         PropertyConfigurator.configure(LOG4J_PATH);
 
-        TwitterAgent twitterAgent = new TwitterAgent();
         TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
-        TradingStrategy tradingStrategy = TradingStrategyProvider.getDefaultWinWinStrategy(traderAgent, twitterAgent);
+        TradingStrategy tradingStrategy = TradingStrategyProvider.getDefaultWinWinStrategy(traderAgent);
 
         while(true) {
             tradingStrategy.onTickerReceived(traderAgent.pollTicker());

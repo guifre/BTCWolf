@@ -20,28 +20,23 @@ package org.btcwolf.strategy;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
 import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ZERO;
-import static java.math.BigDecimal.valueOf;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.logAfterASK;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.logAfterBID;
 
 public abstract class AbstractTradingStrategy implements TradingStrategy {
 
     static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
 
     final TraderAgent traderAgent;
-    final TwitterAgent twitterAgent;
 
-    BigDecimal totalProfit;
-
-    public AbstractTradingStrategy(TraderAgent traderAgent, TwitterAgent twitterAgent) {
+    public AbstractTradingStrategy(TraderAgent traderAgent) {
         this.traderAgent = traderAgent;
-        this.totalProfit = valueOf(0);
-        this.twitterAgent = twitterAgent;
     }
 
     abstract BigDecimal getBitCoinsToSell();
@@ -52,7 +47,6 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
 
     public void onTickerReceived(Ticker ticker) {
 
-        logger.debug("\n\n New " + ticker);
         analyzeTicker(ticker);
 
         BigDecimal bitCoinsToBuy = getBitCoinsToBuy();
@@ -72,9 +66,8 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         if (myCurrency.compareTo(ZERO) == 0) {
             return;
         }
-        logger.info("Placing order BID from [" + bitCoinsToBuy + "]CNY");
         String orderResult = traderAgent.placeOrder(BID, bitCoinsToBuy, ticker);
-        logger.info("Order of BID [ " + bitCoinsToBuy + "]CNY placed, result [" + orderResult + "]");
+        logAfterBID(bitCoinsToBuy, orderResult);
     }
 
     void buyCurrency(BigDecimal bitCoinsToSell, Ticker ticker) {
@@ -82,8 +75,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         if (myBitCoins.compareTo(ZERO) == 0) {
             return;
         }
-        logger.info("Placing order ASK of [" + bitCoinsToSell + "]BTC");
         String orderResult = traderAgent.placeOrder(ASK, bitCoinsToSell, ticker);
-        logger.info("Order of ASK [ " + bitCoinsToSell + "]BTC placed, result [" + orderResult + "]");
+        logAfterASK(bitCoinsToSell, orderResult);
     }
 }

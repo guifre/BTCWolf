@@ -21,5 +21,5 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 
 public interface TradingStrategy {
 
-    public void onTickerReceived(Ticker ticker);
+    void onTickerReceived(Ticker ticker);
 }

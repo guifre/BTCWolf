@@ -21,13 +21,15 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
 import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ZERO;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.logASK;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.logBID;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.logNotBID;
 
 public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
@@ -40,11 +42,11 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     private BigDecimal previousAskUsed;
     private BigDecimal previousBidUsed;
 
-    public WinWinTradingStrategy(TraderAgent traderAgent, TwitterAgent twitterAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
-        super(traderAgent, twitterAgent);
+    public WinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opBitCoinThreshold, BigDecimal opCurrencyThreshold) {
+        super(traderAgent);
         this.opBitCoinThreshold = opBitCoinThreshold;
         this.opCurrencyThreshold = opCurrencyThreshold;
-        processHisotircOrders();
+        processHistoricOrders();
     }
 
     @Override
@@ -86,22 +88,17 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
             BigDecimal opProfit = priceDifference.multiply(myBitCoins);
             bitCoinsToSell = myBitCoins.multiply(ticker.getAsk());
-            totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed Order ASK [" +
-                    String.format("%.5f", myBitCoins) + "]BTC to [" +
-                    String.format("%.1f", ticker.getAsk()) + "]CNY. Last used [" +
-                    String.format("%.1f", previousAskUsed) + "]. Profit Rel[" +
-                    String.format("%.1f", priceDifference)+"]. Abs[" +
-                    String.format("%.4f", opProfit)+ "]CNY");
+            logASK(ticker, myBitCoins, previousAskUsed, priceDifference, opProfit);
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         } else {
-            logger.debug("Prev ASK[" + String.format("%.2f", previousAskUsed) +
-                    "] new ASK[" + String.format("%.2f", ticker.getAsk()) +
-                    "] th[" + opCurrencyThreshold + "] nothing to do.");
+            logNotASK(ticker, previousAskUsed, opCurrencyThreshold);
         }
+    }
+
+    private void logNotASK(Ticker ticker, BigDecimal previousAskUsed, BigDecimal opCurrencyThreshold) {
     }
 
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
@@ -114,26 +111,17 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
             BigDecimal opProfit = priceDifference.multiply(myCurrency);
             bitCoinsToBuy = myCurrency.multiply(ticker.getBid());
-            totalProfit = totalProfit.add(priceDifference);
 
-            log("Placed Order BID [" +
-                    String.format("%.1f", myCurrency) + "]CNY to [" +
-                    String.format("%.5f", bitCoinsToBuy) + "]BTC for [" +
-                    String.format("%.1f", ticker.getBid()) + "]. Last used [" +
-                    String.format("%.1f", previousBidUsed) + "]. Profit Rel[" +
-                    String.format("%.2f", priceDifference) + "]. Abs[" +
-                    String.format("%.4f", opProfit) + "]CNY");
+            logBID(ticker, myCurrency, bitCoinsToBuy, previousBidUsed, priceDifference, opProfit);
 
             previousAskUsed = ticker.getAsk();
             previousBidUsed = ticker.getBid();
         } else {
-            logger.debug("Prev BID[" + String.format("%.2f", previousBidUsed) + "] new BID[" +
-                    String.format("%.2f", ticker.getBid()) +
-                    "] th[" + opBitCoinThreshold + "] nothing to do.");
+            logNotBID(ticker, previousBidUsed, opBitCoinThreshold);
         }
     }
 
-    private void processHisotircOrders() {
+    private void processHistoricOrders() {
         Trades trades = this.traderAgent.getTrades();
         if (trades.getTrades() == null || trades.getTrades().isEmpty()) {
             logger.info("empty historic, waiting for next ticker.");
@@ -153,8 +141,5 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
-    private void log(String message) {
-        logger.info(message);
-        twitterAgent.publish(message);
-    }
+
 }
