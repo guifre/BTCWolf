@@ -83,20 +83,25 @@ public class BTCChinaAgent implements TraderAgent {
     }
 
     public String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
+        logger.info("placing order " + orderType + " amount " + amount + "currency" + CURRENCY_PAIR + "limitprace " + ticker.getAsk());
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
             if (ASK.equals(orderType)) {
-                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR,"rand",new Date(), ticker.getAsk()));
+                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR, "0", new Date(), ticker.getAsk()));
             } else if (BID.equals(orderType)) {
-                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR,"rand",new Date(), ticker.getBid()));
+                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, CURRENCY_PAIR, "0", new Date(), ticker.getBid()));
             } else {
                 logger.error("Could not process " + orderType);
                 return "Error. Could not process " + orderType;
             }
         } catch (Exception e) {
-            logger.warn("oops " + e.getMessage() + " " + e.toString());
+            logger.warn("oops " + e.getMessage() + " " + e.toString() );
+            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                logger.warn(stackTraceElement.toString());
+            }
+            System.exit(1);
             return placeOrder(orderType, amount, ticker);
         }
     }

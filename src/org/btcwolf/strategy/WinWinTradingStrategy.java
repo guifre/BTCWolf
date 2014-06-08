@@ -27,9 +27,7 @@ import java.math.BigDecimal;
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
 import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ZERO;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.logASK;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.logBID;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.logNotBID;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
 
 public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
@@ -98,8 +96,6 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
-    private void logNotASK(Ticker ticker, BigDecimal previousAskUsed, BigDecimal opCurrencyThreshold) {
-    }
 
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
 
