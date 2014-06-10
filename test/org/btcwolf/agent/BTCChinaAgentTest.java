@@ -17,19 +17,21 @@
 
 package org.btcwolf.agent;
 
-import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trade;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.impl.BTCChinaAgent;
 import org.btcwolf.persistance.Serializer;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static com.xeiam.xchange.dto.Order.OrderType.ASK;
 
 public class BTCChinaAgentTest {
 
@@ -47,14 +49,12 @@ public class BTCChinaAgentTest {
         }
     }
 
-    @Ignore
     @Test
     public void testBugTrade() throws IOException {
         BTCChinaAgent agent = new BTCChinaAgent();
-        agent.placeOrder(Order.OrderType.ASK, BigDecimal.ZERO,agent.pollTicker());
+        agent.placeOrder(ASK, BigDecimal.ZERO,agent.pollTicker());
     }
 
-    @Ignore
     @Test
     public void serializeMoreTickers() throws FileNotFoundException {
 
@@ -71,5 +71,31 @@ public class BTCChinaAgentTest {
             }
         }
         Serializer.write(tickers);
+    }
+
+    @Test
+    public void testTradingRetrieval() throws IOException {
+        BTCChinaAgent agent = new BTCChinaAgent();
+        List<Trade> trades = agent.getTradeHistory(200).getTrades();
+        int bids = 0; int asks = 0;
+        for (Trade trade : trades) {
+            System.out.println(trade);
+            if (ASK == trade.getType()) {
+                asks++;
+            } else {
+                bids++;
+            }
+        }
+        System.out.println("Bids [" + bids + "] Asks [" + asks + "]");
+    }
+
+    @Test
+    public void testLastOperationDate() throws IOException {
+        BTCChinaAgent agent = new BTCChinaAgent();
+        List<Trade> trades = agent.getTrades().getTrades();
+        Trade lastTrade = trades.get(trades.size() - 1);
+        Date now = new Date();
+        int diff = (int) (now.getTime() - lastTrade.getTimestamp().getTime());
+        System.out.println("Diff betwen " + now + " and "  + lastTrade.getTimestamp() + " is " +diff/1000/60/60 + " hours");
     }
 }

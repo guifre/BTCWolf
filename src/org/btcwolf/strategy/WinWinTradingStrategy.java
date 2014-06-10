@@ -31,8 +31,12 @@ import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
 
 public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
+    private static final boolean MIN_OP_TIME = false;
     private static final int MAX_NON_OP_TIME = 5; //hours
-    private static final BigDecimal opThreshold = BigDecimal.valueOf(2);
+
+    private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(2);
+    private static final String OP_THRESHOLD_ENV = "OP_THRESHOLD";
+    private BigDecimal opThreshold;
 
     private BigDecimal bitCoinsToSell = BigDecimal.valueOf(0d);
     private BigDecimal bitCoinsToBuy = BigDecimal.valueOf(0d);
@@ -41,6 +45,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
     public WinWinTradingStrategy(TraderAgent traderAgent) {
         super(traderAgent);
+        getThreshold();
         processHistoricOrders();
     }
 
@@ -91,7 +96,6 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
-
     private void computeWorthinessBuyingBitCoins(Ticker ticker) {
 
         BigDecimal myCurrency = traderAgent.getCurrencyBalance();
@@ -115,6 +119,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
+
     private void processHistoricOrders() {
         Trades trades = traderAgent.getTrades();
         if (trades == null || trades.getTrades() == null || trades.getTrades().isEmpty()) {
@@ -126,8 +131,19 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
-    private boolean lostTheTrend() {
+    private void getThreshold() {
+        if (System.getProperty(OP_THRESHOLD_ENV) == null) {
+            this.opThreshold = DEFAULT_OP_THRESHOLD;
+        } else {
+            this.opThreshold = BigDecimal.valueOf(Integer.valueOf(System.getProperty(OP_THRESHOLD_ENV)));
+        }
+       logger.info("Using op threshold of " + this.opThreshold);
+    }
 
+    private boolean lostTheTrend() {
+        if (!MIN_OP_TIME) {
+            return false;
+        }
         Trades trades = traderAgent.getTrades();
         if (trades == null || trades.getTrades() == null || trades.getTrades().isEmpty()) {
             return false;

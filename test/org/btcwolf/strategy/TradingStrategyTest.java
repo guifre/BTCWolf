@@ -54,11 +54,10 @@ public class TradingStrategyTest {
 
         PropertyConfigurator.configure(LOG4J_PATH);
 
-        BigDecimal bitThreshold = BigDecimal.valueOf(5);
-        BigDecimal currThreshold = BigDecimal.valueOf(3);
+        BigDecimal threshold = BigDecimal.valueOf(5);
 
         TraderAgent testerAgent = new MyAgent(BigDecimal.TEN, BigDecimal.TEN);
-        TradingStrategy testedStrategy = new WinWinTradingStrategy(testerAgent, bitThreshold, currThreshold);
+        TradingStrategy testedStrategy = new WinWinTradingStrategy(testerAgent);
 
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {
@@ -66,8 +65,7 @@ public class TradingStrategyTest {
             ticker = testerAgent.pollTicker();
         }
 
-        logger.info("BTC threshold[" + String.format("%.1f", bitThreshold) +
-                "] Curr Threshold[" + String.format("%.1f", currThreshold) +
+        logger.info("Op threshold[" + String.format("%.1f", threshold) +
                 "] Profit [" + String.format("%.4f", testerAgent.getCurrencyBalance()) + "]"+
                 "] Profit [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }
@@ -142,7 +140,7 @@ public class TradingStrategyTest {
 
         @Override
         public Trades getTrades() {
-            return null;// new OrderBook(null, new ArrayList<LimitOrder>(), new ArrayList<LimitOrder>());
+            return null;
         }
 
         @Override
