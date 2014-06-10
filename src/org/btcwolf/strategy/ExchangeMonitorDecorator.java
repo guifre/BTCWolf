@@ -18,9 +18,11 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.trade.LimitOrder;
 import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.btcwolf.strategy.AbstractTradingStrategy.*;
 
@@ -80,6 +82,12 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 String.format("%.2f", previousBidUsed) + "] new BID[" +
                 String.format("%.2f", ticker.getBid()) +
                 "] th[" + opBitCoinThreshold + "] nothing to do.");
+    }
+
+    static void logOpenOrders(List<LimitOrder> openOrders) {
+        for (LimitOrder order : openOrders) {
+            logger.info("Noting to do, open order [" + order + "]");
+        }
     }
 
     static void logASK(Ticker ticker, BigDecimal myBitCoins, BigDecimal previousAskUsed, BigDecimal priceDifference, BigDecimal opProfit) {

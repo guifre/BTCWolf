@@ -58,7 +58,7 @@ public abstract class AbstractAgent implements TraderAgent {
     public Ticker pollTicker() {
         try {
             return exchange.getPollingMarketDataService().getTicker(currencyPair);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("oops when getting ticker " + e.getMessage());
             BTCWolf.makeSomeCoffee();
             return pollTicker();
@@ -66,25 +66,21 @@ public abstract class AbstractAgent implements TraderAgent {
     }
 
     public String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
-        logger.info("placing order " + orderType + " amount " + amount + "currency" + currencyPair + "limitprace " + ticker.getAsk());
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
                 throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
-            if (ASK.equals(orderType)) {
-                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, currencyPair, "0", new Date(), ticker.getAsk()));
-            } else if (BID.equals(orderType)) {
-                return exchange.getPollingTradeService().placeLimitOrder(new LimitOrder(orderType, amount, currencyPair, "0", new Date(), ticker.getBid()));
-            } else {
-                logger.error("Could not process " + orderType);
-                return "Error. Could not process " + orderType;
-            }
-        } catch (Exception e) {
-            logger.warn("oops " + e.getMessage() + " " + e.toString() );
-            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-                logger.warn(stackTraceElement.toString());
-            }
-            return "KO";
+        } catch (IOException e) {
+            //
+        }
+        logger.info("placing order " + orderType + " amount " + amount + "currency" + currencyPair + "limitprace " + ticker.getAsk());
+        if (ASK.equals(orderType)) {
+                return attemptPlaceOrder(orderType, amount, ticker.getAsk(), 0);
+        } else if (BID.equals(orderType)) {
+            return attemptPlaceOrder(orderType, amount, ticker.getBid(), 0);
+        } else {
+            logger.error("Could not process " + orderType);
+            return "Error. Could not process " + orderType;
         }
     }
 
@@ -142,12 +138,37 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    public Trades getTradeHistory(int numberOfTrades) {
+        try {
+            return this.exchange.getPollingMarketDataService().getTrades(currencyPair, numberOfTrades);
+        } catch (IOException e) {
+            logger.warn("oops " + e.getMessage());
+            return getTradeHistory(numberOfTrades);
+        }
+    }
+
     public Trades getTrades() {
         try {
             return exchange.getPollingTradeService().getTradeHistory();
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
             return getTrades();
+        }
+    }
+
+    private String attemptPlaceOrder(OrderType orderType, BigDecimal amount, BigDecimal price, int attempt) {
+        if (attempt >= 5) {
+            return "KO";
+        }
+        try {
+            return exchange.getPollingTradeService().placeLimitOrder(
+                    new LimitOrder(orderType, amount, currencyPair, "0", new Date(), price));
+        } catch (Exception e) {
+            logger.warn("oops attempt "  + attempt + " " + e.getMessage() + " " + e.toString());
+            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                logger.warn(stackTraceElement.toString());
+            }
+            return attemptPlaceOrder(orderType, amount, price, attempt + 1);
         }
     }
 }

@@ -24,10 +24,10 @@ import java.math.BigDecimal;
 public class TradingStrategyProvider {
 
     public static final TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
-        return getAgent(traderAgent, BigDecimal.valueOf(1));
+        return getAgent(traderAgent);
     }
 
-    public static final TradingStrategy getAgent(TraderAgent traderAgent, BigDecimal opThreshold) {
-        return new ExchangeMonitorDecorator(new WinWinTradingStrategy(traderAgent, opThreshold));
+    public static final TradingStrategy getAgent(TraderAgent traderAgent) {
+        return new ExchangeMonitorDecorator(new WinWinTradingStrategy(traderAgent));
     }
 }

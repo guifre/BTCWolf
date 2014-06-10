@@ -67,7 +67,9 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
             return;
         }
         String orderResult = traderAgent.placeOrder(BID, bitCoinsToBuy, ticker);
-        logAfterBID(myCurrency, orderResult);
+        if (!"KO".equals(orderResult)) {
+            logAfterBID(myCurrency, orderResult);
+        }
     }
 
     void buyCurrency(BigDecimal bitCoinsToSell, Ticker ticker) {
@@ -76,6 +78,8 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
             return;
         }
         String orderResult = traderAgent.placeOrder(ASK, bitCoinsToSell, ticker);
-        logAfterASK(bitCoinsToSell, orderResult);
+        if (!"KO".equals(orderResult)) {
+            logAfterASK(bitCoinsToSell, orderResult);
+        }
     }
 }
