@@ -2,6 +2,7 @@ What's BTCWolf?
 -------------
 BTCWolf a simple automated trader agent for the bitCoin exchange market. I is aimed at monitoring the bitCoin market to automatically take trade decisions and raise the user's capital. It relies on the xchange library so it can be used for any exchanger website.
 
+You can see real time trades of my BTCWolf instance in its twitter at https://twitter.com/btcwolfbot
 
 How BTCWolf works?
 -------------
@@ -25,7 +26,6 @@ Running BTCWolf
 For security reasons, you need to specify at runtime the exchanger credentials, as follows:
 
     $ java -DAPIKey="xxxx" -DSecretKey="yyyy" -DPassword="zzzz" -jar dist/BTCWolf.jar
-
 
 Bugs & Contact
 --------------
