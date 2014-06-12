@@ -25,6 +25,7 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.AbstractAgent;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.persistance.SettingsProvider;
 
 public class BTCChinaAgent extends AbstractAgent {
 
@@ -41,20 +42,20 @@ public class BTCChinaAgent extends AbstractAgent {
     }
 
     protected Exchange buildExchange() {
-        if (System.getProperty(SECRET_KEY_ENV) == null ||
-                System.getProperty(PASSWORD_ENV) == null ||
-                System.getProperty(API_KEY_ENV) == null) {
+        if (SettingsProvider.getProperty(SECRET_KEY_ENV) == null ||
+                SettingsProvider.getProperty(PASSWORD_ENV) == null ||
+                SettingsProvider.getProperty(API_KEY_ENV) == null) {
             String msg = "Could not find credential arguments " +
-                    SECRET_KEY_ENV + System.getProperty(SECRET_KEY_ENV) +
-                    ", " + PASSWORD_ENV+System.getProperty(PASSWORD_ENV) +
-                    ", " + API_KEY_ENV + System.getProperty(API_KEY_ENV);
+                    SECRET_KEY_ENV + SettingsProvider.getProperty(SECRET_KEY_ENV) + ", " +
+                    PASSWORD_ENV + SettingsProvider.getProperty(PASSWORD_ENV) + ", " +
+                    API_KEY_ENV + SettingsProvider.getProperty(API_KEY_ENV);
             logger.error(msg);
             throw new RuntimeException(msg);
         }
         ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
-        exSpec.setSecretKey(System.getProperty(SECRET_KEY_ENV));
-        exSpec.setApiKey(System.getProperty(API_KEY_ENV));
-        exSpec.setPassword(System.getProperty(PASSWORD_ENV));
+        exSpec.setSecretKey(SettingsProvider.getProperty(SECRET_KEY_ENV));
+        exSpec.setApiKey(SettingsProvider.getProperty(API_KEY_ENV));
+        exSpec.setPassword(SettingsProvider.getProperty(PASSWORD_ENV));
         return ExchangeFactory.INSTANCE.createExchange(exSpec);
     }
 }

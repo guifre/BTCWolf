@@ -25,6 +25,7 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.AbstractAgent;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.persistance.SettingsProvider;
 
 public class BTCEAgent extends AbstractAgent {
 
@@ -40,15 +41,15 @@ public class BTCEAgent extends AbstractAgent {
     }
 
     protected Exchange buildExchange() {
-        if (System.getProperty(KEY_ENV) == null ||
-                System.getProperty(SECRET_ENV) == null) {
+        if (SettingsProvider.getProperty(KEY_ENV) == null ||
+                SettingsProvider.getProperty(SECRET_ENV) == null) {
             String msg = "Could not find credential arguments " + KEY_ENV +  SECRET_ENV;
             logger.error(msg);
             throw new RuntimeException(msg);
         }
         ExchangeSpecification exSpec = new ExchangeSpecification(BTCEExchange.class);
-        exSpec.setApiKey(System.getProperty(KEY_ENV));
-        exSpec.setSecretKey(System.getProperty(SECRET_ENV));
+        exSpec.setApiKey(SettingsProvider.getProperty(KEY_ENV));
+        exSpec.setSecretKey(SettingsProvider.getProperty(SECRET_ENV));
         return ExchangeFactory.INSTANCE.createExchange(exSpec);
     }
 }

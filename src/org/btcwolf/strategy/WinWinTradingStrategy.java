@@ -17,17 +17,19 @@
 
 package org.btcwolf.strategy;
 
-import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.persistance.SettingsProvider;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
+import static com.xeiam.xchange.dto.Order.OrderType;
 import static java.math.BigDecimal.ZERO;
 import static java.math.RoundingMode.HALF_EVEN;
+import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
 
 public class WinWinTradingStrategy extends AbstractTradingStrategy {
@@ -37,6 +39,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
 
     private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(2);
     private static final String OP_THRESHOLD_ENV = "OP_THRESHOLD";
+
     private BigDecimal opThreshold;
 
     private BigDecimal bitCoinsToSell = BigDecimal.valueOf(0d);
@@ -64,7 +67,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     void analyzeTicker(Ticker ticker) {
         if (previousPriceUsed == null) {
             previousPriceUsed = ticker.getAsk();
-            logger.info("No older orders, setting prev Op[" + previousPriceUsed);
+            logger.info("No older orders, setting prev Op[" + previousPriceUsed + "]");
             return;
         }
         bitCoinsToBuy = ZERO;
@@ -77,16 +80,16 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
-    void onOrdered(Ticker ticker, BigDecimal amount, Order.OrderType orderType, String orderResult) {
-        if (!"KO".equals(orderResult)) {
-            if (Order.OrderType.BID == orderType) {
-                logAfterBID(amount, orderResult);
+    void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
+
+        if (!FAILED_ORDER.equals(orderResult)) {
+            logOrder(amount, orderType, orderResult);
+            if (OrderType.BID == orderType) {
                 BigDecimal priceDifference = previousPriceUsed.subtract(ticker.getBid());
                 BigDecimal opProfit = priceDifference.multiply(amount);
                 logBID(ticker, amount, bitCoinsToBuy, previousPriceUsed, priceDifference, opProfit);
                 previousPriceUsed = ticker.getBid();
             } else {
-                logAfterASK(bitCoinsToSell, orderResult);
                 BigDecimal priceDifference = ticker.getAsk().subtract(previousPriceUsed);
                 BigDecimal opProfit = priceDifference.multiply(amount);
                 logASK(ticker, amount, previousPriceUsed, priceDifference, opProfit);
@@ -96,16 +99,13 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private void computeWorthinessSellingBitCoins(Ticker ticker) {
-
-        BigDecimal myBitCoins = this.traderAgent.getBitCoinBalance();
+        BigDecimal myBitCoins = traderAgent.getBitCoinBalance();
         if (traderAgent.getCurrencyBalance().compareTo(myBitCoins.multiply(previousPriceUsed)) == 1) {
             return;
         }
         if ((ticker.getAsk().compareTo(previousPriceUsed.add(opThreshold)) == 1 && myBitCoins.compareTo(ZERO) == 1) || lostTheTrend()) {
             // new ask higher than the last one plus the threshold and be have money
             bitCoinsToSell = myBitCoins;
-
-
         } else {
             logNotASK(ticker, previousPriceUsed, opThreshold);
         }
@@ -117,15 +117,13 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         if (traderAgent.getBitCoinBalance().multiply(previousPriceUsed).compareTo(myCurrency) == 1) {
             return;
         }
-        if (previousPriceUsed.add(opThreshold).compareTo(ticker.getBid()) == 1 && myCurrency.compareTo(ZERO) == 1 ||
-                lostTheTrend()) {
+        if (previousPriceUsed.add(opThreshold).compareTo(ticker.getBid()) == 1 && myCurrency.compareTo(ZERO) == 1 || lostTheTrend()) {
              // old price plus threshold is higher than the bid one, and be have money
             bitCoinsToBuy = myCurrency.divide(ticker.getBid(), 40, HALF_EVEN);
         } else {
             logNotBID(ticker, previousPriceUsed, opThreshold);
         }
     }
-
 
     private void processHistoricOrders() {
         Trades trades = traderAgent.getTrades();
@@ -139,12 +137,12 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private void getThreshold() {
-        if (System.getProperty(OP_THRESHOLD_ENV) == null) {
-            this.opThreshold = DEFAULT_OP_THRESHOLD;
+        if (SettingsProvider.getProperty(OP_THRESHOLD_ENV) == null) {
+            opThreshold = DEFAULT_OP_THRESHOLD;
         } else {
-            this.opThreshold = BigDecimal.valueOf(Integer.valueOf(System.getProperty(OP_THRESHOLD_ENV)));
+            opThreshold = BigDecimal.valueOf(Integer.valueOf(SettingsProvider.getProperty(OP_THRESHOLD_ENV)));
         }
-       logger.info("Using op threshold of " + this.opThreshold);
+       logger.info("Using op threshold of " + opThreshold);
     }
 
     private boolean lostTheTrend() {
@@ -157,7 +155,7 @@ public class WinWinTradingStrategy extends AbstractTradingStrategy {
         }
         Trade lastTrade = trades.getTrades().get(trades.getTrades().size() -1);
         int timeSinceLastOp = (int) (new Date().getTime() - lastTrade.getTimestamp().getTime());
-        int timeSinceLastOpInHours = timeSinceLastOp/60/60/1000;
+        int timeSinceLastOpInHours = timeSinceLastOp / 60 / 60 / 1000;
         logger.info("Time since last order [" + timeSinceLastOpInHours + "] hours");
         return  timeSinceLastOpInHours > MAX_NON_OP_TIME;
     }

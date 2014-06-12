@@ -20,6 +20,5 @@ package org.btcwolf.strategy;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 
 public interface TradingStrategy {
-
     void onTickerReceived(Ticker ticker);
 }

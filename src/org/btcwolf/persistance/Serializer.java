@@ -30,7 +30,7 @@ import java.util.List;
 
 public class Serializer {
 
-    private static final String FILE = "resources/historic";
+    private static final String FILE = "./resources/historic";
 
     public static void  write(List<Ticker> tickerList) throws FileNotFoundException {
         XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(FILE)));

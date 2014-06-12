@@ -38,7 +38,8 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 
 public abstract class AbstractAgent implements TraderAgent {
 
-    private static final Logger logger = Logger.getLogger(TraderAgent.class.getName());
+    private static final Logger logger = Logger.getLogger(TraderAgent.class);
+    public static final String FAILED_ORDER = "KO";
 
     private final Exchange exchange;
 
@@ -158,7 +159,7 @@ public abstract class AbstractAgent implements TraderAgent {
 
     private String attemptPlaceOrder(OrderType orderType, BigDecimal amount, BigDecimal price, int attempt) {
         if (attempt >= 5) {
-            return "KO";
+            return FAILED_ORDER;
         }
         try {
             return exchange.getPollingTradeService().placeLimitOrder(

@@ -27,8 +27,6 @@ import java.math.BigDecimal;
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
 import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ZERO;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.logAfterASK;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.logAfterBID;
 
 public abstract class AbstractTradingStrategy implements TradingStrategy {
 
@@ -78,6 +76,5 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
             return;
         }
         onOrdered(ticker, bitCoinsToSell, ASK, traderAgent.placeOrder(ASK, bitCoinsToSell, ticker));
-
     }
 }

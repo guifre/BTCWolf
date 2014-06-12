@@ -18,6 +18,7 @@
 package org.btcwolf.twitter;
 
 import org.apache.log4j.Logger;
+import org.btcwolf.persistance.SettingsProvider;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
@@ -35,10 +36,10 @@ public class TwitterAgent {
     public TwitterAgent() {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(System.getProperty(CONSUMER_KEY))
-                .setOAuthConsumerSecret(System.getProperty(CONSUMER_SECRET))
-                .setOAuthAccessToken(System.getProperty(ACCESS_TOKEN))
-                .setOAuthAccessTokenSecret(System.getProperty(TOKEN_SECRET));
+                .setOAuthConsumerKey(SettingsProvider.getProperty(CONSUMER_KEY))
+                .setOAuthConsumerSecret(SettingsProvider.getProperty(CONSUMER_SECRET))
+                .setOAuthAccessToken(SettingsProvider.getProperty(ACCESS_TOKEN))
+                .setOAuthAccessTokenSecret(SettingsProvider.getProperty(TOKEN_SECRET));
         this.twitter = new TwitterFactory(cb.build());
     }
 

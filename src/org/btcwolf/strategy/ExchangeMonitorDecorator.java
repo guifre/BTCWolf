@@ -17,6 +17,7 @@
 
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import org.btcwolf.twitter.TwitterAgent;
@@ -62,12 +63,8 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 "]" + " Open Orders[" + tradingStrategy.traderAgent.getOpenOrders().toString() + "].");
     }
 
-    static void logAfterBID(BigDecimal bitCoinsToBuy, String orderResult) {
-        logger.info("Order of BID [ " + bitCoinsToBuy + "]CNY placed, result [" + orderResult + "]");
-    }
-
-    static void logAfterASK(BigDecimal bitCoinsToBuy, String orderResult) {
-        logger.info("Order of ASK [ " + bitCoinsToBuy + "]BTC placed, result [" + orderResult + "]");
+    static void logOrder(BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult) {
+        logger.info("Order " + orderType.toString() +" [ " + bitCoinsToBuy + "]CNY placed, result [" + orderResult + "]");
     }
 
     static void logNotASK(Ticker ticker, BigDecimal previousAskUsed, BigDecimal opCurrencyThreshold) {

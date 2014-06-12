@@ -24,5 +24,4 @@ public class AgentsFactory {
     public static TraderAgent buildTraderAgent() {
        return new BTCChinaAgent();
     }
-
 }
