@@ -17,6 +17,7 @@
 
 package org.btcwolf.strategy;
 
+import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
@@ -43,6 +44,8 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
 
     abstract BigDecimal getBitCoinsToBuy();
 
+    abstract void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult);
+
     abstract void analyzeTicker(Ticker ticker);
 
     public void onTickerReceived(Ticker ticker) {
@@ -66,10 +69,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         if (myCurrency.compareTo(ZERO) == 0) {
             return;
         }
-        String orderResult = traderAgent.placeOrder(BID, bitCoinsToBuy, ticker);
-        if (!"KO".equals(orderResult)) {
-            logAfterBID(myCurrency, orderResult);
-        }
+        onOrdered(ticker, bitCoinsToBuy, BID, traderAgent.placeOrder(BID, bitCoinsToBuy, ticker));
     }
 
     void buyCurrency(BigDecimal bitCoinsToSell, Ticker ticker) {
@@ -77,9 +77,7 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         if (myBitCoins.compareTo(ZERO) == 0) {
             return;
         }
-        String orderResult = traderAgent.placeOrder(ASK, bitCoinsToSell, ticker);
-        if (!"KO".equals(orderResult)) {
-            logAfterASK(bitCoinsToSell, orderResult);
-        }
+        onOrdered(ticker, bitCoinsToSell, ASK, traderAgent.placeOrder(ASK, bitCoinsToSell, ticker));
+
     }
 }

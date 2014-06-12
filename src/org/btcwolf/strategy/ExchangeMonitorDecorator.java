@@ -91,16 +91,17 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     }
 
     static void logASK(Ticker ticker, BigDecimal myBitCoins, BigDecimal previousAskUsed, BigDecimal priceDifference, BigDecimal opProfit) {
-        log("Placed Order ASK [" +
-                String.format("%.5f", myBitCoins) + "]BTC to expected [" +
-                String.format("%.1f", ticker.getAsk()) + "]CNY. Last used [" +
+        log("Ordered ASK [" +
+                String.format("%.5f", myBitCoins) + "]BTC for [" +
+                String.format("%.1f", ticker.getAsk()) + "]. Expected. " +
+                String.format("%.1f", (myBitCoins.multiply(ticker.getAsk()))) + "]CNY. Last used [" +
                 String.format("%.1f", previousAskUsed) + "]. Profit Rel[" +
                 String.format("%.1f", priceDifference)+"]. Abs[" +
                 String.format("%.4f", opProfit)+ "]CNY");
     }
 
     static void logBID(Ticker ticker, BigDecimal myCurrency, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
-        log("Placed Order BID [" +
+        log("Ordered BID [" +
                 String.format("%.1f", myCurrency) + "]CNY to expected [" +
                 String.format("%.5f", bitCoinsToBuy) + "]BTC for [" +
                 String.format("%.1f", ticker.getBid()) + "]. Last used [" +
