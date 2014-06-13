@@ -17,7 +17,6 @@
 
 package org.btcwolf.persistance;
 
-
 import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
@@ -38,14 +37,14 @@ public class SettingsProvider {
             prop.load(input);
            return prop.getProperty(key);
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("requesting [" + key + "] error " + e.getMessage());
             return null;
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    logger.error(e.getMessage());
+                    logger.error("requesting [" + key + "] error " + e.getMessage());
                 }
             }
         }

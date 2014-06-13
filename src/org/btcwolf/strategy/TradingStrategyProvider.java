@@ -19,8 +19,6 @@ package org.btcwolf.strategy;
 
 import org.btcwolf.agent.TraderAgent;
 
-import java.math.BigDecimal;
-
 public class TradingStrategyProvider {
 
     public static final TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
@@ -28,6 +26,6 @@ public class TradingStrategyProvider {
     }
 
     public static final TradingStrategy getAgent(TraderAgent traderAgent) {
-        return new ExchangeMonitorDecorator(new WinWinTradingStrategy(traderAgent));
+        return new ExchangeMonitorDecorator(new SimpleWinWinTradingStrategy(traderAgent));
     }
 }

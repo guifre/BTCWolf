@@ -21,6 +21,7 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
+import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
@@ -33,6 +34,8 @@ import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.xeiam.xchange.dto.Order.OrderType.*;
 
 public class TradingStrategyTest {
 
@@ -52,20 +55,25 @@ public class TradingStrategyTest {
     @Test
     public void testStrategy() {
 
+        //data
+        BigDecimal threshold = BigDecimal.valueOf(1);
+        BigDecimal cnz = BigDecimal.valueOf(4001);
+        BigDecimal btc = BigDecimal.valueOf(1);
+
+        //setup
         PropertyConfigurator.configure(LOG4J_PATH);
+        TraderAgent testerAgent = new MyAgent(btc, cnz);
+        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent);
 
-        BigDecimal threshold = BigDecimal.valueOf(5);
-
-        TraderAgent testerAgent = new MyAgent(BigDecimal.TEN, BigDecimal.TEN);
-        TradingStrategy testedStrategy = new WinWinTradingStrategy(testerAgent);
-
+        //run
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {
             testedStrategy.onTickerReceived(ticker);
             ticker = testerAgent.pollTicker();
         }
 
-        logger.info("Op threshold[" + String.format("%.1f", threshold) +
+        //validation
+        System.out.println("Op threshold[" + String.format("%.1f", threshold) +
                 "] Profit [" + String.format("%.4f", testerAgent.getCurrencyBalance()) + "]"+
                 "] Profit [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }
@@ -102,14 +110,13 @@ public class TradingStrategyTest {
         @Override
         public String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
             logger.info("placed order [" + orderType + "] of [" + amount + "]");
-            if (orderType == Order.OrderType.ASK) {
-                this.mCurrency = amount;
-                this.mBitCoins = BigDecimal.ZERO;
-            } else if (orderType == Order.OrderType.BID) {
+            if (orderType == ASK) {
+                mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
+                mBitCoins = mBitCoins.subtract(amount);
+            } else if (orderType == BID) {
                 this.mCurrency = BigDecimal.ZERO;
-                this.mBitCoins = amount;
-            } else {
-
+                mBitCoins = mBitCoins.add(amount);
+                mCurrency = mCurrency.subtract(amount.multiply(ticker.getBid()));
             }
             logger.info("wallet of [" + mBitCoins + "]BTC and [" + mCurrency + "]CNY");
             return "ok";
@@ -132,9 +139,7 @@ public class TradingStrategyTest {
 
         @Override
         public OpenOrders getOpenOrders() {
-            Order order = new MyOrder();
             List orderList = new ArrayList(1);
-            orderList.add(order);
             return new OpenOrders(orderList);
         }
 
@@ -148,10 +153,5 @@ public class TradingStrategyTest {
             return null;
         }
     }
-    class MyOrder extends Order {
 
-        public MyOrder() {
-            super(OrderType.ASK, BigDecimal.TEN, CurrencyPair.BTC_CNY, "", null);
-        }
-    }
 }

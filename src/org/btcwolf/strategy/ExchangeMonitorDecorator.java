@@ -90,18 +90,18 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     static void logASK(Ticker ticker, BigDecimal myBitCoins, BigDecimal previousAskUsed, BigDecimal priceDifference, BigDecimal opProfit) {
         log("Ordered ASK [" +
                 String.format("%.5f", myBitCoins) + "]BTC for [" +
-                String.format("%.1f", ticker.getAsk()) + "]. Expected. " +
+                String.format("%.1f", ticker.getAsk()) + "]. Expected. [" +
                 String.format("%.1f", (myBitCoins.multiply(ticker.getAsk()))) + "]CNY. Last used [" +
                 String.format("%.1f", previousAskUsed) + "]. Profit Rel[" +
                 String.format("%.1f", priceDifference)+"]. Abs[" +
                 String.format("%.4f", opProfit)+ "]CNY");
     }
 
-    static void logBID(Ticker ticker, BigDecimal myCurrency, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
+    static void logBID(Ticker ticker, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
         log("Ordered BID [" +
-                String.format("%.1f", myCurrency) + "]CNY to expected [" +
                 String.format("%.5f", bitCoinsToBuy) + "]BTC for [" +
-                String.format("%.1f", ticker.getBid()) + "]. Last used [" +
+                String.format("%.1f", ticker.getBid()) + "]. Expected [" +
+                String.format("%.1f", (bitCoinsToBuy.multiply(ticker.getBid()))) + "]CNY. Last used [" +
                 String.format("%.1f", previousBidUsed) + "]. Profit Rel[" +
                 String.format("%.2f", priceDifference) + "]. Abs[" +
                 String.format("%.4f", opProfit) + "]CNY");
