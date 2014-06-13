@@ -74,8 +74,8 @@ public class TradingStrategyTest {
 
         //validation
         System.out.println("Op threshold[" + String.format("%.1f", threshold) +
-                "] CNY [" + String.format("%.4f", testerAgent.getCurrencyBalance()) + "]"+
-                "] BTC [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+                "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
+                "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }
 
     @Test
@@ -100,8 +100,8 @@ public class TradingStrategyTest {
 
         //validation
         System.out.println("Op threshold[" + String.format("%.1f", threshold) +
-                "] CNY [" + String.format("%.4f", testerAgent.getCurrencyBalance()) + "]"+
-                "] BTC [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+                "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
+                "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }
 
     class MyAgent implements TraderAgent {
