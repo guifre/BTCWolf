@@ -17,7 +17,6 @@
 
 package org.btcwolf.strategy;
 
-import com.xeiam.xchange.campbx.CampBX;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
@@ -25,8 +24,6 @@ import org.btcwolf.agent.TraderAgent;
 
 import java.math.BigDecimal;
 
-import static com.xeiam.xchange.dto.Order.OrderType.ASK;
-import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ZERO;
 
 public abstract class AbstractTradingStrategy implements TradingStrategy {

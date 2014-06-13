@@ -86,9 +86,7 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private void checkIfProfitableASKAndCarryOn(Ticker ticker) {
-
         BigDecimal myBitCoins = traderAgent.getBitCoinBalance();
-
         if (traderAgent.getCurrencyBalance().compareTo(myBitCoins.multiply(previousPriceUsed)) == 1) {
             return;
         }
@@ -100,7 +98,6 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private void checkIfProfitableBIDAndCarryOn(Ticker ticker) {
-
         BigDecimal myCurrency = traderAgent.getCurrencyBalance();
         if (traderAgent.getBitCoinBalance().multiply(previousPriceUsed).compareTo(myCurrency) == 1) {
             return;
@@ -108,7 +105,7 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
         if (previousPriceUsed.add(opThreshold).compareTo(ticker.getBid()) == 1 && myCurrency.compareTo(ZERO) == 1 || lostTheTrend()) {
              // old price plus threshold is higher than the bid one, and be have money
             BigDecimal bitCoinsToBuy = myCurrency.divide(ticker.getBid(), 40, HALF_EVEN);
-            placeOrder(BID, bitCoinsToBuy, ticker); // new ask higher than the last one plus the threshold and be have money
+            placeOrder(BID, bitCoinsToBuy, ticker);
         } else {
             logNotBID(ticker, previousPriceUsed, opThreshold);
         }

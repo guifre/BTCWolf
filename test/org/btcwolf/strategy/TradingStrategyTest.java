@@ -21,7 +21,6 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
-import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
@@ -35,7 +34,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.xeiam.xchange.dto.Order.OrderType.*;
+import static com.xeiam.xchange.dto.Order.OrderType.ASK;
+import static com.xeiam.xchange.dto.Order.OrderType.BID;
 
 public class TradingStrategyTest {
 
@@ -53,7 +53,33 @@ public class TradingStrategyTest {
     }
 
     @Test
-    public void testStrategy() {
+    public void testSliceWinWinStrategy() {
+
+        //data
+        BigDecimal threshold = BigDecimal.valueOf(1);
+        BigDecimal cnz = BigDecimal.valueOf(4001);
+        BigDecimal btc = BigDecimal.valueOf(1);
+
+        //setup
+        PropertyConfigurator.configure(LOG4J_PATH);
+        TraderAgent testerAgent = new MyAgent(btc, cnz);
+        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent);
+
+        //run
+        Ticker ticker = testerAgent.pollTicker();
+        while(ticker != null) {
+            testedStrategy.onTickerReceived(ticker);
+            ticker = testerAgent.pollTicker();
+        }
+
+        //validation
+        System.out.println("Op threshold[" + String.format("%.1f", threshold) +
+                "] CNY [" + String.format("%.4f", testerAgent.getCurrencyBalance()) + "]"+
+                "] BTC [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+    }
+
+    @Test
+    public void testSimpleWinWinStrategy() {
 
         //data
         BigDecimal threshold = BigDecimal.valueOf(1);
@@ -74,8 +100,8 @@ public class TradingStrategyTest {
 
         //validation
         System.out.println("Op threshold[" + String.format("%.1f", threshold) +
-                "] Profit [" + String.format("%.4f", testerAgent.getCurrencyBalance()) + "]"+
-                "] Profit [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+                "] CNY [" + String.format("%.4f", testerAgent.getCurrencyBalance()) + "]"+
+                "] BTC [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }
 
     class MyAgent implements TraderAgent {
@@ -91,6 +117,8 @@ public class TradingStrategyTest {
         public MyAgent(BigDecimal bitcoins, BigDecimal currency) {
             mBitCoins = bitcoins;
             mCurrency = currency;
+            logger.info("init wallet of [" + mBitCoins + "]BTC and [" + mCurrency + "]CNY");
+
             try {
                 this.data = Serializer.read();
             } catch (FileNotFoundException e) {
@@ -111,10 +139,16 @@ public class TradingStrategyTest {
         public String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
             logger.info("placed order [" + orderType + "] of [" + amount + "]");
             if (orderType == ASK) {
-                mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
+                if (amount.compareTo(mBitCoins) == 1) {
+                    logger.info("no money to  [" + orderType + "] of [" + amount + "]");
+                    return "KO";
+                }mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
                 mBitCoins = mBitCoins.subtract(amount);
             } else if (orderType == BID) {
-                this.mCurrency = BigDecimal.ZERO;
+                if (amount.multiply(ticker.getBid()).compareTo(mCurrency) == 1) {
+                    logger.info("no money to  [" + orderType + "] of [" + amount + "]");
+                    return "KO";
+                }
                 mBitCoins = mBitCoins.add(amount);
                 mCurrency = mCurrency.subtract(amount.multiply(ticker.getBid()));
             }
