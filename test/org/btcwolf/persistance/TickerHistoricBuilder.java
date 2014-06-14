@@ -35,24 +35,27 @@ import java.util.regex.Pattern;
  */
 public class TickerHistoricBuilder {
 
-  //  [currencyPair=BTC/CNY, last=4073.55, bid=4073.72, ask=4077.39, high=4080.00, low=4050.00, volume=1500.96880000, timestamp=null]
-
     @Test
     public void parseLogAndPersistTickers() throws IOException {
         List<Ticker> tickerList = new ArrayList<Ticker>();
         String file = "./data";
         BufferedReader br = new BufferedReader(new FileReader(new File(file)));
         String line = null;
-        Pattern pattern = Pattern.compile("bid=([0-9]*.[0-9]*), ask=([0-9]*.[0-9]*)");
+        Pattern pattern = Pattern.compile("last=([0-9]*.[0-9]*), bid=([0-9]*.[0-9]*), ask=([0-9]*.[0-9]*), high=([0-9]*.[0-9]*), low=([0-9]*.[0-9]*), volume=([0-9]*.[0-9]*),");
         while ((line = br.readLine()) != null) {
             Matcher m = pattern.matcher(line);
             while (m.find()) {
                 tickerList.add(Ticker.TickerBuilder.newInstance()
-                        .withBid(BigDecimal.valueOf(Double.parseDouble(m.group(1))))
-                                .withAsk(BigDecimal.valueOf(Double.parseDouble(m.group(2)))).build());
+                        .withLast(BigDecimal.valueOf(Double.parseDouble(m.group(1))))
+                        .withBid(BigDecimal.valueOf(Double.parseDouble(m.group(2))))
+                        .withAsk(BigDecimal.valueOf(Double.parseDouble(m.group(3))))
+                        .withHigh(BigDecimal.valueOf(Double.parseDouble(m.group(4))))
+                        .withLow(BigDecimal.valueOf(Double.parseDouble(m.group(5))))
+                        .withVolume(BigDecimal.valueOf(Double.parseDouble(m.group(6))))
+                        .build());
             }
         }
         br.close();
-      Serializer.write(tickerList);
+        Serializer.write(tickerList);
     }
 }

@@ -26,13 +26,14 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.valueOf;
 
 public class SliceWinWinTradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
     private static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
     private BigDecimal firstBid;
+
     @BeforeClass
     public static void setup() {
         PropertyConfigurator.configure(LOG4J_PATH);
@@ -42,29 +43,33 @@ public class SliceWinWinTradingStrategyTest {
     public void testSliceWinWinStrategy() {
 
         //data
-        BigDecimal cnz = BigDecimal.valueOf(4001);
-        BigDecimal btc = BigDecimal.valueOf(1);
-        BigDecimal maxProfit = ONE;
-        BigDecimal bestOpAmount = ONE;
-        BigDecimal bestOpThreshold = ONE;
-        for (double i = 0.002; i < 1; i = i + 0.001) {
-            for (double j = 0.002; j < 1; j = j + 0.001) {
-                BigDecimal threshold = BigDecimal.valueOf(i);
-                BigDecimal opAmount = BigDecimal.valueOf(j);
-                BigDecimal current = runTest(threshold, cnz, btc, opAmount);
+        BigDecimal cnz = valueOf(40);
+        BigDecimal btc = valueOf(0.01);
+        BigDecimal maxProfit = valueOf(-1);
+        BigDecimal bestOpAmount = valueOf(-1);
+        BigDecimal bestOpThreshold = valueOf(-1);
+        for (double i = 0.1; i < 20; i = i + 0.5) {
+            BigDecimal current = null;
+            for (double j = 0.001; j < 0.01; j = j + 0.001) {
+                BigDecimal threshold = valueOf(i);
+                BigDecimal opAmount = valueOf(j);
+                current = runTest(threshold, cnz, btc, opAmount);
                 if (current.compareTo(maxProfit) == 1) {
                     maxProfit = current;
                     bestOpAmount = opAmount;
                     bestOpThreshold = threshold;
+                    System.out.println("profit " + current + " with opamount " + opAmount + " and th " + threshold + " is the new max " +maxProfit);
+
+                } else {
+                    System.out.println("profit " + current + " with opamount " + opAmount + " and th " + threshold + " smaller than " +maxProfit);
                 }
             }
+            System.out.println("best th " + bestOpThreshold + " best amount " + bestOpAmount + " profit " + current);
         }
         System.out.println("best th " + bestOpThreshold + " best amount " + bestOpAmount);
-
     }
 
     private BigDecimal runTest(BigDecimal threshold, BigDecimal cnz, BigDecimal btc, BigDecimal opAmount) {
-
 
         //setup
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
@@ -74,9 +79,9 @@ public class SliceWinWinTradingStrategyTest {
         runTest(testerAgent, testedStrategy);
 
         //validation
-//        System.out.println("Op threshold[" + String.format("%.1f", threshold) +
-//                "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
-//                "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+        //System.out.println("Op threshold[" + String.format("%.1f", threshold) +
+        //"] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
+        //"] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
         return firstBid.multiply(testerAgent.getBitCoinBalance()).add(testerAgent.getCurrencyBalance());
     }
 
@@ -89,5 +94,4 @@ public class SliceWinWinTradingStrategyTest {
             ticker = testerAgent.pollTicker();
         }
     }
-
 }
