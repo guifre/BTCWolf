@@ -21,29 +21,18 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.persistance.Serializer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.math.BigDecimal;
-import java.util.List;
 
-public class TradingStrategyTest {
+import static java.math.BigDecimal.ONE;
+
+public class SliceWinWinTradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
     private static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
-
-    public List<Ticker> getTicker() {
-        List<Ticker> list2 = null;
-        try {
-            list2 = Serializer.read();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return list2;
-    }
-
+    private BigDecimal firstBid;
     @BeforeClass
     public static void setup() {
         PropertyConfigurator.configure(LOG4J_PATH);
@@ -53,10 +42,29 @@ public class TradingStrategyTest {
     public void testSliceWinWinStrategy() {
 
         //data
-        BigDecimal threshold = BigDecimal.valueOf(1);
         BigDecimal cnz = BigDecimal.valueOf(4001);
         BigDecimal btc = BigDecimal.valueOf(1);
-        BigDecimal opAmount = BigDecimal.valueOf(0.2);
+        BigDecimal maxProfit = ONE;
+        BigDecimal bestOpAmount = ONE;
+        BigDecimal bestOpThreshold = ONE;
+        for (double i = 0.002; i < 1; i = i + 0.001) {
+            for (double j = 0.002; j < 1; j = j + 0.001) {
+                BigDecimal threshold = BigDecimal.valueOf(i);
+                BigDecimal opAmount = BigDecimal.valueOf(j);
+                BigDecimal current = runTest(threshold, cnz, btc, opAmount);
+                if (current.compareTo(maxProfit) == 1) {
+                    maxProfit = current;
+                    bestOpAmount = opAmount;
+                    bestOpThreshold = threshold;
+                }
+            }
+        }
+        System.out.println("best th " + bestOpThreshold + " best amount " + bestOpAmount);
+
+    }
+
+    private BigDecimal runTest(BigDecimal threshold, BigDecimal cnz, BigDecimal btc, BigDecimal opAmount) {
+
 
         //setup
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
@@ -66,37 +74,16 @@ public class TradingStrategyTest {
         runTest(testerAgent, testedStrategy);
 
         //validation
-        System.out.println("Op threshold[" + String.format("%.1f", threshold) +
-                "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
-                "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
-    }
-
-
-    @Test
-    public void testSimpleWinWinStrategy() {
-
-        //data
-        BigDecimal threshold = BigDecimal.valueOf(1);
-        BigDecimal cnz = BigDecimal.valueOf(4001);
-        BigDecimal btc = BigDecimal.valueOf(1);
-
-        //setup
-        TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
-        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent);
-
-        //run
-        runTest(testerAgent, testedStrategy);
-
-        //validation
-        System.out.println(
-                "Op threshold[" + String.format("%.1f", threshold) +
-                "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
-                "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+//        System.out.println("Op threshold[" + String.format("%.1f", threshold) +
+//                "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
+//                "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+        return firstBid.multiply(testerAgent.getBitCoinBalance()).add(testerAgent.getCurrencyBalance());
     }
 
     private void runTest(TraderAgent testerAgent, TradingStrategy testedStrategy) {
         //run
         Ticker ticker = testerAgent.pollTicker();
+        firstBid = ticker.getBid();
         while(ticker != null) {
             testedStrategy.onTickerReceived(ticker);
             ticker = testerAgent.pollTicker();
