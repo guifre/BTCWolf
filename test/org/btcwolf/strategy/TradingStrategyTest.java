@@ -56,7 +56,7 @@ public class TradingStrategyTest {
     public void testSliceWinWinStrategy() {
 
         //data
-        BigDecimal threshold = BigDecimal.valueOf(1);
+        BigDecimal threshold = BigDecimal.valueOf(2);
         BigDecimal cnz = BigDecimal.valueOf(4001);
         BigDecimal btc = BigDecimal.valueOf(1);
 

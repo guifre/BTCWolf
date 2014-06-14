@@ -35,10 +35,7 @@ import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
 
 public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
 
-    private static final boolean MIN_OP_TIME = false;
-    private static final int MAX_NON_OP_TIME = 5; //hours
-
-    private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(2);
+    private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(5);
     private static final String OP_THRESHOLD_ENV = "OP_THRESHOLD";
 
     private BigDecimal opThreshold;
