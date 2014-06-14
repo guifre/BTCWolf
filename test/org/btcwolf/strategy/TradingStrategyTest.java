@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.Serializer;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -52,18 +53,25 @@ public class TradingStrategyTest {
         return list2;
     }
 
+    @BeforeClass
+    public static void setup() {
+        PropertyConfigurator.configure(LOG4J_PATH);
+    }
+
     @Test
     public void testSliceWinWinStrategy() {
 
         //data
-        BigDecimal threshold = BigDecimal.valueOf(2);
+        BigDecimal threshold = BigDecimal.valueOf(1);
         BigDecimal cnz = BigDecimal.valueOf(4001);
         BigDecimal btc = BigDecimal.valueOf(1);
+        BigDecimal opAmount = BigDecimal.valueOf(0.2);
 
         //setup
-        PropertyConfigurator.configure(LOG4J_PATH);
         TraderAgent testerAgent = new MyAgent(btc, cnz);
-        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent, threshold);
+        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent, threshold, opAmount);
+
+        //run
         runTest(testerAgent, testedStrategy);
 
 
@@ -83,7 +91,6 @@ public class TradingStrategyTest {
         BigDecimal btc = BigDecimal.valueOf(1);
 
         //setup
-        PropertyConfigurator.configure(LOG4J_PATH);
         TraderAgent testerAgent = new MyAgent(btc, cnz);
         TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent);
 
@@ -91,7 +98,8 @@ public class TradingStrategyTest {
         runTest(testerAgent, testedStrategy);
 
         //validation
-        System.out.println("Op threshold[" + String.format("%.1f", threshold) +
+        System.out.println(
+                "Op threshold[" + String.format("%.1f", threshold) +
                 "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
                 "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }

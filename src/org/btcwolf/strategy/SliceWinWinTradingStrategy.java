@@ -40,17 +40,20 @@ public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
 
     private BigDecimal opThreshold;
     private BigDecimal averagePrice;
+    private BigDecimal opAmount;
 
     public SliceWinWinTradingStrategy(TraderAgent traderAgent) {
         super(traderAgent);
         initialize();
         initThreshold();
+        this.opAmount = BigDecimal.valueOf(0.002);
     }
 
-    public SliceWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold) {
+    public SliceWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold, BigDecimal opAmount) {
         super(traderAgent);
         initialize();
         this.opThreshold = opThreshold;
+        this.opAmount = opAmount;
     }
 
     @Override
@@ -104,8 +107,9 @@ public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
     }
 
     private BigDecimal getOpAmount() {
-        return BigDecimal.valueOf(0.002);
+        return opAmount;
     }
+
 
     private void shouldBID(Ticker ticker) {
         if (averagePrice.add(opThreshold).compareTo(ticker.getBid()) == 1) {
