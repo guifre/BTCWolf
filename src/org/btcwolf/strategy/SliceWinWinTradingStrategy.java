@@ -47,6 +47,12 @@ public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
         initThreshold();
     }
 
+    public SliceWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold) {
+        super(traderAgent);
+        initialize();
+        this.opThreshold = opThreshold;
+    }
+
     @Override
     public void onTickerReceived(Ticker ticker) {
         if (averagePrice == null) {

@@ -63,20 +63,16 @@ public class TradingStrategyTest {
         //setup
         PropertyConfigurator.configure(LOG4J_PATH);
         TraderAgent testerAgent = new MyAgent(btc, cnz);
-        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent);
+        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent, threshold);
+        runTest(testerAgent, testedStrategy);
 
-        //run
-        Ticker ticker = testerAgent.pollTicker();
-        while(ticker != null) {
-            testedStrategy.onTickerReceived(ticker);
-            ticker = testerAgent.pollTicker();
-        }
 
         //validation
         System.out.println("Op threshold[" + String.format("%.1f", threshold) +
                 "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
                 "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }
+
 
     @Test
     public void testSimpleWinWinStrategy() {
@@ -92,16 +88,21 @@ public class TradingStrategyTest {
         TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent);
 
         //run
-        Ticker ticker = testerAgent.pollTicker();
-        while(ticker != null) {
-            testedStrategy.onTickerReceived(ticker);
-            ticker = testerAgent.pollTicker();
-        }
+        runTest(testerAgent, testedStrategy);
 
         //validation
         System.out.println("Op threshold[" + String.format("%.1f", threshold) +
                 "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
                 "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
+    }
+
+    private void runTest(TraderAgent testerAgent, TradingStrategy testedStrategy) {
+        //run
+        Ticker ticker = testerAgent.pollTicker();
+        while(ticker != null) {
+            testedStrategy.onTickerReceived(ticker);
+            ticker = testerAgent.pollTicker();
+        }
     }
 
     class MyAgent implements TraderAgent {
