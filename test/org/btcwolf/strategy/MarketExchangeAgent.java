@@ -40,26 +40,34 @@ public class MarketExchangeAgent implements TraderAgent {
     private  final Logger LOGGER = Logger.getLogger(MarketExchangeAgent.class);
 
     private final List<Ticker> data;
-    private int index = 0;
 
-    private BigDecimal mBitCoins;
+    private int index = 0;
     private BigDecimal mCurrency;
+    private BigDecimal mBitCoins;
+    private int startTicker;
+    private int finalTicker;
 
     public MarketExchangeAgent(BigDecimal bitcoins, BigDecimal currency) {
         mBitCoins = bitcoins;
         mCurrency = currency;
         LOGGER.info("init wallet of [" + mBitCoins + "]BTC and [" + mCurrency + "]CNY");
-
         try {
             this.data = Serializer.read();
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Can not read xml file");
         }
+        this.startTicker = 0;
+        this.finalTicker = data.size();
+    }
+
+    public void setDataRange(int[] indexes) {
+        this.startTicker = indexes[0];
+        this.finalTicker = indexes[1];
     }
 
     @Override
     public Ticker pollTicker() {
-        if (index >= data.size()) {
+        if (index >= finalTicker -1) {
             return null;
         }
         LOGGER.info("new ticker [" + data.get(index).toString() + "]");
@@ -101,6 +109,9 @@ public class MarketExchangeAgent implements TraderAgent {
     @Override
     public BigDecimal getBitCoinBalance() {
         return this.mBitCoins;
+    }
+    public int  getTickers() {
+        return this.data.size();
     }
 
     @Override

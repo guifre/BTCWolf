@@ -18,13 +18,10 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import com.xeiam.xchange.dto.marketdata.Trade;
-import com.xeiam.xchange.dto.marketdata.Trades;
 import org.btcwolf.agent.TraderAgent;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
@@ -32,7 +29,7 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 import static java.math.BigDecimal.ZERO;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.logOrder;
 
 public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
@@ -41,81 +38,86 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
     private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(2);
     private static final String OP_THRESHOLD_ENV = "OP_THRESHOLD";
+    private final int percentageToSell;
 
-    private List<Ticker> lastTickers;
+    private LinkedList<Ticker> historicData;
     private BigDecimal previousPriceUsed;
-    private int tourtleSpeed;
+    private int turtleSpeed;
 
-    public TurtleTradingStrategy(TraderAgent traderAgent, int tourtleSpeed) {
+    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed, int percentageToSell) {
         super(traderAgent);
-        this.tourtleSpeed = tourtleSpeed;
-        lastTickers = new ArrayList<Ticker>(tourtleSpeed);
+        this.turtleSpeed = turtleSpeed;
+        this.percentageToSell = percentageToSell;
+        this.historicData = new LinkedList<Ticker>();
     }
 
     @Override
     public void onTickerReceived(Ticker ticker) {
        addToHitoric(ticker);
-        if(lastTickers.size() == tourtleSpeed) {
+        if(historicData.size() == turtleSpeed) {
             checkIfProfitableASKAndCarryOn(ticker);
             checkIfProfitableBIDAndCarryOn(ticker);
         }
     }
 
     private void addToHitoric(Ticker ticker) {
-        if (lastTickers.size() == tourtleSpeed) {
-            lastTickers.remove(lastTickers.size() -1);
+        if (historicData.size() == turtleSpeed) {
+            historicData.removeLast();
         }
-        lastTickers.add(0, ticker);
+        historicData.addFirst(ticker);
     }
 
     void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
-
         if (!FAILED_ORDER.equals(orderResult)) {
             logOrder(amount, orderType, orderResult);
-
         }
     }
 
     private void checkIfProfitableASKAndCarryOn(Ticker ticker) {
         BigDecimal mBitcoins = traderAgent.getBitCoinBalance();
         if (mBitcoins.compareTo(ZERO) == 1 && shouldAsk(ticker)) {
-            placeOrder(ASK, mBitcoins.divide(BigDecimal.valueOf(10), 40, ROUND_HALF_EVEN), ticker);
+            placeOrder(ASK, mBitcoins, ticker);
         }
     }
 
     private void checkIfProfitableBIDAndCarryOn(Ticker ticker) {
         BigDecimal mCurrency = traderAgent.getCurrencyBalance();
         if (mCurrency.compareTo(ZERO) == 1 && shouldBid(ticker)) {
-            placeOrder(BID, mCurrency.divide(ticker.getBid(), 80, ROUND_HALF_EVEN).divide(BigDecimal.valueOf(10), 40, ROUND_HALF_EVEN), ticker);
+            placeOrder(BID, mCurrency.divide(ticker.getBid(), 80, ROUND_HALF_EVEN), ticker);
+
         }
     }
 
     private boolean shouldAsk(Ticker ticker) {
-        for (Ticker lastTicker : lastTickers) {
-            if (ticker.getAsk().compareTo(lastTicker.getAsk()) == 1) {
-                return false;
+
+        for (Ticker historicTicker : historicData) {
+            BigDecimal previousValue = historicTicker.getAsk();
+            if (ticker.getAsk().compareTo(previousValue) == 1) {
+                logger.debug("Not ordering ASK, found [" + previousValue + "] higher than [" + ticker.getAsk() + "]");
+                return false; //if a previous ask is higher we do not sell
             }
         }
+        String oldD = "";
+        for (Ticker oldData : historicData) {
+            oldD = oldD.concat(String.format("%f.1", oldData.getAsk()) + ", ");
+        }
+        logger.info("ORDERING ASK, found [" + ticker.getAsk() + "] is higher than [" + oldD + "]");
         return true;
     }
 
     private boolean shouldBid(Ticker ticker) {
-        for (Ticker lastTicker : lastTickers) {
-            if (lastTicker.getBid().compareTo(ticker.getBid()) == 1) {
-                return false;
+        for (Ticker historicTicker : historicData) {
+            BigDecimal previousBid = historicTicker.getBid();
+            if (previousBid.compareTo(ticker.getBid()) == 1) {
+                logger.debug("Not ordering BID, found [" + previousBid + "] higher than [" + ticker.getBid() + "]");
+                return false; //if a previous Bid is higher, we do not buy
             }
         }
-        return true;
-    }
-
-    private void processHistoricOrders() {
-        Trades trades = traderAgent.getTrades();
-        if (trades == null || trades.getTrades() == null || trades.getTrades().isEmpty()) {
-            logger.info("empty historic, waiting for next ticker.");
-        } else {
-            Trade lastTrade = trades.getTrades().get(trades.getTrades().size() -1 );
-            previousPriceUsed = lastTrade.getPrice();
-            logger.info("Using last trade price [" + previousPriceUsed + "]");
+        String oldD = "";
+        for (Ticker oldData : historicData) {
+            oldD = oldD.concat(String.format("%f.1", oldData.getBid()) + ", ");
         }
+        logger.info("ORDERING BID, found [" + ticker.getBid() + "] is lower than [" + oldD + "]");
+        return true;
     }
 }

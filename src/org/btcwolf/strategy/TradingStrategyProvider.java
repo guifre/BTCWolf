@@ -28,4 +28,8 @@ public class TradingStrategyProvider {
     public static final TradingStrategy getAgent(TraderAgent traderAgent) {
         return new ExchangeMonitorDecorator(new SimpleWinWinTradingStrategy(traderAgent));
     }
+
+    public static final TradingStrategy getTurtleStrategy(TraderAgent traderAgent) {
+        return new ExchangeMonitorDecorator(new TurtleTradingStrategy(traderAgent, 4, 1));
+    }
 }
