@@ -73,7 +73,8 @@ public class MarketExchangeAgent implements TraderAgent {
             if (amount.compareTo(mBitCoins) == 1) {
                 LOGGER.info("no money to  [" + orderType + "] of [" + amount + "]");
                 return "KO";
-            }mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
+            }
+            mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
             mBitCoins = mBitCoins.subtract(amount);
         } else if (orderType == BID) {
             if (amount.multiply(ticker.getBid()).compareTo(mCurrency) == 1) {
