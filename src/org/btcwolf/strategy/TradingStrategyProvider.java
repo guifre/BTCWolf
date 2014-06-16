@@ -30,6 +30,6 @@ public class TradingStrategyProvider {
     }
 
     public static final TradingStrategy getTurtleStrategy(TraderAgent traderAgent) {
-        return new ExchangeMonitorDecorator(new TurtleTradingStrategy(traderAgent, 4, 1));
+        return new ExchangeMonitorDecorator(new TurtleTradingStrategy(traderAgent, 4));
     }
 }

@@ -27,9 +27,10 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
-import static com.xeiam.xchange.dto.Order.OrderType.*;
+import static com.xeiam.xchange.dto.Order.OrderType.ASK;
+import static com.xeiam.xchange.dto.Order.OrderType.BID;
+import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.ZERO;
-import static java.math.RoundingMode.HALF_EVEN;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
 
@@ -104,7 +105,7 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
         }
         if (previousPriceUsed.add(opThreshold).compareTo(ticker.getBid()) == 1 && myCurrency.compareTo(ZERO) == 1 || lostTheTrend()) {
              // old price plus threshold is higher than the bid one, and be have money
-            BigDecimal bitCoinsToBuy = myCurrency.divide(ticker.getBid(), 40, HALF_EVEN);
+            BigDecimal bitCoinsToBuy = myCurrency.divide(ticker.getBid(), 80, ROUND_DOWN);
             placeOrder(BID, bitCoinsToBuy, ticker);
         } else {
             logNotBID(ticker, previousPriceUsed, opThreshold);

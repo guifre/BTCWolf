@@ -38,16 +38,14 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
     private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(2);
     private static final String OP_THRESHOLD_ENV = "OP_THRESHOLD";
-    private final int percentageToSell;
 
     private LinkedList<Ticker> historicData;
     private BigDecimal previousPriceUsed;
     private int turtleSpeed;
 
-    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed, int percentageToSell) {
+    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed) {
         super(traderAgent);
         this.turtleSpeed = turtleSpeed;
-        this.percentageToSell = percentageToSell;
         this.historicData = new LinkedList<Ticker>();
     }
 
@@ -69,7 +67,7 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
     void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
-            logOrder(amount, orderType, orderResult);
+            logOrder(ticker, amount, orderType);
         }
     }
 
@@ -84,7 +82,6 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
         BigDecimal mCurrency = traderAgent.getCurrencyBalance();
         if (mCurrency.compareTo(ZERO) == 1 && shouldBid(ticker)) {
             placeOrder(BID, mCurrency.divide(ticker.getBid(), 80, ROUND_HALF_EVEN), ticker);
-
         }
     }
 

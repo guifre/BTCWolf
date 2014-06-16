@@ -18,6 +18,7 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import junit.framework.Assert;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
@@ -25,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Random;
 
 public class TurtleTradingStrategyTest {
@@ -39,28 +41,67 @@ public class TurtleTradingStrategyTest {
     }
 
     @Test
-    public void testOptimalTourtleSpeed() {
+    public void testOptimalTurtleSpeed() {
 
         //setup
         BigDecimal cny = BigDecimal.valueOf(0);
         BigDecimal btc = BigDecimal.valueOf(0.01);
+        int turtleSpeed = (4);
+        TraderAgent testerAgent = new MarketExchangeAgent(btc, cny);
 
-        for (int turtleSpeed = 1; turtleSpeed < 50; turtleSpeed++) {
-            TraderAgent testerAgent = new MarketExchangeAgent(btc, cny);
+        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent);
 
-            TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, 1);
+        //run
+        runTest(testerAgent, testedStrategy);
 
-            //run
-            runTest(testerAgent, testedStrategy);
+        //validation
+        BigDecimal finalMoney = testerAgent.getBitCoinBalance()
+                .add(testerAgent.getCurrencyBalance().divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN))
+                .subtract(cny.divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN));
+            System.out.println("start money [" + String.format("%f.4", btc.doubleValue()) + "]" +
+                    " end money [" + String.format("%f.4", finalMoney.doubleValue()) + "][" +
+                    " profit [" + String.format("%f.4", finalMoney.subtract(btc).doubleValue()) + "] [" +
+                    String.format("%f.1", finalMoney.divide(btc, 40, BigDecimal.ROUND_HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]");
+    }
 
-            //validation
-            System.out.println("[" + turtleSpeed + "] [" +
-                    testerAgent.getBitCoinBalance()
-                            .subtract(btc)
-                            .add(testerAgent.getCurrencyBalance().divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN))
-                            .subtract(cny.divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN)));
+    @Test
+    public void testTurtleStrategy() {
+        int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
+
+        for (int turtleSpeed = 10; turtleSpeed < 30; turtleSpeed++) {
+            int[] indexes = getIndexes(maxIndex);
+            runTurtleTest(turtleSpeed, 1, indexes);
         }
     }
+    public void runTurtleTest(int turtleSpeed, int percentageToSell, int[] indexes) {
+
+        //setup
+        BigDecimal cny = BigDecimal.valueOf(0);
+        BigDecimal btc = BigDecimal.valueOf(0.01);
+        TraderAgent testerAgent = new MarketExchangeAgent(btc, cny);
+
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed);
+
+        //run
+        runTest(testerAgent, testedStrategy);
+
+        //validation
+        BigDecimal finalMoney = testerAgent.getBitCoinBalance()
+                .add(testerAgent.getCurrencyBalance().divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN));
+        BigDecimal profit = finalMoney.subtract(btc);
+        if (profit.compareTo(BigDecimal.ZERO) == 1) {
+            System.out.print("OK ");
+        } else {
+            System.out.print("KOO ");
+        }
+        System.out.println("speed ["+ turtleSpeed +"] start money [" + String.format("%f.4", btc.doubleValue()) + "]" +
+                " end money [" + String.format("%f.4", finalMoney.doubleValue()) + "][" +
+                " profit [" + String.format("%f.4", profit) + "] [" +
+                String.format("%f.1", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
+                " index [" + indexes[0] + "-" + indexes[1] + "]");
+        Assert.fail();
+    }
+
 
     @Test
     public void TestTurtle() {
@@ -74,7 +115,7 @@ public class TurtleTradingStrategyTest {
                 BigDecimal cny = BigDecimal.valueOf(0);
                 BigDecimal btc = BigDecimal.valueOf(0.01);
                 MarketExchangeAgent testerAgent = new MarketExchangeAgent(btc, cny);
-                TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, 1);
+                TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed);
                 int[] indexes = getIndexes(testerAgent.getTickers());
                 testerAgent.setDataRange(indexes);
                 //run

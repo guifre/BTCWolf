@@ -106,6 +106,17 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 String.format("%.2f", priceDifference) + "]. Abs[" +
                 String.format("%.4f", opProfit) + "]CNY");
     }
+    static void logOrder(Ticker ticker, BigDecimal amount, Order.OrderType orderType) {
+        BigDecimal price = null;
+        if (orderType == Order.OrderType.ASK) {
+            price = ticker.getAsk();
+        } else {
+            price = ticker.getBid();
+        }
+        log("Ordered "+orderType.toString() +" [" +
+                String.format("%.5f", amount) + "]BTC for [" +
+                String.format("%.1f", price) + "].");
+    }
 
     private static void log(String message) {
         logger.info(message);
