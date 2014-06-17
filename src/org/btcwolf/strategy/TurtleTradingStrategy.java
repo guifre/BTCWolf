@@ -70,6 +70,7 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
         BigDecimal mBitcoins = traderAgent.getBitCoinBalance();
         if (mBitcoins.compareTo(ZERO) == 1 && shouldAsk(ticker)) {
             placeOrder(ASK, mBitcoins.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN), ticker);
+            historicData.clear();
         }
     }
 
@@ -78,6 +79,7 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
         if (mCurrency.compareTo(ZERO) == 1 && shouldBid(ticker)) {
             placeOrder(BID, mCurrency.divide(ticker.getBid(), 80, ROUND_HALF_EVEN)
                     .divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN), ticker);
+            historicData.clear();
         }
     }
 
