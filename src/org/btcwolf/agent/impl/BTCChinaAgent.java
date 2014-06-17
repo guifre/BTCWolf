@@ -42,15 +42,18 @@ public class BTCChinaAgent extends AbstractAgent {
     }
 
     protected Exchange buildExchange() {
+        String msg = "Could not find credential arguments " +
+                SECRET_KEY_ENV + SettingsProvider.getProperty(SECRET_KEY_ENV) + ", " +
+                PASSWORD_ENV + SettingsProvider.getProperty(PASSWORD_ENV) + ", " +
+                API_KEY_ENV + SettingsProvider.getProperty(API_KEY_ENV);
+
         if (SettingsProvider.getProperty(SECRET_KEY_ENV) == null ||
                 SettingsProvider.getProperty(PASSWORD_ENV) == null ||
                 SettingsProvider.getProperty(API_KEY_ENV) == null) {
-            String msg = "Could not find credential arguments " +
-                    SECRET_KEY_ENV + SettingsProvider.getProperty(SECRET_KEY_ENV) + ", " +
-                    PASSWORD_ENV + SettingsProvider.getProperty(PASSWORD_ENV) + ", " +
-                    API_KEY_ENV + SettingsProvider.getProperty(API_KEY_ENV);
-            logger.error(msg);
+               logger.error(msg);
             throw new RuntimeException(msg);
+        } else {
+            System.out.println(msg);
         }
         ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
         exSpec.setSecretKey(SettingsProvider.getProperty(SECRET_KEY_ENV));

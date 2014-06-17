@@ -50,6 +50,12 @@ public class BTCChinaAgentTest {
     }
 
     @Test
+    public void testCurrentWallet() throws IOException {
+        BTCChinaAgent agent = new BTCChinaAgent();
+        System.out.println(agent.getCurrencyBalance());
+    }
+
+    @Test
     public void testBugTrade() throws IOException {
         BTCChinaAgent agent = new BTCChinaAgent();
         agent.placeOrder(ASK, BigDecimal.ZERO,agent.pollTicker());

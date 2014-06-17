@@ -17,7 +17,6 @@
 
 package org.btcwolf;
 
-import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.AgentsFactory;
@@ -29,7 +28,7 @@ public class BTCWolf {
 
     private static final Logger LOGGER =Logger.getLogger(BTCWolf.class);
     private static final String LOG4J_PATH = "./resources/log4j.properties";
-    private static final long POLLING_TIME = 10000;
+    private static final long POLLING_TIME = 30000;
 
     public static void main(String[] args) {
 
@@ -37,13 +36,9 @@ public class BTCWolf {
 
         TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
         TradingStrategy tradingStrategy = TradingStrategyProvider.getTurtleStrategy(traderAgent);
-        Ticker previousTicker = null;
+
         while(true) {
-            Ticker ticker = traderAgent.pollTicker();
-            if (previousTicker == null || ticker.getTimestamp().compareTo(previousTicker.getTimestamp()) != 0) {
-                tradingStrategy.onTickerReceived(ticker);
-                previousTicker = ticker;
-            }
+            tradingStrategy.onTickerReceived(traderAgent.pollTicker());
             makeSomeCoffee();
         }
     }

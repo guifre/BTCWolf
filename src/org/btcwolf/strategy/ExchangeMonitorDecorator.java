@@ -20,16 +20,16 @@ package org.btcwolf.strategy;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
+import org.apache.log4j.Logger;
 import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.btcwolf.strategy.AbstractTradingStrategy.*;
-
 public class ExchangeMonitorDecorator implements TradingStrategy {
 
     private static final int POLLING_FREQ = 8;
+    private static final Logger logger = Logger.getLogger(ExchangeMonitorDecorator.class);
 
     private static final TwitterAgent twitterAgent = new TwitterAgent();
     private AbstractTradingStrategy tradingStrategy;
@@ -48,7 +48,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     }
 
     void pollExchangeStatus(Ticker ticker) {
-        logger.debug("\n\n New " + ticker);
+        tradingStrategy.logger.debug("\n\n New " + ticker);
         if (pollingCounter > POLLING_FREQ) {
             pollingCounter = 0;
             logStatus();
@@ -64,24 +64,24 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     }
 
     static void logOrder(BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult) {
-        logger.info("Order " + orderType.toString() +" [ " + bitCoinsToBuy + "]CNY placed, result [" + orderResult + "]");
+         logger.info("Order " + orderType.toString() +" [ " + bitCoinsToBuy + "]CNY placed, result [" + orderResult + "]");
     }
 
     static void logNotASK(Ticker ticker, BigDecimal previousAskUsed, BigDecimal opCurrencyThreshold) {
-        logger.debug("Prev price [" +
+         logger.debug("Prev price [" +
                 String.format("%.2f", previousAskUsed) + "] new ASK[" +
                 String.format("%.2f", ticker.getAsk()) +
                 "] th[" + opCurrencyThreshold + "] nothing to do.");
     }
 
     static void logNotBID(Ticker ticker, BigDecimal previousBidUsed, BigDecimal opBitCoinThreshold) {
-        logger.debug("Prev price [" +
+         logger.debug("Prev price [" +
                 String.format("%.2f", previousBidUsed) + "] new BID[" +
                 String.format("%.2f", ticker.getBid()) +
                 "] th[" + opBitCoinThreshold + "] nothing to do.");
     }
 
-    static void logOpenOrders(List<LimitOrder> openOrders) {
+     static void logOpenOrders(List<LimitOrder> openOrders) {
         for (LimitOrder order : openOrders) {
             logger.info("Noting to do, open order [" + order + "]");
         }
@@ -97,7 +97,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 String.format("%.4f", opProfit)+ "]CNY");
     }
 
-    static void logBID(Ticker ticker, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
+    void logBID(Ticker ticker, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
         log("Ordered BID [" +
                 String.format("%.5f", bitCoinsToBuy) + "]BTC for [" +
                 String.format("%.1f", ticker.getBid()) + "]. Expected [" +
@@ -118,7 +118,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 String.format("%.1f", price) + "].");
     }
 
-    private static void log(String message) {
+    static void log(String message) {
         logger.info(message);
         twitterAgent.publish(message);
     }

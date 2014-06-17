@@ -33,32 +33,27 @@ import static org.btcwolf.strategy.ExchangeMonitorDecorator.logOrder;
 
 public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
-    private static final boolean MIN_OP_TIME = false;
-    private static final int MAX_NON_OP_TIME = 5; //hours
-
-    private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(2);
-    private static final String OP_THRESHOLD_ENV = "OP_THRESHOLD";
-
     private LinkedList<Ticker> historicData;
-    private BigDecimal previousPriceUsed;
     private int turtleSpeed;
+    private int opAmount;
 
-    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed) {
+    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed, int opAmount) {
         super(traderAgent);
         this.turtleSpeed = turtleSpeed;
+        this.opAmount = opAmount;
         this.historicData = new LinkedList<Ticker>();
     }
 
     @Override
     public void onTickerReceived(Ticker ticker) {
-       addToHitoric(ticker);
+       addToHistoric(ticker);
         if(historicData.size() == turtleSpeed) {
             checkIfProfitableASKAndCarryOn(ticker);
             checkIfProfitableBIDAndCarryOn(ticker);
         }
     }
 
-    private void addToHitoric(Ticker ticker) {
+    private void addToHistoric(Ticker ticker) {
         if (historicData.size() == turtleSpeed) {
             historicData.removeLast();
         }
@@ -74,14 +69,15 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
     private void checkIfProfitableASKAndCarryOn(Ticker ticker) {
         BigDecimal mBitcoins = traderAgent.getBitCoinBalance();
         if (mBitcoins.compareTo(ZERO) == 1 && shouldAsk(ticker)) {
-            placeOrder(ASK, mBitcoins, ticker);
+            placeOrder(ASK, mBitcoins.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN), ticker);
         }
     }
 
     private void checkIfProfitableBIDAndCarryOn(Ticker ticker) {
         BigDecimal mCurrency = traderAgent.getCurrencyBalance();
         if (mCurrency.compareTo(ZERO) == 1 && shouldBid(ticker)) {
-            placeOrder(BID, mCurrency.divide(ticker.getBid(), 80, ROUND_HALF_EVEN), ticker);
+            placeOrder(BID, mCurrency.divide(ticker.getBid(), 80, ROUND_HALF_EVEN)
+                    .divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN), ticker);
         }
     }
 
