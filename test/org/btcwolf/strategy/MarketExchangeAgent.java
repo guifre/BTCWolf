@@ -21,6 +21,7 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
+import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
@@ -128,5 +129,10 @@ public class MarketExchangeAgent implements TraderAgent {
     @Override
     public CurrencyPair getCurrencyPair() {
         return null;
+    }
+
+    @Override
+    public boolean cancelLimitOrder(LimitOrder limitOrder) {
+        return true;
     }
 }

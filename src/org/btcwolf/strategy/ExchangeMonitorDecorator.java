@@ -97,7 +97,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 String.format("%.4f", opProfit)+ "]CNY");
     }
 
-    void logBID(Ticker ticker, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
+    static void logBID(Ticker ticker, BigDecimal bitCoinsToBuy, BigDecimal previousBidUsed, BigDecimal priceDifference, BigDecimal opProfit) {
         log("Ordered BID [" +
                 String.format("%.5f", bitCoinsToBuy) + "]BTC for [" +
                 String.format("%.1f", ticker.getBid()) + "]. Expected [" +

@@ -93,28 +93,6 @@ public class TradingStrategyTest {
                 "] CNY start[" +cnz + "] end [" + String.format("%.4f", cnz.subtract(testerAgent.getCurrencyBalance())) + "]"+
                 "] BTC start[" + btc + "] end [" + String.format("%.4f", testerAgent.getBitCoinBalance()) + "]");
     }
-    @Test
-    public void testAdvancedStrategy() {
-
-        //data
-        BigDecimal threshold = BigDecimal.valueOf(1);
-        BigDecimal cnz = BigDecimal.valueOf(4001);
-        BigDecimal btc = BigDecimal.valueOf(1);
-
-        //setup
-        TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
-        ArrayList<Ticker> tickers = new ArrayList<Ticker>();
-        Ticker ticker = testerAgent.pollTicker();
-        int i = 0;
-        while(ticker != null && i < 100) {
-            tickers.add(ticker);
-            i++;
-            ticker = testerAgent.pollTicker();
-        }
-        AdvancedTradingStrategy strategy = new AdvancedTradingStrategy("", tickers);
-        //run
-        strategy.run();
-    }
 
     private void runTest(TraderAgent testerAgent, TradingStrategy testedStrategy) {
         //run

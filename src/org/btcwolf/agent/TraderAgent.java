@@ -21,6 +21,7 @@ import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
+import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import com.xeiam.xchange.dto.trade.Wallet;
 
@@ -36,4 +37,5 @@ public interface TraderAgent {
     OpenOrders getOpenOrders();
     Trades getTrades();
     CurrencyPair getCurrencyPair();
+    boolean cancelLimitOrder(LimitOrder limitOrder);
 }

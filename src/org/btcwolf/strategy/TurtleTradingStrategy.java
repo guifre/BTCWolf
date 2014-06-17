@@ -18,9 +18,12 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.trade.LimitOrder;
+import com.xeiam.xchange.dto.trade.OpenOrders;
 import org.btcwolf.agent.TraderAgent;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.LinkedList;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
@@ -33,21 +36,28 @@ import static org.btcwolf.strategy.ExchangeMonitorDecorator.logOrder;
 
 public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
-    private LinkedList<Ticker> historicData;
-    private int turtleSpeed;
-    private int opAmount;
+    private static final int MAX_MINS_ORDER_TO_PROCESSED = 10;
+    private static final int CHECK_DEAD_ORDERS_FREQ = 10;
+
+    private final LinkedList<Ticker> historicData;
+    private final int turtleSpeed;
+    private final int opAmount;
+
+    private int limitOrdersCount;
 
     public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed, int opAmount) {
         super(traderAgent);
         this.turtleSpeed = turtleSpeed;
         this.opAmount = opAmount;
         this.historicData = new LinkedList<Ticker>();
+        this.limitOrdersCount = 0;
     }
 
     @Override
     public void onTickerReceived(Ticker ticker) {
        addToHistoric(ticker);
-        if(historicData.size() == turtleSpeed) {
+       checkDeadLimitOrders();
+        if (historicData.size() == turtleSpeed) {
             checkIfProfitableASKAndCarryOn(ticker);
             checkIfProfitableBIDAndCarryOn(ticker);
         }
@@ -114,5 +124,28 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
         }
         logger.info("ORDERING BID, found [" + ticker.getBid() + "] is lower than [" + oldD + "]");
         return true;
+    }
+
+    private void checkDeadLimitOrders() {
+        if (limitOrdersCount < CHECK_DEAD_ORDERS_FREQ) {
+            limitOrdersCount++;
+            return;
+        }
+        limitOrdersCount = 0;
+        OpenOrders openOrders = traderAgent.getOpenOrders();
+        if (openOrders == null || openOrders.getOpenOrders() == null || openOrders.getOpenOrders().size() == 0) {
+            return;
+        }
+        Date time = new Date();
+        for (LimitOrder limitOrder : openOrders.getOpenOrders()) {
+            int timeSincePlaced = (int) (time.getTime() - limitOrder.getTimestamp().getTime());
+            int minutesSincePlacedLimit = timeSincePlaced / 60 / 1000;
+            if (minutesSincePlacedLimit > MAX_MINS_ORDER_TO_PROCESSED) {
+                boolean cancelled = traderAgent.cancelLimitOrder(limitOrder);
+                logger.info("Limit placed [" + minutesSincePlacedLimit + "] mins ago, cancelled [" + cancelled + "] limit [" + limitOrder);
+            } else {
+                logger.debug("Limit placed [" + minutesSincePlacedLimit + "] mins ago, on time, limit [" + limitOrder);
+            }
+        }
     }
 }

@@ -85,6 +85,10 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    public boolean cancelLimitOrder(LimitOrder limitOrder) {
+        return attemptCancelLimit(limitOrder, 0);
+    }
+
     public List<Wallet> getWallets() {
         try {
             return this.exchange.getPollingAccountService().getAccountInfo().getWallets();
@@ -170,6 +174,21 @@ public abstract class AbstractAgent implements TraderAgent {
                 logger.warn(stackTraceElement.toString());
             }
             return attemptPlaceOrder(orderType, amount, price, attempt + 1);
+        }
+    }
+
+    private boolean attemptCancelLimit(LimitOrder limitOrder, int attempt) {
+        if (attempt >= 5) {
+            return false;
+        }
+        try {
+            return exchange.getPollingTradeService().cancelOrder(limitOrder.getId());
+        } catch (Exception e) {
+            logger.warn("oops attempt "  + attempt + " " + e.getMessage() + " " + e.toString());
+            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                logger.warn(stackTraceElement.toString());
+            }
+            return attemptCancelLimit(limitOrder, attempt + 1);
         }
     }
 }

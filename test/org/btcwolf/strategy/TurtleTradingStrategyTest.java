@@ -63,7 +63,7 @@ public class TurtleTradingStrategyTest {
     }
 
     @Test
-    public void testTurtleStrategy() {
+    public void testTu`rtleStrategy() {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         for (int turtleSpeed = 4; turtleSpeed < 5; turtleSpeed++) {
                 for (int k = 2; k < 3; k++) {
