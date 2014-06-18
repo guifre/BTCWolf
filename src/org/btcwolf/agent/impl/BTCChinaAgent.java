@@ -52,8 +52,6 @@ public class BTCChinaAgent extends AbstractAgent {
                 SettingsProvider.getProperty(API_KEY_ENV) == null) {
                logger.error(msg);
             throw new RuntimeException(msg);
-        } else {
-            System.out.println(msg);
         }
         ExchangeSpecification exSpec = new ExchangeSpecification(BTCChinaExchange.class);
         exSpec.setSecretKey(SettingsProvider.getProperty(SECRET_KEY_ENV));

@@ -41,8 +41,10 @@ public class BTCWolf {
         Ticker previousTicker = traderAgent.pollTicker();
         while(true) {
             Ticker ticker = traderAgent.pollTicker();
-            if (previousTicker.getBid().compareTo(ticker.getBid()) == 0 &&
-                    previousTicker.getAsk().compareTo(ticker.getAsk()) == 0) {
+            if (previousTicker.getBid().compareTo(ticker.getBid()) != 0 ||
+                    previousTicker.getVolume().compareTo(ticker.getVolume()) != 0 ||
+                    previousTicker.getLast().compareTo(ticker.getLast()) != 0 ||
+                    previousTicker.getAsk().compareTo(ticker.getAsk()) != 0) {
                 tradingStrategy.onTickerReceived(ticker);
                 previousTicker = ticker;
             }
