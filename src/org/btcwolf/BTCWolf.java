@@ -36,20 +36,24 @@ public class BTCWolf {
         PropertyConfigurator.configure(LOG4J_PATH);
 
         TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
-        TradingStrategy tradingStrategy = TradingStrategyProvider.getTurtleStrategy(traderAgent);
+        TradingStrategyProvider tradingStrategyProvider = new TradingStrategyProvider(traderAgent);
 
         Ticker previousTicker = traderAgent.pollTicker();
         while(true) {
             Ticker ticker = traderAgent.pollTicker();
-            if (previousTicker.getBid().compareTo(ticker.getBid()) != 0 ||
-                    previousTicker.getVolume().compareTo(ticker.getVolume()) != 0 ||
-                    previousTicker.getLast().compareTo(ticker.getLast()) != 0 ||
-                    previousTicker.getAsk().compareTo(ticker.getAsk()) != 0) {
-                tradingStrategy.onTickerReceived(ticker);
+            if (!isSameTicker(previousTicker, ticker)) {
+                tradingStrategyProvider.getStrategy().onTickerReceived(ticker);
                 previousTicker = ticker;
             }
             makeSomeCoffee();
         }
+    }
+
+    private static boolean isSameTicker(Ticker previousTicker, Ticker ticker) {
+        return previousTicker.getBid().compareTo(ticker.getBid()) != 0 ||
+                previousTicker.getVolume().compareTo(ticker.getVolume()) != 0 ||
+                previousTicker.getLast().compareTo(ticker.getLast()) != 0 ||
+                previousTicker.getAsk().compareTo(ticker.getAsk()) != 0;
     }
 
     public static void makeSomeCoffee() {

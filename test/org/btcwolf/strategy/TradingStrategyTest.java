@@ -22,12 +22,14 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.Serializer;
+import org.btcwolf.strategy.impl.AbstractTradingStrategy;
+import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
+import org.btcwolf.strategy.impl.SliceWinWinTradingStrategy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TradingStrategyTest {

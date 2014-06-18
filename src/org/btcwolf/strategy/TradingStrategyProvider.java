@@ -18,26 +18,46 @@
 package org.btcwolf.strategy;
 
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.impl.StrategyOrchestratorDecorator;
+import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
+import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
 public class TradingStrategyProvider {
 
     private static final boolean USE_TWITTER = true;
-    public static final TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
-        return getAgent(traderAgent);
+
+    private final TraderAgent traderAgent;
+    private TradingStrategy strategy;
+
+    public TradingStrategyProvider(TraderAgent traderAgent) {
+        this.traderAgent = traderAgent;
+        this.strategy = decorate(getDefaultTurtleStrategy(traderAgent));
+
     }
 
-    public static final TradingStrategy getAgent(TraderAgent traderAgent) {
-        return new ExchangeMonitorDecorator(
-                new SimpleWinWinTradingStrategy(traderAgent),
-                USE_TWITTER);
+    public TradingStrategy getStrategy() {
+        return this.strategy;
     }
 
-    public static final TradingStrategy getTurtleStrategy(TraderAgent traderAgent) {
-        return new ExchangeMonitorDecorator(
-                new TurtleTradingStrategy(
-                        traderAgent,
+    protected TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
+        return new SimpleWinWinTradingStrategy(traderAgent);
+    }
+
+    protected TradingStrategy decorate(TradingStrategy tradingStrategy) {
+        return new StrategyOrchestratorDecorator(this, tradingStrategy, USE_TWITTER);
+    }
+
+    protected  TradingStrategy getDefaultTurtleStrategy(TraderAgent traderAgent) {
+        return  new TurtleTradingStrategy(
+                traderAgent,
                         4,      //turtle speed
-                        2),     //amount
-                USE_TWITTER);
+                        2);     //amount to sell
+    }
+
+    public void switchToDefaultTurtleStrategy() {
+        this.strategy = decorate(getDefaultTurtleStrategy(traderAgent));
+    }
+    public void switchToDefaultWinWInStrategy() {
+        this.strategy = decorate(getDefaultTurtleStrategy(traderAgent));
     }
 }

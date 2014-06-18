@@ -15,12 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.btcwolf.strategy;
+package org.btcwolf.strategy.impl;
 
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.TradingStrategy;
 
 import java.math.BigDecimal;
 

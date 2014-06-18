@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.btcwolf.strategy;
+package org.btcwolf.strategy.impl;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trade;
@@ -31,7 +31,7 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 import static java.math.RoundingMode.HALF_EVEN;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
+import static org.btcwolf.strategy.impl.StrategyOrchestratorDecorator.*;
 
 public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
 

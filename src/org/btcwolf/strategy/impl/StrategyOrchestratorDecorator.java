@@ -15,29 +15,32 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.btcwolf.strategy;
+package org.btcwolf.strategy.impl;
 
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import org.apache.log4j.Logger;
+import org.btcwolf.strategy.TradingStrategy;
+import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-public class ExchangeMonitorDecorator implements TradingStrategy {
+public class StrategyOrchestratorDecorator implements TradingStrategy {
 
     private final int POLLING_FREQ = 8;
-    private static final Logger logger = Logger.getLogger(ExchangeMonitorDecorator.class);
+    private static final Logger logger = Logger.getLogger(StrategyOrchestratorDecorator.class);
 
     private static TwitterAgent twitterAgent;
     private AbstractTradingStrategy tradingStrategy;
-
+    private TradingStrategyProvider tradingStrategyProvider;
     private int pollingCounter;
 
-    public ExchangeMonitorDecorator(TradingStrategy tradingStrategy, boolean useTwitter) {
+    public StrategyOrchestratorDecorator(TradingStrategyProvider tradingStrategyProvider, TradingStrategy tradingStrategy, boolean useTwitter) {
         this.tradingStrategy = (AbstractTradingStrategy) tradingStrategy;
+        this.tradingStrategyProvider = tradingStrategyProvider;
         this.pollingCounter = 0;
         if (useTwitter) {
             this.twitterAgent = new TwitterAgent();
@@ -47,7 +50,14 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     @Override
     public void onTickerReceived(Ticker ticker) {
         pollExchangeStatus(ticker);
+        checkAppropiateStrategy(ticker);
         tradingStrategy.onTickerReceived(ticker);
+    }
+
+    private void checkAppropiateStrategy(Ticker ticker) {
+        if (false) {
+            this.tradingStrategyProvider.switchToDefaultWinWInStrategy();
+        }
     }
 
     void pollExchangeStatus(Ticker ticker) {
@@ -62,12 +72,12 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     void logStatus() {
         logger.debug(
                 "BTC Balance[" + tradingStrategy.traderAgent.getBitCoinBalance() +
-                "] CNY Balance[" + tradingStrategy.traderAgent.getCurrencyBalance() +
-                "]" + " Open Orders[" + tradingStrategy.traderAgent.getOpenOrders().toString() + "].");
+                        "] CNY Balance[" + tradingStrategy.traderAgent.getCurrencyBalance() +
+                        "]" + " Open Orders[" + tradingStrategy.traderAgent.getOpenOrders().toString() + "].");
     }
 
     static void logOrder(BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult) {
-         logger.info("Ordered " + orderType.toString() +" [ " + bitCoinsToBuy + "]CNY, result [" + orderResult + "]CNY");
+         logger.info("Ordered " + orderType.toString() + " [ " + bitCoinsToBuy + "]CNY, result [" + orderResult + "]CNY");
     }
 
     static void logNotASK(Ticker ticker, BigDecimal previousAskUsed, BigDecimal opCurrencyThreshold) {
@@ -110,7 +120,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 String.format("%.4f", opProfit) + "]CNY");
     }
 
-    static void logOrder(Ticker ticker, BigDecimal amount, Order.OrderType orderType) {
+    public static void logOrder(Ticker ticker, BigDecimal amount, Order.OrderType orderType) {
         BigDecimal price = null;
         if (orderType == Order.OrderType.ASK) {
             price = ticker.getAsk();

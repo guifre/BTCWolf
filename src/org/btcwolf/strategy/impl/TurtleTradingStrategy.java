@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.btcwolf.strategy;
+package org.btcwolf.strategy.impl;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
@@ -32,7 +32,7 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 import static java.math.BigDecimal.ZERO;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
-import static org.btcwolf.strategy.ExchangeMonitorDecorator.logOrder;
+import static org.btcwolf.strategy.impl.StrategyOrchestratorDecorator.logOrder;
 
 public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
@@ -72,7 +72,7 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
     void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
-            logOrder(ticker, amount, orderType);
+            StrategyOrchestratorDecorator.logOrder(ticker, amount, orderType);
         }
     }
 

@@ -21,6 +21,8 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.impl.AbstractTradingStrategy;
+import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
