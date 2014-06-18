@@ -28,17 +28,20 @@ import java.util.List;
 
 public class ExchangeMonitorDecorator implements TradingStrategy {
 
-    private static final int POLLING_FREQ = 8;
+    private final int POLLING_FREQ = 8;
     private static final Logger logger = Logger.getLogger(ExchangeMonitorDecorator.class);
 
-    private static final TwitterAgent twitterAgent = new TwitterAgent();
+    private static TwitterAgent twitterAgent;
     private AbstractTradingStrategy tradingStrategy;
 
     private int pollingCounter;
 
-    public ExchangeMonitorDecorator(TradingStrategy tradingStrategy) {
+    public ExchangeMonitorDecorator(TradingStrategy tradingStrategy, boolean useTwitter) {
         this.tradingStrategy = (AbstractTradingStrategy) tradingStrategy;
         this.pollingCounter = 0;
+        if (useTwitter) {
+            this.twitterAgent = new TwitterAgent();
+        }
     }
 
     @Override
@@ -64,7 +67,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
     }
 
     static void logOrder(BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult) {
-         logger.info("Order " + orderType.toString() +" [ " + bitCoinsToBuy + "]CNY placed, result [" + orderResult + "]");
+         logger.info("Ordered " + orderType.toString() +" [ " + bitCoinsToBuy + "]CNY, result [" + orderResult + "]CNY");
     }
 
     static void logNotASK(Ticker ticker, BigDecimal previousAskUsed, BigDecimal opCurrencyThreshold) {
@@ -81,7 +84,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 "] th[" + opBitCoinThreshold + "] nothing to do.");
     }
 
-     static void logOpenOrders(List<LimitOrder> openOrders) {
+    static void logOpenOrders(List<LimitOrder> openOrders) {
         for (LimitOrder order : openOrders) {
             logger.info("Noting to do, open order [" + order + "]");
         }
@@ -106,6 +109,7 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
                 String.format("%.2f", priceDifference) + "]. Abs[" +
                 String.format("%.4f", opProfit) + "]CNY");
     }
+
     static void logOrder(Ticker ticker, BigDecimal amount, Order.OrderType orderType) {
         BigDecimal price = null;
         if (orderType == Order.OrderType.ASK) {
@@ -115,11 +119,13 @@ public class ExchangeMonitorDecorator implements TradingStrategy {
         }
         log("Ordered "+orderType.toString() +" [" +
                 String.format("%.5f", amount) + "]BTC for [" +
-                String.format("%.1f", price) + "].");
+                String.format("%.1f", price) + "]CNY.");
     }
 
     static void log(String message) {
         logger.info(message);
-        twitterAgent.publish(message);
+        if (twitterAgent != null) {
+            twitterAgent.publish(message);
+        }
     }
 }

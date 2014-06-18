@@ -37,6 +37,7 @@ public class TurtleTradingStrategyTest {
     @BeforeClass
     public static void setup() {
         PropertyConfigurator.configure(LOG4J_PATH);
+
     }
 
     @Test
@@ -63,26 +64,27 @@ public class TurtleTradingStrategyTest {
     }
 
     @Test
-    public void testTu`rtleStrategy() {
+    public void testTurtleStrategy() {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
-        for (int turtleSpeed = 4; turtleSpeed < 5; turtleSpeed++) {
-                for (int k = 2; k < 3; k++) {
-                    for (int l = 2; l < 111113; l++) {
+        MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
+        for (int turtleSpeed = 2; turtleSpeed < 5; turtleSpeed++) {
+                for (int amount = 1; amount < 4; amount++) {
+                    //for (int l = 2; l < 5; l++) {
                         int[] indexes = getIndexes(maxIndex);
-                        runTurtleTest(turtleSpeed, indexes, k);
-                    }
+                        runTurtleTest(turtleSpeed, indexes, amount, testerAgent);
+                    //}
                 }
         }
     }
 
-    public void runTurtleTest(int turtleSpeed, int[] indexes, int k) {
+    public void runTurtleTest(int turtleSpeed, int[] indexes, int amount, MarketExchangeAgent testerAgent) {
 
         //setup
         BigDecimal cny = BigDecimal.valueOf(0);
-        BigDecimal btc = BigDecimal.valueOf(0.01);
-        MarketExchangeAgent testerAgent = new MarketExchangeAgent(btc, cny);
+        BigDecimal btc = BigDecimal.valueOf(0.02);
+        testerAgent.setBalance(cny, btc);
         testerAgent.setDataRange(indexes);
-        TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, k);
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, amount);
 
         //run
         runTest(testerAgent, testedStrategy);
@@ -96,7 +98,7 @@ public class TurtleTradingStrategyTest {
         } else {
             System.out.print("KOO ");
         }
-        System.out.println("speed ["+ turtleSpeed +"] op div [" + k + "] start money [" + String.format("%f.4", btc.doubleValue()) + "]" +
+        System.out.println("speed [" + turtleSpeed + "] op div [" + amount + "] start money [" + String.format("%f.4", btc.doubleValue()) + "]" +
                 " end money [" + String.format("%f.4", finalMoney.doubleValue()) + "][" +
                 " profit [" + String.format("%f.4", profit) + "] [" +
                 String.format("%f.1", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +

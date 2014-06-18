@@ -32,6 +32,7 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.ZERO;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
+import static org.btcwolf.strategy.ExchangeMonitorDecorator.*;
 
 public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
 
@@ -50,6 +51,12 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
         processHistoricOrders();
     }
 
+    public SimpleWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold) {
+        super(traderAgent);
+        this.opThreshold = opThreshold;
+        processHistoricOrders();
+    }
+
     @Override
     public void onTickerReceived(Ticker ticker) {
         if (previousPriceUsed == null) {
@@ -58,7 +65,7 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
             return;
         }
         if (traderAgent.getOpenOrders().getOpenOrders().size() > 0) {
-            new ExchangeMonitorDecorator(this).logOpenOrders(traderAgent.getOpenOrders().getOpenOrders());
+            logOpenOrders(traderAgent.getOpenOrders().getOpenOrders());
         } else {
             checkIfProfitableBIDAndCarryOn(ticker);
             checkIfProfitableASKAndCarryOn(ticker);
@@ -68,18 +75,18 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
     void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
 
         if (!FAILED_ORDER.equals(orderResult)) {
-            new ExchangeMonitorDecorator(this).logOrder(amount, orderType, orderResult);
+            logOrder(amount, orderType, orderResult);
 
             if (BID == orderType) {
                 BigDecimal priceDifference = previousPriceUsed.subtract(ticker.getBid());
                 BigDecimal opProfit = priceDifference.multiply(amount);
-                new ExchangeMonitorDecorator(this).logBID(ticker, amount, previousPriceUsed, priceDifference, opProfit);
+                logBID(ticker, amount, previousPriceUsed, priceDifference, opProfit);
                 previousPriceUsed = ticker.getBid();
 
             } else if (ASK == orderType) {
                 BigDecimal priceDifference = ticker.getAsk().subtract(previousPriceUsed);
                 BigDecimal opProfit = priceDifference.multiply(amount);
-                new ExchangeMonitorDecorator(this).logASK(ticker, amount, previousPriceUsed, priceDifference, opProfit);
+                logASK(ticker, amount, previousPriceUsed, priceDifference, opProfit);
                 previousPriceUsed = ticker.getAsk();
             }
         }
@@ -93,7 +100,7 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
         if ((ticker.getAsk().compareTo(previousPriceUsed.add(opThreshold)) == 1 && myBitCoins.compareTo(ZERO) == 1) || lostTheTrend()) {
             placeOrder(ASK, myBitCoins, ticker); // new ask higher than the last one plus the threshold and be have money
         } else {
-            new ExchangeMonitorDecorator(this).logNotASK(ticker, previousPriceUsed, opThreshold);
+            logNotASK(ticker, previousPriceUsed, opThreshold);
         }
     }
 
@@ -107,7 +114,7 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
             BigDecimal bitCoinsToBuy = myCurrency.divide(ticker.getBid(), 80, ROUND_DOWN);
             placeOrder(BID, bitCoinsToBuy, ticker);
         } else {
-            new ExchangeMonitorDecorator(this).logNotBID(ticker, previousPriceUsed, opThreshold);
+            logNotBID(ticker, previousPriceUsed, opThreshold);
         }
     }
 

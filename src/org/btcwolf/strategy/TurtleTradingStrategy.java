@@ -36,7 +36,7 @@ import static org.btcwolf.strategy.ExchangeMonitorDecorator.logOrder;
 
 public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
-    private static final int MAX_MINS_ORDER_TO_PROCESSED = 10;
+    private static final int MAX_MINS_ORDER_TO_PROCESSED = 20;
     private static final int CHECK_DEAD_ORDERS_FREQ = 10;
 
     private final LinkedList<Ticker> historicData;
@@ -79,7 +79,8 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
     private void checkIfProfitableASKAndCarryOn(Ticker ticker) {
         BigDecimal mBitcoins = traderAgent.getBitCoinBalance();
         if (mBitcoins.compareTo(ZERO) == 1 && shouldAsk(ticker)) {
-            placeOrder(ASK, mBitcoins.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN), ticker);
+            BigDecimal amountToSell = mBitcoins.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN);
+            placeOrder(ASK, amountToSell, ticker);
             historicData.clear();
         }
     }
@@ -87,8 +88,8 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
     private void checkIfProfitableBIDAndCarryOn(Ticker ticker) {
         BigDecimal mCurrency = traderAgent.getCurrencyBalance();
         if (mCurrency.compareTo(ZERO) == 1 && shouldBid(ticker)) {
-            placeOrder(BID, mCurrency.divide(ticker.getBid(), 80, ROUND_HALF_EVEN)
-                    .divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN), ticker);
+            BigDecimal amountToBuy = mCurrency.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN);
+            placeOrder(BID, amountToBuy.divide(ticker.getBid(), 80, ROUND_HALF_EVEN), ticker);
             historicData.clear();
         }
     }

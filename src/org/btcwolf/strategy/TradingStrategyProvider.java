@@ -21,15 +21,23 @@ import org.btcwolf.agent.TraderAgent;
 
 public class TradingStrategyProvider {
 
+    private static final boolean USE_TWITTER = true;
     public static final TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
         return getAgent(traderAgent);
     }
 
     public static final TradingStrategy getAgent(TraderAgent traderAgent) {
-        return new ExchangeMonitorDecorator(new SimpleWinWinTradingStrategy(traderAgent));
+        return new ExchangeMonitorDecorator(
+                new SimpleWinWinTradingStrategy(traderAgent),
+                USE_TWITTER);
     }
 
     public static final TradingStrategy getTurtleStrategy(TraderAgent traderAgent) {
-        return new ExchangeMonitorDecorator(new TurtleTradingStrategy(traderAgent, 4, 2));
+        return new ExchangeMonitorDecorator(
+                new TurtleTradingStrategy(
+                        traderAgent,
+                        4,      //turtle speed
+                        2),     //amount
+                USE_TWITTER);
     }
 }

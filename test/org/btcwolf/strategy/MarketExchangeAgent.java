@@ -135,4 +135,10 @@ public class MarketExchangeAgent implements TraderAgent {
     public boolean cancelLimitOrder(LimitOrder limitOrder) {
         return true;
     }
+
+
+    public void setBalance(BigDecimal cny, BigDecimal btc) {
+        this.mCurrency = cny;
+        this.mBitCoins = btc;
+    }
 }
