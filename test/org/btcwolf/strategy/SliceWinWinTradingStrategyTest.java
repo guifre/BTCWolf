@@ -57,7 +57,7 @@ public class SliceWinWinTradingStrategyTest {
             for (double j = 0.001; j < 0.01; j = j + 0.001) {
                 BigDecimal threshold = valueOf(i);
                 BigDecimal opAmount = valueOf(j);
-                current = runTest(threshold, cnz, btc, opAmount);
+                current = runTest(threshold, cnz, btc, opAmount, false);
                 if (current.compareTo(maxProfit) == 1) {
                     maxProfit = current;
                     bestOpAmount = opAmount;
@@ -73,11 +73,11 @@ public class SliceWinWinTradingStrategyTest {
         System.out.println("best th " + bestOpThreshold + " best amount " + bestOpAmount);
     }
 
-    private BigDecimal runTest(BigDecimal threshold, BigDecimal cnz, BigDecimal btc, BigDecimal opAmount) {
+    private BigDecimal runTest(BigDecimal threshold, BigDecimal cnz, BigDecimal btc, BigDecimal opAmount, boolean switchStrategy) {
 
         //setup
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
-        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, threshold, opAmount, false);
+        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(new TestStrategyProvider(testerAgent, switchStrategy), testerAgent, threshold, opAmount, false);
 
         //run
         runTest(testerAgent, testedStrategy);

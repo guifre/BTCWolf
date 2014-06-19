@@ -56,7 +56,11 @@ public class TradingStrategyProvider {
     public void switchToDefaultTurtleStrategy() {
         this.strategy = getDefaultTurtleStrategy(traderAgent);
     }
-    public void switchToDefaultWinWInStrategy() {
-        this.strategy = getDefaultWinWinStrategy(traderAgent);
+    public void switchStrategy() {
+        if (this.strategy instanceof TurtleTradingStrategy) {
+            this.strategy = getDefaultWinWinStrategy(this.traderAgent);
+        } else if (this.strategy instanceof SimpleWinWinTradingStrategy) {
+            this.strategy = getDefaultTurtleStrategy(this.traderAgent);
+        }
     }
 }

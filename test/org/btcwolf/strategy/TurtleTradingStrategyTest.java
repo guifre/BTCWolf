@@ -52,7 +52,7 @@ public class TurtleTradingStrategyTest {
         BigDecimal btc = BigDecimal.valueOf(0.01);
         int turtleSpeed = (4);
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cny);
-        TradingStrategy testedStrategy = new TurtleTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, turtleSpeed, turtleSpeed, false);
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(new TestStrategyProvider(testerAgent, false), testerAgent, turtleSpeed, turtleSpeed, false);
 
         //run
         runTest(testerAgent, testedStrategy);
@@ -73,22 +73,22 @@ public class TurtleTradingStrategyTest {
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
         for (int turtleSpeed = 2; turtleSpeed < 5; turtleSpeed++) {
                 for (int amount = 1; amount < 4; amount++) {
-                    //for (int l = 2; l < 5; l++) {
+                    for (int l = 0; l < 10; l++) {
                         int[] indexes = getIndexes(maxIndex);
-                        runTurtleTest(turtleSpeed, indexes, amount, testerAgent);
-                    //}
+                        runTurtleTest(turtleSpeed, indexes, amount, testerAgent, false);
+                    }
                 }
         }
     }
 
-    public void runTurtleTest(int turtleSpeed, int[] indexes, int amount, MarketExchangeAgent testerAgent) {
+    public void runTurtleTest(int turtleSpeed, int[] indexes, int amount, MarketExchangeAgent testerAgent, boolean switchStrategy) {
 
         //setup
         BigDecimal cny = BigDecimal.valueOf(0);
         BigDecimal btc = BigDecimal.valueOf(0.02);
         testerAgent.setBalance(cny, btc);
         testerAgent.setDataRange(indexes);
-        TradingStrategy testedStrategy = new TurtleTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, turtleSpeed, amount, false);
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(new TestStrategyProvider(testerAgent, switchStrategy), testerAgent, turtleSpeed, amount, false);
 
         //run
         runTest(testerAgent, testedStrategy);

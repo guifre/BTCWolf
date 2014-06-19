@@ -23,8 +23,17 @@ import org.btcwolf.strategy.TradingStrategyProvider;
 public class TestStrategyProvider extends TradingStrategyProvider {
 
     private static final boolean USE_TWITTER = false;
+    private boolean switchStrategy;
 
-    public TestStrategyProvider(TraderAgent traderAgent) {
+    public TestStrategyProvider(TraderAgent traderAgent, boolean switchStrategy) {
         super(traderAgent);
+        this.switchStrategy = switchStrategy;
+    }
+
+    @Override
+    public void switchStrategy() {
+        if (switchStrategy) {
+            super.switchStrategy();
+        }
     }
 }

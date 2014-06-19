@@ -49,11 +49,11 @@ public class SimpleWinWInTradingStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         for (int turtleSpeed = 1; turtleSpeed < 30; turtleSpeed++) {
             int[] indexes = getIndexes(maxIndex);
-            runSimpleWinWinTest(turtleSpeed, indexes);
+            runSimpleWinWinTest(turtleSpeed, indexes, false);
         }
     }
 
-    public void runSimpleWinWinTest(int turtleSpeed, int[] indexes) {
+    public void runSimpleWinWinTest(int turtleSpeed, int[] indexes, boolean switchStrategy) {
 
         //setup
         BigDecimal cny = BigDecimal.valueOf(0);
@@ -61,7 +61,7 @@ public class SimpleWinWInTradingStrategyTest {
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(btc, cny);
         testerAgent.setDataRange(indexes);
 
-        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, BigDecimal.valueOf(turtleSpeed), false);
+        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(new TestStrategyProvider(testerAgent, switchStrategy), testerAgent, BigDecimal.valueOf(turtleSpeed), false);
 
         //run
         runTest(testerAgent, testedStrategy);
