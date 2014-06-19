@@ -20,7 +20,9 @@ package org.btcwolf.strategy;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.helpers.TestStrategyProvider;
 import org.btcwolf.strategy.impl.AbstractTradingStrategy;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 import org.junit.BeforeClass;
@@ -50,7 +52,7 @@ public class TurtleTradingStrategyTest {
         BigDecimal btc = BigDecimal.valueOf(0.01);
         int turtleSpeed = (4);
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cny);
-        TradingStrategy testedStrategy = new TurtleTradingStrategy(this, testerAgent, turtleSpeed, turtleSpeed, false);
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, turtleSpeed, turtleSpeed, false);
 
         //run
         runTest(testerAgent, testedStrategy);
@@ -86,7 +88,7 @@ public class TurtleTradingStrategyTest {
         BigDecimal btc = BigDecimal.valueOf(0.02);
         testerAgent.setBalance(cny, btc);
         testerAgent.setDataRange(indexes);
-        TradingStrategy testedStrategy = new TurtleTradingStrategy(this, testerAgent, turtleSpeed, amount, false);
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, turtleSpeed, amount, false);
 
         //run
         runTest(testerAgent, testedStrategy);

@@ -20,7 +20,9 @@ package org.btcwolf.strategy;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.helpers.TestStrategyProvider;
 import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,7 +60,8 @@ public class SimpleWinWInTradingStrategyTest {
         BigDecimal btc = BigDecimal.valueOf(0.01);
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(btc, cny);
         testerAgent.setDataRange(indexes);
-        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent, BigDecimal.valueOf(turtleSpeed), false);
+
+        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, BigDecimal.valueOf(turtleSpeed), false);
 
         //run
         runTest(testerAgent, testedStrategy);

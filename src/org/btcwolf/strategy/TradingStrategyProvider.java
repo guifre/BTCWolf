@@ -39,7 +39,7 @@ public class TradingStrategyProvider {
     }
 
     protected TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
-        return new SimpleWinWinTradingStrategy(traderAgent, USE_TWITTER);
+        return new SimpleWinWinTradingStrategy(this, traderAgent, USE_TWITTER);
     }
 
 

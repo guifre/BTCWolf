@@ -20,7 +20,9 @@ package org.btcwolf.strategy;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.helpers.TestStrategyProvider;
 import org.btcwolf.strategy.impl.AbstractTradingStrategy;
 import org.btcwolf.strategy.impl.SliceWinWinTradingStrategy;
 import org.junit.BeforeClass;
@@ -75,7 +77,7 @@ public class SliceWinWinTradingStrategyTest {
 
         //setup
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
-        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent, threshold, opAmount, false);
+        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(new TestStrategyProvider(testerAgent), testerAgent, threshold, opAmount, false);
 
         //run
         runTest(testerAgent, testedStrategy);
