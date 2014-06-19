@@ -18,7 +18,7 @@
 package org.btcwolf.strategy;
 
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.impl.StrategyOrchestratorDecorator;
+import org.btcwolf.strategy.impl.decorators.StrategyOrchestratorDecorator;
 import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
@@ -40,18 +40,20 @@ public class TradingStrategyProvider {
     }
 
     protected TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
-        return new SimpleWinWinTradingStrategy(traderAgent);
+        return new SimpleWinWinTradingStrategy(traderAgent, USE_TWITTER);
     }
 
     protected TradingStrategy decorate(TradingStrategy tradingStrategy) {
-        return new StrategyOrchestratorDecorator(this, tradingStrategy, USE_TWITTER);
+        return new StrategyOrchestratorDecorator(this, tradingStrategy);
     }
 
     protected  TradingStrategy getDefaultTurtleStrategy(TraderAgent traderAgent) {
         return  new TurtleTradingStrategy(
                 traderAgent,
                         4,      //turtle speed
-                        2);     //amount to sell
+                        2,      //amount to sell
+                USE_TWITTER
+        );
     }
 
     public void switchToDefaultTurtleStrategy() {

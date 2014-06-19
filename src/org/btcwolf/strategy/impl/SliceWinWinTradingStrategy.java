@@ -22,6 +22,8 @@ import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.SettingsProvider;
+import org.btcwolf.strategy.impl.decorators.StrategyOrchestratorDecorator;
+import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
 
@@ -31,9 +33,8 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 import static java.math.RoundingMode.HALF_EVEN;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
-import static org.btcwolf.strategy.impl.StrategyOrchestratorDecorator.*;
 
-public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
+public class SliceWinWinTradingStrategy extends TradingStrategyMonitorDecorator {
 
     private static final BigDecimal DEFAULT_OP_THRESHOLD = BigDecimal.valueOf(5);
     private static final String OP_THRESHOLD_ENV = "OP_THRESHOLD";
@@ -42,15 +43,15 @@ public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
     private BigDecimal averagePrice;
     private BigDecimal opAmount;
 
-    public SliceWinWinTradingStrategy(TraderAgent traderAgent) {
-        super(traderAgent);
+    public SliceWinWinTradingStrategy(TraderAgent traderAgent, boolean useTwitterAgent) {
+        super(traderAgent, useTwitterAgent);
         initialize();
         initThreshold();
         this.opAmount = BigDecimal.valueOf(0.002);
     }
 
-    public SliceWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold, BigDecimal opAmount) {
-        super(traderAgent);
+    public SliceWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold, BigDecimal opAmount, boolean useTwitterAgent) {
+        super(traderAgent, useTwitterAgent);
         initialize();
         this.opThreshold = opThreshold;
         this.opAmount = opAmount;
@@ -70,7 +71,7 @@ public class SliceWinWinTradingStrategy extends AbstractTradingStrategy {
         shouldASK(ticker);
         }
 
-    void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
+    protected void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
 
         if (!FAILED_ORDER.equals(orderResult)) {
             BigDecimal btcBalance = traderAgent.getBitCoinBalance();

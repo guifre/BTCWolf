@@ -38,11 +38,10 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 
 public abstract class AbstractAgent implements TraderAgent {
 
-    private static final Logger logger = Logger.getLogger(TraderAgent.class);
+    protected static final Logger logger = Logger.getLogger(AbstractAgent.class);
     public static final String FAILED_ORDER = "KO";
 
     private final Exchange exchange;
-
     private final CurrencyPair currencyPair;
 
     public AbstractAgent(CurrencyPair currencyPair) {
@@ -52,10 +51,12 @@ public abstract class AbstractAgent implements TraderAgent {
 
     protected abstract Exchange buildExchange();
 
+    @Override
     public CurrencyPair getCurrencyPair() {
         return currencyPair;
     }
 
+    @Override
     public Ticker pollTicker() {
         try {
             return exchange.getPollingMarketDataService().getTicker(currencyPair);
@@ -66,6 +67,7 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    @Override
     public String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
@@ -85,10 +87,12 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    @Override
     public boolean cancelLimitOrder(LimitOrder limitOrder) {
         return attemptCancelLimit(limitOrder, 0);
     }
 
+    @Override
     public List<Wallet> getWallets() {
         try {
             return this.exchange.getPollingAccountService().getAccountInfo().getWallets();
@@ -98,6 +102,7 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    @Override
     public BigDecimal getBitCoinBalance() {
         try {
             Wallet myWallet = null;
@@ -116,6 +121,7 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    @Override
     public BigDecimal getCurrencyBalance() {
         try {
             Wallet myWallet = null;
@@ -134,6 +140,7 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    @Override
     public OpenOrders getOpenOrders() {
         try {
             return this.exchange.getPollingTradeService().getOpenOrders();
@@ -152,6 +159,7 @@ public abstract class AbstractAgent implements TraderAgent {
         }
     }
 
+    @Override
     public Trades getTrades() {
         try {
             return exchange.getPollingTradeService().getTradeHistory();

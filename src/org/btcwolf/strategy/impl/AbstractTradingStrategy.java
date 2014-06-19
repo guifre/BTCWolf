@@ -17,7 +17,6 @@
 
 package org.btcwolf.strategy.impl;
 
-import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
@@ -25,24 +24,21 @@ import org.btcwolf.strategy.TradingStrategy;
 
 import java.math.BigDecimal;
 
-import static java.math.BigDecimal.ZERO;
+import static com.xeiam.xchange.dto.Order.*;
 
 public abstract class AbstractTradingStrategy implements TradingStrategy {
 
-    static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
+    protected static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
 
-    final TraderAgent traderAgent;
+    public final TraderAgent traderAgent;
 
     public AbstractTradingStrategy(TraderAgent traderAgent) {
         this.traderAgent = traderAgent;
     }
 
-    abstract void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult);
+    protected abstract void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult);
 
-    void placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
-        if (amount.compareTo(ZERO) == 0) {
-            return;
-        }
-        onOrdered(ticker, amount, orderType, traderAgent.placeOrder(orderType, amount, ticker));
+    protected String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
+        return traderAgent.placeOrder(orderType, amount, ticker);
     }
 }
