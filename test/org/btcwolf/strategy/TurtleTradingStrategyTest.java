@@ -18,12 +18,10 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.helpers.TestStrategyProvider;
-import org.btcwolf.strategy.impl.AbstractTradingStrategy;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,13 +33,11 @@ import java.util.Random;
 public class TurtleTradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
-    private static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
     private BigDecimal lastAsk;
 
     @BeforeClass
     public static void setup() {
         PropertyConfigurator.configure(LOG4J_PATH);
-
     }
 
     @Test
@@ -72,12 +68,12 @@ public class TurtleTradingStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
         for (int turtleSpeed = 2; turtleSpeed < 5; turtleSpeed++) {
-                for (int amount = 1; amount < 4; amount++) {
-                    for (int l = 0; l < 10; l++) {
-                        int[] indexes = getIndexes(maxIndex);
-                        runTurtleTest(turtleSpeed, indexes, amount, testerAgent, false);
-                    }
+            for (int amount = 1; amount < 4; amount++) {
+                for (int l = 0; l < 10; l++) {
+                    int[] indexes = getIndexes(maxIndex);
+                    runTurtleTest(turtleSpeed, indexes, amount, testerAgent, true);
                 }
+            }
         }
     }
 
