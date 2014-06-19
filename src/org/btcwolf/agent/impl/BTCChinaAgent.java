@@ -29,8 +29,6 @@ import org.btcwolf.persistance.SettingsProvider;
 
 public class BTCChinaAgent extends AbstractAgent {
 
-    private static final Logger logger = Logger.getLogger(TraderAgent.class.getName());
-
     private static final String SECRET_KEY_ENV = "SecretKey";
     private static final String API_KEY_ENV = "APIKey";
     private static final String PASSWORD_ENV = "Password";
@@ -43,9 +41,9 @@ public class BTCChinaAgent extends AbstractAgent {
 
     protected Exchange buildExchange() {
         String msg = "Could not find credential arguments " +
-                SECRET_KEY_ENV + SettingsProvider.getProperty(SECRET_KEY_ENV) + ", " +
-                PASSWORD_ENV + SettingsProvider.getProperty(PASSWORD_ENV) + ", " +
-                API_KEY_ENV + SettingsProvider.getProperty(API_KEY_ENV);
+                SECRET_KEY_ENV + ": " + SettingsProvider.getProperty(SECRET_KEY_ENV) + ", " +
+                PASSWORD_ENV + ": " + SettingsProvider.getProperty(PASSWORD_ENV) + ", " +
+                API_KEY_ENV + ": " + SettingsProvider.getProperty(API_KEY_ENV);
 
         if (SettingsProvider.getProperty(SECRET_KEY_ENV) == null ||
                 SettingsProvider.getProperty(PASSWORD_ENV) == null ||

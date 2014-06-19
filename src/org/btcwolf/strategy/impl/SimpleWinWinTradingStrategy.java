@@ -22,6 +22,7 @@ import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.SettingsProvider;
+import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -32,9 +33,8 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.ZERO;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
-import static org.btcwolf.strategy.impl.StrategyOrchestratorDecorator.*;
 
-public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
+public class SimpleWinWinTradingStrategy extends TradingStrategyMonitorDecorator {
 
     private static final boolean MIN_OP_TIME = false;
     private static final int MAX_NON_OP_TIME = 5; //hours
@@ -45,14 +45,14 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
     private BigDecimal opThreshold;
     private BigDecimal previousPriceUsed;
 
-    public SimpleWinWinTradingStrategy(TraderAgent traderAgent) {
-        super(traderAgent);
+    public SimpleWinWinTradingStrategy(TraderAgent traderAgent, boolean useTwitterAgent) {
+        super(traderAgent, useTwitterAgent);
         getThreshold();
         processHistoricOrders();
     }
 
-    public SimpleWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold) {
-        super(traderAgent);
+    public SimpleWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold, boolean useTwitterAgent) {
+        super(traderAgent, useTwitterAgent);
         this.opThreshold = opThreshold;
         processHistoricOrders();
     }
@@ -72,7 +72,7 @@ public class SimpleWinWinTradingStrategy extends AbstractTradingStrategy {
         }
     }
 
-    void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
+    protected void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
 
         if (!FAILED_ORDER.equals(orderResult)) {
             logOrder(amount, orderType, orderResult);

@@ -21,6 +21,7 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -32,9 +33,8 @@ import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 import static java.math.BigDecimal.ZERO;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
-import static org.btcwolf.strategy.impl.StrategyOrchestratorDecorator.logOrder;
 
-public class TurtleTradingStrategy extends AbstractTradingStrategy {
+public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
 
     private static final int MAX_MINS_ORDER_TO_PROCESSED = 20;
     private static final int CHECK_DEAD_ORDERS_FREQ = 10;
@@ -45,8 +45,8 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
 
     private int limitOrdersCount;
 
-    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed, int opAmount) {
-        super(traderAgent);
+    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed, int opAmount, boolean useTwitterAgent) {
+        super(traderAgent, useTwitterAgent);
         this.turtleSpeed = turtleSpeed;
         this.opAmount = opAmount;
         this.historicData = new LinkedList<Ticker>();
@@ -70,9 +70,9 @@ public class TurtleTradingStrategy extends AbstractTradingStrategy {
         historicData.addFirst(ticker);
     }
 
-    void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
+    protected void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
-            StrategyOrchestratorDecorator.logOrder(ticker, amount, orderType);
+            logOrder(ticker, amount, orderType);
         }
     }
 

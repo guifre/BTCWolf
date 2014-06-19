@@ -50,7 +50,7 @@ public class TurtleTradingStrategyTest {
         BigDecimal btc = BigDecimal.valueOf(0.01);
         int turtleSpeed = (4);
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cny);
-        TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, turtleSpeed);
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, turtleSpeed, false);
 
         //run
         runTest(testerAgent, testedStrategy);
@@ -86,7 +86,7 @@ public class TurtleTradingStrategyTest {
         BigDecimal btc = BigDecimal.valueOf(0.02);
         testerAgent.setBalance(cny, btc);
         testerAgent.setDataRange(indexes);
-        TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, amount);
+        TradingStrategy testedStrategy = new TurtleTradingStrategy(testerAgent, turtleSpeed, amount, false);
 
         //run
         runTest(testerAgent, testedStrategy);

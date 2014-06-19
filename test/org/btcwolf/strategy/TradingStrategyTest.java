@@ -63,7 +63,7 @@ public class TradingStrategyTest {
 
         //setup
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
-        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent, threshold, opAmount);
+        TradingStrategy testedStrategy = new SliceWinWinTradingStrategy(testerAgent, threshold, opAmount, false);
 
         //run
         runTest(testerAgent, testedStrategy);
@@ -84,7 +84,7 @@ public class TradingStrategyTest {
 
         //setup
         TraderAgent testerAgent = new MarketExchangeAgent(btc, cnz);
-        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent);
+        TradingStrategy testedStrategy = new SimpleWinWinTradingStrategy(testerAgent, false);
 
         //run
         runTest(testerAgent, testedStrategy);
