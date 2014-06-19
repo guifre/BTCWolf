@@ -96,7 +96,7 @@ public class StrategyOrchestratorDecorator implements TradingStrategy {
 
     static void logOpenOrders(List<LimitOrder> openOrders) {
         for (LimitOrder order : openOrders) {
-            logger.info("Noting to do, open order [" + order + "]");
+            logger.debug("Noting to do, open order [" + order + "]");
         }
     }
 

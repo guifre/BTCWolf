@@ -64,6 +64,7 @@ public class MarketExchangeAgent implements TraderAgent {
     public void setDataRange(int[] indexes) {
         this.startTicker = indexes[0];
         this.finalTicker = indexes[1];
+        index = startTicker;
     }
 
     @Override
