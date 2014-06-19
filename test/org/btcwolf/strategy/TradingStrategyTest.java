@@ -21,31 +21,18 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.persistance.Serializer;
 import org.btcwolf.strategy.impl.AbstractTradingStrategy;
 import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
 import org.btcwolf.strategy.impl.SliceWinWinTradingStrategy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.math.BigDecimal;
-import java.util.List;
 
 public class TradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
     private static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
-
-    public List<Ticker> getTicker() {
-        List<Ticker> list2 = null;
-        try {
-            list2 = Serializer.read();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return list2;
-    }
 
     @BeforeClass
     public static void setup() {

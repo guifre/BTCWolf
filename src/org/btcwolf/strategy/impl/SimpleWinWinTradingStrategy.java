@@ -22,6 +22,7 @@ import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.SettingsProvider;
+import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
@@ -45,20 +46,21 @@ public class SimpleWinWinTradingStrategy extends TradingStrategyMonitorDecorator
     private BigDecimal opThreshold;
     private BigDecimal previousPriceUsed;
 
-    public SimpleWinWinTradingStrategy(TraderAgent traderAgent, boolean useTwitterAgent) {
-        super(traderAgent, useTwitterAgent);
+    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
+        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         getThreshold();
         processHistoricOrders();
     }
 
-    public SimpleWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold, boolean useTwitterAgent) {
-        super(traderAgent, useTwitterAgent);
+    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, BigDecimal opThreshold, boolean useTwitterAgent) {
+        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.opThreshold = opThreshold;
         processHistoricOrders();
     }
 
     @Override
     public void onTickerReceived(Ticker ticker) {
+        super.onTickerReceived(ticker);
         if (previousPriceUsed == null) {
             previousPriceUsed = ticker.getAsk();
             logger.info("No older orders, setting prev Op[" + previousPriceUsed + "]");

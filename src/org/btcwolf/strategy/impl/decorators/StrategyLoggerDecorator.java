@@ -12,13 +12,38 @@ import java.util.List;
 
 public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
 
-    TwitterAgent twitterAgent;
+    private static final int POLLING_FREQ = 8;
+
+    private TwitterAgent twitterAgent;
+    private int pollingCounter;
 
     public StrategyLoggerDecorator(TraderAgent traderAgent, boolean useTwitterAgent ) {
         super(traderAgent);
+        this.pollingCounter = 0;
         if (useTwitterAgent) {
             twitterAgent = new TwitterAgent();
         }
+    }
+
+    @Override
+    public void onTickerReceived(Ticker ticker) {
+        pollExchangeStatus(ticker);
+    }
+
+    void pollExchangeStatus(Ticker ticker) {
+        logger.debug("\n\n New " + ticker);
+        if (pollingCounter > POLLING_FREQ) {
+            pollingCounter = 0;
+            logStatus();
+        }
+        pollingCounter++;
+    }
+
+    void logStatus() {
+        logger.debug(
+                "BTC Balance[" + traderAgent.getBitCoinBalance() +
+                        "] CNY Balance[" + traderAgent.getCurrencyBalance() +
+                        "]" + " Open Orders[" + traderAgent.getOpenOrders().toString() + "].");
     }
 
 

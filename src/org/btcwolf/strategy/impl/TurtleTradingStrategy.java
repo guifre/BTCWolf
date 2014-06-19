@@ -21,6 +21,7 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
@@ -45,8 +46,8 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
 
     private int limitOrdersCount;
 
-    public TurtleTradingStrategy(TraderAgent traderAgent, int turtleSpeed, int opAmount, boolean useTwitterAgent) {
-        super(traderAgent, useTwitterAgent);
+    public TurtleTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, int turtleSpeed, int opAmount, boolean useTwitterAgent) {
+        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.turtleSpeed = turtleSpeed;
         this.opAmount = opAmount;
         this.historicData = new LinkedList<Ticker>();
@@ -55,6 +56,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
 
     @Override
     public void onTickerReceived(Ticker ticker) {
+        super.onTickerReceived(ticker);
        addToHistoric(ticker);
        checkDeadLimitOrders();
         if (historicData.size() == turtleSpeed) {
@@ -77,9 +79,9 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     }
 
     private void checkIfProfitableASKAndCarryOn(Ticker ticker) {
-        BigDecimal mBitcoins = traderAgent.getBitCoinBalance();
-        if (mBitcoins.compareTo(ZERO) == 1 && shouldAsk(ticker)) {
-            BigDecimal amountToSell = mBitcoins.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN);
+        BigDecimal mBitCoins = traderAgent.getBitCoinBalance();
+        if (mBitCoins.compareTo(ZERO) == 1 && shouldAsk(ticker)) {
+            BigDecimal amountToSell = mBitCoins.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN);
             placeOrder(ASK, amountToSell, ticker);
             historicData.clear();
         }

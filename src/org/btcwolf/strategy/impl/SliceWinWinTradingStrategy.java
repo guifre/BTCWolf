@@ -22,7 +22,7 @@ import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.SettingsProvider;
-import org.btcwolf.strategy.impl.decorators.StrategyOrchestratorDecorator;
+import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
@@ -43,15 +43,15 @@ public class SliceWinWinTradingStrategy extends TradingStrategyMonitorDecorator 
     private BigDecimal averagePrice;
     private BigDecimal opAmount;
 
-    public SliceWinWinTradingStrategy(TraderAgent traderAgent, boolean useTwitterAgent) {
-        super(traderAgent, useTwitterAgent);
+    public SliceWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
+        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         initialize();
         initThreshold();
         this.opAmount = BigDecimal.valueOf(0.002);
     }
 
-    public SliceWinWinTradingStrategy(TraderAgent traderAgent, BigDecimal opThreshold, BigDecimal opAmount, boolean useTwitterAgent) {
-        super(traderAgent, useTwitterAgent);
+    public SliceWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, BigDecimal opThreshold, BigDecimal opAmount, boolean useTwitterAgent) {
+        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         initialize();
         this.opThreshold = opThreshold;
         this.opAmount = opAmount;
@@ -59,6 +59,7 @@ public class SliceWinWinTradingStrategy extends TradingStrategyMonitorDecorator 
 
     @Override
     public void onTickerReceived(Ticker ticker) {
+        super.onTickerReceived(ticker);
         if (averagePrice == null) {
             averagePrice = ticker.getAsk();
             logger.info("No older orders, setting av price [" + averagePrice + "]");
