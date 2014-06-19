@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.AgentsFactory;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.TradingStrategy;
 import org.btcwolf.strategy.TradingStrategyProvider;
 
 public class BTCWolf {
@@ -36,7 +35,7 @@ public class BTCWolf {
         PropertyConfigurator.configure(LOG4J_PATH);
 
         TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
-        TradingStrategyProvider tradingStrategyProvider = new TradingStrategyProvider(traderAgent);
+        TradingStrategyProvider tradingStrategyProvider = new TradingStrategyProvider(traderAgent, true);
 
         Ticker previousTicker = traderAgent.pollTicker();
         while(true) {

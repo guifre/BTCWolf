@@ -26,7 +26,7 @@ public class TestStrategyProvider extends TradingStrategyProvider {
     private boolean switchStrategy;
 
     public TestStrategyProvider(TraderAgent traderAgent, boolean switchStrategy) {
-        super(traderAgent);
+        super(traderAgent, false);
         this.switchStrategy = switchStrategy;
     }
 

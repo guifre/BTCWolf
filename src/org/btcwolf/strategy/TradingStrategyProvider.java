@@ -23,15 +23,15 @@ import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
 public class TradingStrategyProvider {
 
-    private static final boolean USE_TWITTER = true;
+    private final boolean useTwitter;
 
     private final TraderAgent traderAgent;
     private TradingStrategy strategy;
 
-    public TradingStrategyProvider(TraderAgent traderAgent) {
+    public TradingStrategyProvider(TraderAgent traderAgent, boolean useTwiter) {
         this.traderAgent = traderAgent;
         this.strategy = getDefaultTurtleStrategy(traderAgent);
-
+        this.useTwitter = useTwiter;
     }
 
     public TradingStrategy getStrategy() {
@@ -39,7 +39,7 @@ public class TradingStrategyProvider {
     }
 
     protected TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
-        return new SimpleWinWinTradingStrategy(this, traderAgent, USE_TWITTER);
+        return new SimpleWinWinTradingStrategy(this, traderAgent, useTwitter);
     }
 
 
@@ -49,7 +49,7 @@ public class TradingStrategyProvider {
                 traderAgent,
                         4,      //turtle speed
                         2,      //amount to sell
-                USE_TWITTER
+                useTwitter
         );
     }
 
@@ -58,9 +58,16 @@ public class TradingStrategyProvider {
     }
     public void switchStrategy() {
         if (this.strategy instanceof TurtleTradingStrategy) {
+           // System.out.println("Previous strategy turle, switching to winwin");
             this.strategy = getDefaultWinWinStrategy(this.traderAgent);
         } else if (this.strategy instanceof SimpleWinWinTradingStrategy) {
+            //System.out.println("Previous strategy winwin, switching to turtle");
             this.strategy = getDefaultTurtleStrategy(this.traderAgent);
         }
     }
+
+    public TradingStrategy getTradingStrategy() {
+        return this.strategy;
+    }
+
 }
