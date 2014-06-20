@@ -44,7 +44,7 @@ public class TurtleTradingStrategyTest {
             for (int amount = 1; amount < 4; amount++) {
                 for (int l = 0; l < 10; l++) {
                     int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
-                    
+
                     TestStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
                     strategyProviderWithSwitch.geTurtleStrategy(testerAgent, turtleSpeed, amount);
 
