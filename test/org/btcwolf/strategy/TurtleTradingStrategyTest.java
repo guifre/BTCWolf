@@ -44,12 +44,15 @@ public class TurtleTradingStrategyTest {
             for (int amount = 1; amount < 4; amount++) {
                 for (int l = 0; l < 10; l++) {
                     int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
-                    TradingStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
-                    TradingStrategy testedStrategy = new TurtleTradingStrategy(strategyProviderWithSwitch, testerAgent, turtleSpeed, amount, false);
-                    TradingStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, true);
-                    TradingStrategy testedStrategyWithoutSwitch = new TurtleTradingStrategy(strategyProvider, testerAgent, turtleSpeed, amount, false);
-                    StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, testedStrategy, strategyProviderWithSwitch);
-                    StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, testedStrategyWithoutSwitch, strategyProvider);
+                    
+                    TestStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
+                    strategyProviderWithSwitch.geTurtleStrategy(testerAgent, turtleSpeed, amount);
+
+                    TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
+                    strategyProvider.geTurtleStrategy(testerAgent, turtleSpeed, amount);
+
+                    StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProviderWithSwitch);
+                    StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProvider);
                 }
             }
         }

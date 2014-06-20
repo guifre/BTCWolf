@@ -28,10 +28,10 @@ public class TradingStrategyProvider {
     private final TraderAgent traderAgent;
     private TradingStrategy strategy;
 
-    public TradingStrategyProvider(TraderAgent traderAgent, boolean useTwiter) {
+    public TradingStrategyProvider(TraderAgent traderAgent, boolean useTwitter) {
         this.traderAgent = traderAgent;
         this.strategy = getDefaultTurtleStrategy(traderAgent);
-        this.useTwitter = useTwiter;
+        this.useTwitter = useTwitter;
     }
 
     public TradingStrategy getStrategy() {
@@ -42,13 +42,16 @@ public class TradingStrategyProvider {
         return new SimpleWinWinTradingStrategy(this, traderAgent, useTwitter);
     }
 
-
     protected TradingStrategy getDefaultTurtleStrategy(TraderAgent traderAgent) {
+        return geTurtleStrategy(traderAgent, 4, 2);
+    }
+
+    protected TradingStrategy geTurtleStrategy(TraderAgent traderAgent, int turtleSpeed, int amountToSell) {
         return  new TurtleTradingStrategy(
                 this,
                 traderAgent,
-                        4,      //turtle speed
-                        2,      //amount to sell
+                turtleSpeed,      //turtle speed
+                amountToSell,      //amount to sell
                 useTwitter
         );
     }
@@ -56,9 +59,14 @@ public class TradingStrategyProvider {
     public void switchToDefaultTurtleStrategy() {
         this.strategy = getDefaultTurtleStrategy(traderAgent);
     }
+
+    public void switchToDefaultWinWinStrategy() {
+        this.strategy = getDefaultWinWinStrategy(traderAgent);
+    }
+
     public void switchStrategy() {
         if (this.strategy instanceof TurtleTradingStrategy) {
-           // System.out.println("Previous strategy turle, switching to winwin");
+           // System.out.println("Previous strategy turtle, switching to winwin");
             this.strategy = getDefaultWinWinStrategy(this.traderAgent);
         } else if (this.strategy instanceof SimpleWinWinTradingStrategy) {
             //System.out.println("Previous strategy winwin, switching to turtle");
@@ -69,5 +77,4 @@ public class TradingStrategyProvider {
     public TradingStrategy getTradingStrategy() {
         return this.strategy;
     }
-
 }

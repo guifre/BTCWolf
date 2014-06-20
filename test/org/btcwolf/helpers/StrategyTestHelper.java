@@ -28,7 +28,7 @@ import java.util.Random;
 
 public class StrategyTestHelper {
 
-    public static void runTurtleTest(int turtleSpeed, int[] indexes, int amount, MarketExchangeAgent testerAgent, TradingStrategy testedStrategy, TradingStrategyProvider strategyProvider) {
+    public static void runTurtleTest(int turtleSpeed, int[] indexes, int amount, MarketExchangeAgent testerAgent, TestStrategyProvider strategyProvider) {
 
         //setup
         BigDecimal cny = BigDecimal.valueOf(0);
@@ -52,7 +52,7 @@ public class StrategyTestHelper {
                 " end money [" + String.format("%f.4", finalMoney.doubleValue()) + "][" +
                 " profit [" + String.format("%f.4", profit) + "] [" +
                 String.format("%f.1", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
-                " index [" + indexes[0] + "-" + indexes[1] + "]");
+                " index [" + indexes[0] + "-" + indexes[1] + "] dynamic strategy [" + strategyProvider.isSwitchStrategy() + "]");
     }
 
     public static int[] getIndexes(int max) {

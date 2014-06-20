@@ -18,16 +18,20 @@
 package org.btcwolf.helpers;
 
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.TradingStrategy;
 import org.btcwolf.strategy.TradingStrategyProvider;
 
 public class TestStrategyProvider extends TradingStrategyProvider {
 
-    private static final boolean USE_TWITTER = false;
     private boolean switchStrategy;
 
     public TestStrategyProvider(TraderAgent traderAgent, boolean switchStrategy) {
         super(traderAgent, false);
         this.switchStrategy = switchStrategy;
+    }
+
+    public boolean isSwitchStrategy() {
+        return this.switchStrategy;
     }
 
     @Override
