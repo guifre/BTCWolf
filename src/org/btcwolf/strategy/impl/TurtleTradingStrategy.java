@@ -108,7 +108,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
         }
         String oldD = "";
         for (Ticker oldData : historicData) {
-            oldD = oldD.concat(String.format("%f.1", oldData.getAsk()) + ", ");
+            oldD = oldD.concat(String.format("%.2f", oldData.getAsk()) + ", ");
         }
         logger.info("ORDERING ASK, found [" + ticker.getAsk() + "] is higher than [" + oldD + "]");
         return true;
@@ -117,14 +117,14 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     private boolean shouldBid(Ticker ticker) {
         for (Ticker historicTicker : historicData) {
             BigDecimal previousBid = historicTicker.getBid();
-            if (previousBid.compareTo(ticker.getBid()) == 1) {
+            if (previousBid.compareTo(ticker.getBid()) != -1) {
                 logger.debug("Not ordering BID, found [" + previousBid + "] higher than [" + ticker.getBid() + "]");
                 return false; //if a previous Bid is higher, we do not buy
             }
         }
         String oldD = "";
         for (Ticker oldData : historicData) {
-            oldD = oldD.concat(String.format("%f.1", oldData.getBid()) + ", ");
+            oldD = oldD.concat(String.format("%.2f", oldData.getBid()) + ", ");
         }
         logger.info("ORDERING BID, found [" + ticker.getBid() + "] is lower than [" + oldD + "]");
         return true;
