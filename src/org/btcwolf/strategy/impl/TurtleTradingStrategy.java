@@ -41,9 +41,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     private static final int CHECK_DEAD_ORDERS_FREQ = 10;
 
     private final LinkedList<Ticker> historicData;
-
     private final int turtleSpeed;
-
     private final int opAmount;
 
     private int limitOrdersCount;
@@ -108,7 +106,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
         }
         String oldD = "";
         for (Ticker oldData : historicData) {
-            oldD = oldD.concat(String.format("%.2f", oldData.getAsk()) + ", ");
+            oldD = oldD.concat(oldData.getAsk() + ", ");
         }
         logger.info("ORDERING ASK, found [" + ticker.getAsk() + "] is higher than [" + oldD + "]");
         return true;
@@ -124,7 +122,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
         }
         String oldD = "";
         for (Ticker oldData : historicData) {
-            oldD = oldD.concat(String.format("%.2f", oldData.getBid()) + ", ");
+            oldD = oldD.concat(oldData.getBid() + ", ");
         }
         logger.info("ORDERING BID, found [" + ticker.getBid() + "] is lower than [" + oldD + "]");
         return true;
