@@ -17,11 +17,11 @@
 
 package org.btcwolf.strategy;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.helpers.StrategyTestHelper;
 import org.btcwolf.helpers.TestStrategyProvider;
-import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,6 +34,7 @@ public class TurtleTradingStrategyTest {
     @BeforeClass
     public static void setup() {
         PropertyConfigurator.configure(LOG4J_PATH);
+        Logger.getRootLogger().removeAllAppenders();
     }
 
     @Test
@@ -49,7 +50,7 @@ public class TurtleTradingStrategyTest {
                     strategyProviderWithSwitch.geTurtleStrategy(testerAgent, turtleSpeed, amount);
 
                     TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-                    strategyProvider.geTurtleStrategy(testerAgent, turtleSpeed, amount);
+                    strategyProvider.geTurtleStrategy(testerAgent, 1, 1);
 
                     StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProviderWithSwitch);
                     StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProvider);
@@ -58,4 +59,22 @@ public class TurtleTradingStrategyTest {
         }
     }
 
+    @Test
+    public void testDefaultTurtleTradingStrategy() {
+        int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
+        MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
+        for (int l = 0; l < 20; l++) {
+            int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
+
+            TestStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
+            strategyProviderWithSwitch.getDefaultTurtleStrategy(testerAgent);
+
+            TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
+            strategyProvider.getDefaultTurtleStrategy(testerAgent);
+
+            StrategyTestHelper.runTurtleTest(4, indexes, 2, testerAgent, strategyProviderWithSwitch);
+            StrategyTestHelper.runTurtleTest(4, indexes, 2, testerAgent, strategyProvider);
+        }
+
+    }
 }

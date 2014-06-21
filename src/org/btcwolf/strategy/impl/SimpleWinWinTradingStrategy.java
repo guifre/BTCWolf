@@ -46,13 +46,15 @@ public class SimpleWinWinTradingStrategy extends TradingStrategyMonitorDecorator
     private BigDecimal opThreshold;
     private BigDecimal previousPriceUsed;
 
-    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
+    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider,
+                                       TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         getThreshold();
         processHistoricOrders();
     }
 
-    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, BigDecimal opThreshold, boolean useTwitterAgent) {
+    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider,
+                                       TraderAgent traderAgent, BigDecimal opThreshold, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.opThreshold = opThreshold;
         processHistoricOrders();

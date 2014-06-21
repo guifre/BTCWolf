@@ -43,16 +43,18 @@ public class BTCWolf {
             if (!isSameTicker(previousTicker, ticker)) {
                 tradingStrategyProvider.getStrategy().onTickerReceived(ticker);
                 previousTicker = ticker;
+            } else {
+                LOGGER.debug("discarding new [" + ticker + "]");
             }
             makeSomeCoffee();
         }
     }
 
     private static boolean isSameTicker(Ticker previousTicker, Ticker ticker) {
-        return previousTicker.getBid().compareTo(ticker.getBid()) != 0 ||
-                previousTicker.getVolume().compareTo(ticker.getVolume()) != 0 ||
-                previousTicker.getLast().compareTo(ticker.getLast()) != 0 ||
-                previousTicker.getAsk().compareTo(ticker.getAsk()) != 0;
+        return previousTicker.getBid().compareTo(ticker.getBid()) == 0 &&
+                previousTicker.getVolume().compareTo(ticker.getVolume()) == 0 &&
+                previousTicker.getLast().compareTo(ticker.getLast()) == 0 &&
+                previousTicker.getAsk().compareTo(ticker.getAsk()) == 0;
     }
 
     public static void makeSomeCoffee() {

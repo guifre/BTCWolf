@@ -18,11 +18,9 @@
 package org.btcwolf.strategy;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.impl.AbstractTradingStrategy;
+import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
 import org.btcwolf.strategy.impl.SliceWinWinTradingStrategy;
 import org.junit.BeforeClass;
@@ -33,7 +31,6 @@ import java.math.BigDecimal;
 public class TradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
-    private static final Logger logger = Logger.getLogger(AbstractTradingStrategy.class);
 
     @BeforeClass
     public static void setup() {

@@ -35,9 +35,9 @@ public class TestStrategyProvider extends TradingStrategyProvider {
     }
 
     @Override
-    public void switchStrategy() {
+    public void switchStrategy(TradingStrategy tradingStrategy) {
         if (switchStrategy) {
-            super.switchStrategy();
+            super.switchStrategy(tradingStrategy);
         }
     }
 }

@@ -41,11 +41,12 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     private static final int CHECK_DEAD_ORDERS_FREQ = 10;
 
     private final LinkedList<Ticker> historicData;
+
     private final int turtleSpeed;
+
     private final int opAmount;
 
     private int limitOrdersCount;
-
     public TurtleTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, int turtleSpeed, int opAmount, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.turtleSpeed = turtleSpeed;
@@ -150,5 +151,13 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
                 logger.debug("Limit placed [" + minutesSincePlacedLimit + "] mins ago, on time, limit [" + limitOrder);
             }
         }
+    }
+
+    public int getTurtleSpeed() {
+        return turtleSpeed;
+    }
+
+    public int getOpAmount() {
+        return opAmount;
     }
 }

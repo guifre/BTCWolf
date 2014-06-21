@@ -21,6 +21,8 @@ import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
+import java.math.BigDecimal;
+
 public class TradingStrategyProvider {
 
     private final boolean useTwitter;
@@ -46,12 +48,21 @@ public class TradingStrategyProvider {
         return geTurtleStrategy(traderAgent, 4, 2);
     }
 
-    protected TradingStrategy geTurtleStrategy(TraderAgent traderAgent, int turtleSpeed, int amountToSell) {
+    public TradingStrategy geTurtleStrategy(TraderAgent traderAgent, int turtleSpeed, int amountToSell) {
         return  new TurtleTradingStrategy(
                 this,
                 traderAgent,
-                turtleSpeed,      //turtle speed
-                amountToSell,      //amount to sell
+                turtleSpeed,
+                amountToSell,
+                useTwitter
+        );
+    }
+
+    public TradingStrategy getWinWinStrategy(TraderAgent traderAgent, BigDecimal opThreshold) {
+        return  new SimpleWinWinTradingStrategy(
+                this,
+                traderAgent,
+                opThreshold,
                 useTwitter
         );
     }
@@ -64,14 +75,8 @@ public class TradingStrategyProvider {
         this.strategy = getDefaultWinWinStrategy(traderAgent);
     }
 
-    public void switchStrategy() {
-        if (this.strategy instanceof TurtleTradingStrategy) {
-           // System.out.println("Previous strategy turtle, switching to winwin");
-            this.strategy = getDefaultWinWinStrategy(this.traderAgent);
-        } else if (this.strategy instanceof SimpleWinWinTradingStrategy) {
-            //System.out.println("Previous strategy winwin, switching to turtle");
-            this.strategy = getDefaultTurtleStrategy(this.traderAgent);
-        }
+    public void switchStrategy(TradingStrategy tradingStrategy) {
+       this.strategy = tradingStrategy;
     }
 
     public TradingStrategy getTradingStrategy() {
