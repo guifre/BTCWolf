@@ -52,9 +52,9 @@ public class StrategyTestHelper {
         }
         System.out.println("speed [" + turtleSpeed +
                 "] op div [" + amount +
-                "] start$ [" + String.format("%.2f", btc) + "]" +
-                " end$ [" + String.format("%.2f", finalMoney) + "][" +
-                " profit [" + String.format("%.2f", profit) + "] [" +
+                "] start$ [" + String.format("%.5f", btc) + "]" +
+                " end$ [" + String.format("%.5f", finalMoney) + "][" +
+                " profit [" + String.format("%.6f", profit) + "] [" +
                 String.format("%.1f", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
                 " index [" + indexes[0] + "-" + indexes[1] + "] dynamic [" + strategyProvider.isSwitchStrategy() + "]");
     }
@@ -110,5 +110,33 @@ public class StrategyTestHelper {
             ticker = testerAgent.pollTicker();
         }
         return lastAsk;
+    }
+
+    public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent, TestStrategyProvider strategyProvider) {
+        //setup
+        BigDecimal cny = BigDecimal.valueOf(0);
+        BigDecimal btc = BigDecimal.valueOf(0.02);
+        testerAgent.setBalance(cny, btc);
+        testerAgent.setDataRange(indexes);
+
+        //run
+        BigDecimal lastAsk = runTest(testerAgent, strategyProvider);
+
+        //validation
+        BigDecimal finalMoney = testerAgent.getBitCoinBalance()
+                .add(testerAgent.getCurrencyBalance().divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN));
+
+        BigDecimal profit = finalMoney.subtract(btc);
+
+        if (profit.compareTo(BigDecimal.ZERO) == 1) {
+            System.out.print("OK ");
+        } else {
+            System.out.print("KOO ");
+        }
+        System.out.println("start$ [" + String.format("%f.4", btc.doubleValue()) + "]" +
+                " end$ [" + String.format("%f.4", finalMoney.doubleValue()) + "][" +
+                " profit [" + String.format("%f.4", profit) + "] [" +
+                String.format("%f.1", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
+                " index [" + indexes[0] + "-" + indexes[1] + "] dynamic [" + strategyProvider.isSwitchStrategy() + "]");
     }
 }

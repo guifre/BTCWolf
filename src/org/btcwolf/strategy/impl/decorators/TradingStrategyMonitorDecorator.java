@@ -2,6 +2,7 @@ package org.btcwolf.strategy.impl.decorators;
 
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
@@ -10,6 +11,8 @@ import java.math.BigDecimal;
 
 public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDecorator {
 
+    protected static final Logger logger = Logger.getLogger(TradingStrategyMonitorDecorator.class);
+
     private final int MARKET_TREND_OP = 4;
     private final TradingStrategyProvider tradingStrategyProvider;
 
@@ -17,7 +20,8 @@ public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDeco
     private BigDecimal myMoney;
     private BigDecimal lastUsedBid = BigDecimal.valueOf(0);
 
-    public TradingStrategyMonitorDecorator(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
+    public TradingStrategyMonitorDecorator(TradingStrategyProvider tradingStrategyProvider,
+                                           TraderAgent traderAgent, boolean useTwitterAgent) {
         super(traderAgent, useTwitterAgent);
         this.tradingStrategyProvider = tradingStrategyProvider;
         this.marketTrend = 0;
@@ -69,17 +73,16 @@ public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDeco
             if (newOpAmount <= 0 ) {
                 newOpAmount = 1;
             }
-            if (newTurtleSpeed <= 0 ) {
-                newTurtleSpeed = 1;
+            if (newTurtleSpeed <= 1 ) {
+                newTurtleSpeed = 2;
             }
-            //System.out.println("speed [" + newTurtleSpeed + "] amount [" + newOpAmount);
+            logger.info("Switching turtle strategy to speed [" + newTurtleSpeed + "] amount [" + newOpAmount);
             tradingStrategyProvider.switchStrategy(
                     tradingStrategyProvider.geTurtleStrategy(
                             traderAgent,
                             newTurtleSpeed,
                             newOpAmount
                     ));
-            //tradingStrategyProvider.switchStrategy(new SimpleWinWinTradingStrategy(tradingStrategyProvider, traderAgent, false));
-    }
+        }
     }
 }

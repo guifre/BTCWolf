@@ -20,6 +20,7 @@ package org.btcwolf.strategy.impl.decorators;
 import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
+import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.impl.AbstractTradingStrategy;
 import org.btcwolf.twitter.TwitterAgent;
@@ -30,6 +31,8 @@ import java.util.List;
 public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
 
     private static final int POLLING_FREQ = 8;
+    protected static final Logger logger = Logger.getLogger(StrategyLoggerDecorator.class);
+
 
     private TwitterAgent twitterAgent;
     private int pollingCounter;
@@ -39,6 +42,8 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
         this.pollingCounter = 0;
         if (useTwitterAgent) {
             twitterAgent = new TwitterAgent();
+        } else {
+            twitterAgent = null;
         }
     }
 

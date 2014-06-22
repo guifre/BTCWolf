@@ -18,6 +18,7 @@
 package org.btcwolf.strategy;
 
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.strategy.impl.AdvancedStrategy;
 import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
@@ -32,7 +33,8 @@ public class TradingStrategyProvider {
 
     public TradingStrategyProvider(TraderAgent traderAgent, boolean useTwitter) {
         this.traderAgent = traderAgent;
-        this.strategy = getDefaultTurtleStrategy(traderAgent);
+        //this.strategy = getDefaultTurtleStrategy(traderAgent);
+        this.strategy = getDefaultWinWinStrategy(traderAgent);
         this.useTwitter = useTwitter;
     }
 
@@ -58,13 +60,12 @@ public class TradingStrategyProvider {
         );
     }
 
+    public TradingStrategy getAdvancedStrategy(TraderAgent traderAgent) {
+        return  new AdvancedStrategy(this, traderAgent, useTwitter);
+    }
+
     public TradingStrategy getWinWinStrategy(TraderAgent traderAgent, BigDecimal opThreshold) {
-        return  new SimpleWinWinTradingStrategy(
-                this,
-                traderAgent,
-                opThreshold,
-                useTwitter
-        );
+        return  new SimpleWinWinTradingStrategy(this, traderAgent, opThreshold, useTwitter);
     }
 
     public void switchToDefaultTurtleStrategy() {

@@ -76,7 +76,7 @@ public abstract class AbstractAgent implements TraderAgent {
         } catch (IOException e) {
             //
         }
-        logger.info("placing order " + orderType + " amount " + amount + "currency" + currencyPair + "limitprace " + ticker.getAsk());
+        logger.info("placing order " + orderType + " amount " + amount + "currency" + currencyPair + "limit price " + ticker.getAsk());
         if (ASK.equals(orderType)) {
                 return attemptPlaceOrder(orderType, amount, ticker.getAsk(), 0);
         } else if (BID.equals(orderType)) {
@@ -179,7 +179,7 @@ public abstract class AbstractAgent implements TraderAgent {
         } catch (Exception e) {
             logger.warn("oops attempt "  + attempt + " " + e.getMessage() + " " + e.toString());
             for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-                logger.warn(stackTraceElement.toString());
+                //logger.warn(stackTraceElement.toString());
             }
             return attemptPlaceOrder(orderType, amount, price, attempt + 1);
         }
@@ -194,7 +194,7 @@ public abstract class AbstractAgent implements TraderAgent {
         } catch (Exception e) {
             logger.warn("oops attempt "  + attempt + " " + e.getMessage() + " " + e.toString());
             for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-                logger.warn(stackTraceElement.toString());
+                //logger.warn(stackTraceElement.toString());
             }
             return attemptCancelLimit(limitOrder, attempt + 1);
         }

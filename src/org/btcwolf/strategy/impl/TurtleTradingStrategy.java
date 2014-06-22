@@ -20,6 +20,7 @@ package org.btcwolf.strategy.impl;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
+import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
@@ -37,7 +38,9 @@ import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
 public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_MINS_ORDER_TO_PROCESSED = 20;
+    protected static final Logger logger = Logger.getLogger(TurtleTradingStrategy.class);
+
+    private static final int MAX_MINUTES_ORDER_TO_PROCESSED = 30;
     private static final int CHECK_DEAD_ORDERS_FREQ = 10;
 
     private final LinkedList<Ticker> historicData;
@@ -45,7 +48,8 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     private final int opAmount;
 
     private int limitOrdersCount;
-    public TurtleTradingStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, int turtleSpeed, int opAmount, boolean useTwitterAgent) {
+    public TurtleTradingStrategy(TradingStrategyProvider tradingStrategyProvider,
+                                 TraderAgent traderAgent, int turtleSpeed, int opAmount, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.turtleSpeed = turtleSpeed;
         this.opAmount = opAmount;
@@ -56,12 +60,12 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     @Override
     public void onTickerReceived(Ticker ticker) {
         super.onTickerReceived(ticker);
-       addToHistoric(ticker);
        checkDeadLimitOrders();
         if (historicData.size() == turtleSpeed) {
             checkIfProfitableASKAndCarryOn(ticker);
             checkIfProfitableBIDAndCarryOn(ticker);
         }
+        addToHistoric(ticker);
     }
 
     private void addToHistoric(Ticker ticker) {
@@ -97,9 +101,12 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
 
     private boolean shouldAsk(Ticker ticker) {
 
+        if (historicData.isEmpty()) {
+            return false;
+        }
         for (Ticker historicTicker : historicData) {
             BigDecimal previousValue = historicTicker.getAsk();
-            if (ticker.getAsk().compareTo(previousValue) == 1) {
+            if (ticker.getAsk().doubleValue() > previousValue.doubleValue()) {
                 logger.debug("Not ordering ASK, found [" + previousValue + "] higher than [" + ticker.getAsk() + "]");
                 return false; //if a previous ask is higher we do not sell
             }
@@ -113,9 +120,13 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     }
 
     private boolean shouldBid(Ticker ticker) {
+
+        if (historicData.isEmpty()) {
+            return false;
+        }
         for (Ticker historicTicker : historicData) {
             BigDecimal previousBid = historicTicker.getBid();
-            if (previousBid.compareTo(ticker.getBid()) != -1) {
+            if (previousBid.doubleValue() >= ticker.getBid().doubleValue()) {
                 logger.debug("Not ordering BID, found [" + previousBid + "] higher than [" + ticker.getBid() + "]");
                 return false; //if a previous Bid is higher, we do not buy
             }
@@ -142,7 +153,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
         for (LimitOrder limitOrder : openOrders.getOpenOrders()) {
             int timeSincePlaced = (int) (time.getTime() - limitOrder.getTimestamp().getTime());
             int minutesSincePlacedLimit = timeSincePlaced / 60 / 1000;
-            if (minutesSincePlacedLimit > MAX_MINS_ORDER_TO_PROCESSED) {
+            if (minutesSincePlacedLimit > MAX_MINUTES_ORDER_TO_PROCESSED) {
                 boolean cancelled = traderAgent.cancelLimitOrder(limitOrder);
                 logger.info("Limit placed [" + minutesSincePlacedLimit + "] mins ago, cancelled [" + cancelled + "] limit [" + limitOrder);
             } else {

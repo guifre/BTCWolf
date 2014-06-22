@@ -50,7 +50,7 @@ public class TurtleTradingStrategyTest {
                     strategyProviderWithSwitch.geTurtleStrategy(testerAgent, turtleSpeed, amount);
 
                     TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-                    strategyProvider.geTurtleStrategy(testerAgent, 1, 1);
+                    strategyProvider.geTurtleStrategy(testerAgent, 2, 4);
 
                     StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProviderWithSwitch);
                     StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProvider);
