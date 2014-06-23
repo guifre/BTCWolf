@@ -28,25 +28,25 @@ import java.math.BigDecimal;
 
 public class AdvancedStrategyTest {
 
-        private static final String LOG4J_PATH = "./resources/log4j.properties";
+    private static final String LOG4J_PATH = "./resources/log4j.properties";
 
-        @BeforeClass
-        public static void setup() {
-            PropertyConfigurator.configure(LOG4J_PATH);
-           // Logger.getRootLogger().removeAllAppenders();
-        }
+    @BeforeClass
+    public static void setup() {
+        PropertyConfigurator.configure(LOG4J_PATH);
+       //Logger.getRootLogger().removeAllAppenders();
+    }
 
-        @Test
-        public void testAdvancedStrategy() {
-            int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
-            MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
+    @Test
+    public void testAdvancedStrategy() {
+        int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
+        MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
 
-            int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
+        int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
 
-            TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, true);
-            strategyProvider.switchStrategy(strategyProvider.getAdvancedStrategy(testerAgent));
+        TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, true);
+        strategyProvider.switchStrategy(strategyProvider.getAdvancedStrategy(testerAgent));
 
-            StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
-        }
+        StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
+    }
 
-        }
+}

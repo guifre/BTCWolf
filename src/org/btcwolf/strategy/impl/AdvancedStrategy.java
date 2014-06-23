@@ -25,30 +25,26 @@ import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 import java.math.BigDecimal;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
+import static java.math.BigDecimal.*;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    //read 1h of data (100 ticks)
+    private static final int MAX_TICKERS = 100;
 
-    //60 were up and 40 were down the trendarrow will be +20 (the market is now trending up)
-    // 75 instances where the bidArrow went up and 25 where it went down, the bidArrow is now +50
-    // If the last trade was 10.25 and the VWAP is 10.20;
-    // the Volume articipation algorithm (VWAP Cross) has determined that now is a good time to sell because there is enormous pressure in the market to buy.
-
+    private int currentTickers;
 
     private int trendArrow;
     private int bidArrow;
     private int askArrow;
-    private BigDecimal volDiff;
 
-    // how much do we sell ? total/number of tickers monitoring,
+    private BigDecimal volDiff;
+    private BigDecimal vwap; //Volume Weighted Average Price
+
     private Ticker previousTicker;
     private Ticker highTicker;
     private Ticker lowTicker;
 
-    private final int minOP = 4;
-    private final int maxOp = 8;
-    private int curOp = 0;
+
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
     }
@@ -57,9 +53,8 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     @Override
     public void onTickerReceived(Ticker ticker) {
         super.onTickerReceived(ticker);
-        if (previousTicker == null || highTicker == null || lowTicker == null || curOp == maxOp) {
+        if (previousTicker == null || highTicker == null || lowTicker == null || currentTickers == MAX_TICKERS) {
             initTickers(ticker);
-            curOp = 0;
         } else {
             processTicker(ticker);
         }
@@ -69,29 +64,21 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
                 "] trendA[" +trendArrow +
                 "] h[" + String.format("%.2f", highTicker.getLast()) +
                 "] l[" + String.format("%.2f", lowTicker.getLast()) +
-                "] vDiff[" + String.format("%.2f", volDiff) +
+                        "] vDiff[" + String.format("%.2f", volDiff) +
+                        "] vwap[" + String.format("%.2f", vwap) +
                 "].\n"
         );
-
-        if (curOp >= minOP) {
-            if (askArrow >= 4) {
-                //sell
-
-                placeOrder(OrderType.ASK, traderAgent.getBitCoinBalance(), ticker);
-            } else if (bidArrow <= -4) {
-                //buy
-                placeOrder(OrderType.BID, traderAgent.getBitCoinBalance(), ticker);
-            }
-        }
     }
 
     private void initTickers(Ticker ticker) {
         previousTicker = ticker;
         lowTicker = ticker;
         highTicker = ticker;
+        currentTickers = 0;
         trendArrow = 0;
         askArrow = 0;
         bidArrow = 0;
+        vwap = valueOf(0);
     }
 
     private void processTicker(Ticker ticker) {
@@ -125,8 +112,10 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         }
 
         volDiff = ticker.getVolume().subtract(previousTicker.getVolume());
+        vwap = vwap.add(ticker.getLast().multiply(volDiff));
+
         previousTicker = ticker;
-        curOp++;
+        currentTickers++;
     }
 
     @Override
