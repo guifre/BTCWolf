@@ -118,6 +118,24 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         currentTickers++;
     }
 
+    private OrderType getOrderType() { // Advance/Decline Spread to decide trade action
+        if (trendArrow > 0 && bidArrow > 0) {
+            return OrderType.BID;   // market trending down
+        } else if(trendArrow < 0 && askArrow < 0 ){
+            return OrderType.ASK;   // market trending up
+        }
+        return null;    //market trending flat
+    }
+
+    private int getVWAPCrossTrend(Ticker ticker) {
+        if (ticker.getBid().compareTo(vwap) == 1) {
+            return 1;   // Current bid priceis above the VWAP
+         } else if (ticker.getAsk().compareTo(vwap) == -1) {
+            return -1;   // Current ask price is below the VWAP
+        }
+        return 0;       //flat
+    }
+
     @Override
     protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
 
