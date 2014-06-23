@@ -29,9 +29,8 @@ import static java.math.BigDecimal.*;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 100;
 
-    private int currentTickers;
+    private int currentSize;
 
     private int trendArrow;
     private int bidArrow;
@@ -44,6 +43,8 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     private Ticker highTicker;
     private Ticker lowTicker;
 
+    private int asksInARow;
+    private int bidsInARow;
 
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
@@ -53,7 +54,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     @Override
     public void onTickerReceived(Ticker ticker) {
         super.onTickerReceived(ticker);
-        if (previousTicker == null || highTicker == null || lowTicker == null || currentTickers == MAX_TICKERS) {
+        if (previousTicker == null || highTicker == null || lowTicker == null) {
             initTickers(ticker);
         } else {
             processTicker(ticker);
@@ -74,10 +75,12 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         previousTicker = ticker;
         lowTicker = ticker;
         highTicker = ticker;
-        currentTickers = 0;
+        currentSize = 0;
         trendArrow = 0;
         askArrow = 0;
         bidArrow = 0;
+        asksInARow = 0;
+        bidsInARow = 0;
         vwap = valueOf(0);
     }
 
@@ -115,7 +118,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         vwap = vwap.add(ticker.getLast().multiply(volDiff));
 
         previousTicker = ticker;
-        currentTickers++;
+        currentSize++;
     }
 
     private OrderType getOrderType() { // Advance/Decline Spread to decide trade action
@@ -140,4 +143,19 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
 
     }
+
+    private BigDecimal getAmountToAsk() {
+        double weight = (bidArrow + trendArrow) / currentSize; // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
+        double bigWeight = weight / Math.pow(2, asksInARow);
+        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(BigDecimal.valueOf(bigWeight));
+        return quantityToSell;
+    }
+
+    private BigDecimal getAmountToBid() {
+        double weight = (askArrow + trendArrow) / currentSize; // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
+        double bigWeight = weight / Math.pow(2, bidsInARow);
+        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(BigDecimal.valueOf(bigWeight));
+        return quantityToSell;
+    }
+
 }
