@@ -23,14 +23,17 @@ import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
+import java.util.LinkedList;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
 import static java.math.BigDecimal.*;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
+    private static final int MAX_TICKERS = 240;
+    private static final int MIN_TICKERS = 32;
 
-    private int currentSize;
+    private final LinkedList<Ticker> tickers;
 
     private int trendArrow;
     private int bidArrow;
@@ -48,6 +51,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
+        this.tickers = new LinkedList<Ticker>();
     }
 
 
@@ -57,6 +61,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         if (previousTicker == null || highTicker == null || lowTicker == null) {
             initTickers(ticker);
         } else {
+            addTicker(ticker);
             processTicker(ticker);
         }
         System.out.println("New " + ticker.toString());
@@ -71,17 +76,50 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         );
     }
 
+    private void addTicker(Ticker ticker) {
+        if (tickers.size() == MAX_TICKERS) {
+            Ticker oldTicker = tickers.removeLast();
+            revertTickerInfo(oldTicker);
+        }
+        tickers.addFirst(ticker);
+    }
+
+    private void revertTickerInfo(Ticker oldTicker) {
+        // new bid compare with previous determines bidarrow
+        if (oldTicker.getBid().compareTo(previousTicker.getBid()) == -1) {
+            bidArrow++;
+        } else if (oldTicker.getBid().compareTo(previousTicker.getBid()) == 1) {
+            bidArrow--;
+        }
+
+        // new ask compare with previous determines askarrow
+        if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == -1) {
+            askArrow++;
+        } else if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == 1) {
+            askArrow--;
+        }
+
+        // new last compare with previous last trendarrow
+        if (oldTicker.getLast().compareTo(previousTicker.getLast()) == -1) {
+            trendArrow++;
+        } else if (oldTicker.getLast().compareTo(previousTicker.getLast()) ==1) {
+            trendArrow--;
+        }
+
+        // new last compare with high and low updates it
+    }
+
     private void initTickers(Ticker ticker) {
         previousTicker = ticker;
         lowTicker = ticker;
         highTicker = ticker;
-        currentSize = 0;
         trendArrow = 0;
         askArrow = 0;
         bidArrow = 0;
         asksInARow = 0;
         bidsInARow = 0;
         vwap = valueOf(0);
+        tickers.addFirst(ticker);
     }
 
     private void processTicker(Ticker ticker) {
@@ -118,7 +156,6 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         vwap = vwap.add(ticker.getLast().multiply(volDiff));
 
         previousTicker = ticker;
-        currentSize++;
     }
 
     private OrderType getOrderType() { // Advance/Decline Spread to decide trade action
@@ -145,14 +182,14 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     }
 
     private BigDecimal getAmountToAsk() {
-        double weight = (bidArrow + trendArrow) / currentSize; // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
+        double weight = (bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
         double bigWeight = weight / Math.pow(2, asksInARow);
         BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(BigDecimal.valueOf(bigWeight));
         return quantityToSell;
     }
 
     private BigDecimal getAmountToBid() {
-        double weight = (askArrow + trendArrow) / currentSize; // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
+        double weight = (askArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
         double bigWeight = weight / Math.pow(2, bidsInARow);
         BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(BigDecimal.valueOf(bigWeight));
         return quantityToSell;
