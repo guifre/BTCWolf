@@ -30,8 +30,8 @@ import static java.math.BigDecimal.*;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 240;
-    private static final int MIN_TICKERS = 32;
+    private static final int MAX_TICKERS = 240; //about 2h
+    private static final int MIN_TICKERS = 32; //about 16 mins
 
     private final LinkedList<Ticker> tickers;
 
@@ -49,11 +49,17 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     private int asksInARow;
     private int bidsInARow;
 
+    private static final int shortEMASize = MIN_TICKERS + 1; //elements to calculate the EMA short
+    private BigDecimal shortEMA; //contains the value of the short EMA algorithm
+    private BigDecimal expShortEMA;
+
+    private BigDecimal expLongEMA;
+    private BigDecimal longEMA;
+
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new LinkedList<Ticker>();
     }
-
 
     @Override
     public void onTickerReceived(Ticker ticker) {
@@ -65,15 +71,22 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             processTicker(ticker);
         }
         System.out.println("New " + ticker.toString());
-        System.out.println("bidA[" + bidArrow +
-                "] askA[" + askArrow +
-                "] trendA[" +trendArrow +
+        System.out.println("bidA[" + bidArrow +  "] askA[" + askArrow + "] trendA[" +trendArrow +
                 "] h[" + String.format("%.2f", highTicker.getLast()) +
-                "] l[" + String.format("%.2f", lowTicker.getLast()) +
+                        "] l[" + String.format("%.2f", lowTicker.getLast()) +
                         "] vDiff[" + String.format("%.2f", volDiff) +
                         "] vwap[" + String.format("%.2f", vwap) +
+                        "] shortEMA[" + String.format("%.2f", shortEMA) +
+                        "] longEMA[" + String.format("%.2f", longEMA) +
                 "].\n"
         );
+        if (tickers.size() >= MIN_TICKERS) {
+            evalAsk();
+        }
+    }
+
+    private void evalAsk() {
+
     }
 
     private void addTicker(Ticker ticker) {
@@ -119,6 +132,13 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         asksInARow = 0;
         bidsInARow = 0;
         vwap = valueOf(0);
+
+        expShortEMA = BigDecimal.valueOf((double) 2 / (tickers.size() + 1));
+        shortEMA = valueOf(2).divide(expShortEMA.add(valueOf(1)), 40, ROUND_HALF_EVEN);
+
+        expLongEMA = BigDecimal.valueOf((double) 2 / (tickers.size() + 1));
+        longEMA = ticker.getLast();
+        
         tickers.addFirst(ticker);
     }
 
@@ -155,6 +175,9 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         volDiff = ticker.getVolume().subtract(previousTicker.getVolume());
         vwap = vwap.add(ticker.getLast().multiply(volDiff));
 
+        shortEMA = ticker.getLast().multiply(expShortEMA).add(shortEMA.multiply(valueOf(1).subtract(expShortEMA)));
+        longEMA = ticker.getLast().multiply(expLongEMA).add(longEMA.multiply(valueOf(1).subtract(expLongEMA)));
+
         previousTicker = ticker;
     }
 
@@ -184,14 +207,14 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     private BigDecimal getAmountToAsk() {
         double weight = (bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
         double bigWeight = weight / Math.pow(2, asksInARow);
-        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(BigDecimal.valueOf(bigWeight));
+        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(valueOf(bigWeight));
         return quantityToSell;
     }
 
     private BigDecimal getAmountToBid() {
         double weight = (askArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
         double bigWeight = weight / Math.pow(2, bidsInARow);
-        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(BigDecimal.valueOf(bigWeight));
+        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(valueOf(bigWeight));
         return quantityToSell;
     }
 

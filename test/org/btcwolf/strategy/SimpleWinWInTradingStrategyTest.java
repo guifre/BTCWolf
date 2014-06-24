@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
-public class SimpleWinWinTradingStrategyTest {
+public class SimpleWinWInTradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
 
