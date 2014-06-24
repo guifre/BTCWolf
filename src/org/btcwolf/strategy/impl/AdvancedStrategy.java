@@ -85,10 +85,6 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         }
     }
 
-    private void evalAsk() {
-
-    }
-
     private void addTicker(Ticker ticker) {
         if (tickers.size() == MAX_TICKERS) {
             Ticker oldTicker = tickers.removeLast();
@@ -138,7 +134,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
         expLongEMA = BigDecimal.valueOf((double) 2 / (tickers.size() + 1));
         longEMA = ticker.getLast();
-        
+
         tickers.addFirst(ticker);
     }
 
