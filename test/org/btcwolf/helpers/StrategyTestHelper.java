@@ -115,7 +115,7 @@ public class StrategyTestHelper {
     public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent, TestStrategyProvider strategyProvider) {
         //setup
         BigDecimal cny = BigDecimal.valueOf(200);
-        BigDecimal btc = BigDecimal.valueOf(2);
+        BigDecimal btc = BigDecimal.valueOf(4);
         testerAgent.setBalance(cny, btc);
         testerAgent.setDataRange(indexes);
 
@@ -126,7 +126,7 @@ public class StrategyTestHelper {
         BigDecimal finalMoney = testerAgent.getBitCoinBalance()
                 .add(testerAgent.getCurrencyBalance().divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN));
 
-        BigDecimal profit = finalMoney.subtract(btc);
+        BigDecimal profit = finalMoney.subtract(btc).subtract(cny.divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN));
 
         if (profit.compareTo(BigDecimal.ZERO) == 1) {
             System.out.print("OK ");

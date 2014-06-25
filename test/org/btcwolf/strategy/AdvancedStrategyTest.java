@@ -43,7 +43,7 @@ public class AdvancedStrategyTest {
 
         int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
 
-        TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, true);
+        TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
         strategyProvider.switchStrategy(strategyProvider.getAdvancedStrategy(testerAgent));
 
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
