@@ -81,12 +81,12 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 //                "].\n"
 //        );
         if (tickers.size() >= MIN_TICKERS) {
-            if (shouldAskEMA()) {
+            if (shouldAskEMA(ticker)) {
                 placeOrder(OrderType.ASK, getAmountToAsk(), ticker);
             } else {
                 askArrow = 0;
             }
-            if (shouldBidEMA()) {
+            if (shouldBidEMA(ticker)) {
                 placeOrder(OrderType.BID, getAmountToBid(), ticker);
             } else {
                 bidsInARow = 0;
@@ -203,7 +203,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     private int getVWAPCrossTrend(Ticker ticker) {
         if (ticker.getBid().compareTo(vwap) == 1) {
-            return 1;   // Current bid priceis above the VWAP
+            return 1;   // Current bid prices above the VWAP
          } else if (ticker.getAsk().compareTo(vwap) == -1) {
             return -1;   // Current ask price is below the VWAP
         }
@@ -215,12 +215,12 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     }
 
-    private boolean shouldAskEMA() { // if short ema is lower than long ema, market trending down, buy btc
-        return shortEMA.compareTo(longEMA) == -1;
+    private boolean shouldAskEMA(Ticker ticker) { // if short ema is lower than long ema, market trending down, buy btc
+        return shortEMA.compareTo(longEMA) == -1 && ticker.getLast().compareTo(vwap) == 1;
     }
 
-    private boolean shouldBidEMA() { // if short ema is higher than long ema, market trending up, sell btc
-        return shortEMA.compareTo(longEMA) == 1;
+    private boolean shouldBidEMA(Ticker ticker) { // if short ema is higher than long ema, market trending up, sell btc
+        return shortEMA.compareTo(longEMA) == 1 && ticker.getLast().compareTo(vwap) == -1;
     }
     private BigDecimal getAmountToAsk() {
         double weight = (double)(bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
