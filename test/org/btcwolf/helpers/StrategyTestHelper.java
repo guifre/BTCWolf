@@ -114,8 +114,8 @@ public class StrategyTestHelper {
 
     public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent, TestStrategyProvider strategyProvider) {
         //setup
-        BigDecimal cny = BigDecimal.valueOf(0);
-        BigDecimal btc = BigDecimal.valueOf(0.02);
+        BigDecimal cny = BigDecimal.valueOf(200);
+        BigDecimal btc = BigDecimal.valueOf(2);
         testerAgent.setBalance(cny, btc);
         testerAgent.setDataRange(indexes);
 

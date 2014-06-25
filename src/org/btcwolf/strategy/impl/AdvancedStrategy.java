@@ -70,18 +70,27 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             addTicker(ticker);
             processTicker(ticker);
         }
-        System.out.println("New " + ticker.toString());
-        System.out.println("bidA[" + bidArrow +  "] askA[" + askArrow + "] trendA[" +trendArrow +
-                "] h[" + String.format("%.2f", highTicker.getLast()) +
-                        "] l[" + String.format("%.2f", lowTicker.getLast()) +
-                        "] vDiff[" + String.format("%.2f", volDiff) +
-                        "] vwap[" + String.format("%.2f", vwap) +
-                        "] shortEMA[" + String.format("%.2f", shortEMA) +
-                        "] longEMA[" + String.format("%.2f", longEMA) +
-                "].\n"
-        );
+//        System.out.println("New " + ticker.toString());
+//        System.out.println("bidA[" + bidArrow +  "] askA[" + askArrow + "] trendA[" +trendArrow +
+//                "] h[" + String.format("%.2f", highTicker.getLast()) +
+//                        "] l[" + String.format("%.2f", lowTicker.getLast()) +
+//                        "] vDiff[" + String.format("%.2f", volDiff) +
+//                        "] vwap[" + String.format("%.2f", vwap) +
+//                        "] shortEMA[" + String.format("%.2f", shortEMA) +
+//                        "] longEMA[" + String.format("%.2f", longEMA) +
+//                "].\n"
+//        );
         if (tickers.size() >= MIN_TICKERS) {
-            evalAsk();
+            if (shouldAskEMA()) {
+                placeOrder(OrderType.ASK, getAmountToAsk(), ticker);
+            } else {
+                askArrow = 0;
+            }
+            if (shouldBidEMA()) {
+                placeOrder(OrderType.BID, getAmountToBid(), ticker);
+            } else {
+                bidsInARow = 0;
+            }
         }
     }
 
@@ -129,10 +138,9 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         bidsInARow = 0;
         vwap = valueOf(0);
 
-        expShortEMA = BigDecimal.valueOf((double) 2 / (tickers.size() + 1));
-        shortEMA = valueOf(2).divide(expShortEMA.add(valueOf(1)), 40, ROUND_HALF_EVEN);
+        expShortEMA = BigDecimal.valueOf((double) 2 / (shortEMASize + 1));
 
-        expLongEMA = BigDecimal.valueOf((double) 2 / (tickers.size() + 1));
+        expLongEMA = BigDecimal.valueOf((double) 2 / (MAX_TICKERS + 1));
         longEMA = ticker.getLast();
 
         tickers.addFirst(ticker);
@@ -170,8 +178,15 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
         volDiff = ticker.getVolume().subtract(previousTicker.getVolume());
         vwap = vwap.add(ticker.getLast().multiply(volDiff));
+        if (shortEMA == null) {
+            shortEMA = ticker.getLast();
+        } else {
+            if (tickers.size() > shortEMASize) {
 
-        shortEMA = ticker.getLast().multiply(expShortEMA).add(shortEMA.multiply(valueOf(1).subtract(expShortEMA)));
+            }
+            shortEMA = ticker.getLast().multiply(expShortEMA).add(shortEMA.multiply(valueOf(1).subtract(expShortEMA)));
+        }
+
         longEMA = ticker.getLast().multiply(expLongEMA).add(longEMA.multiply(valueOf(1).subtract(expLongEMA)));
 
         previousTicker = ticker;
@@ -200,18 +215,31 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     }
 
+    private boolean shouldAskEMA() { // if short ema is lower than long ema, market trending down, buy btc
+        return shortEMA.compareTo(longEMA) == -1;
+    }
+
+    private boolean shouldBidEMA() { // if short ema is higher than long ema, market trending up, sell btc
+        return shortEMA.compareTo(longEMA) == 1;
+    }
     private BigDecimal getAmountToAsk() {
-        double weight = (bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
-        double bigWeight = weight / Math.pow(2, asksInARow);
+        double weight = (double)(bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
+        double bigWeight = Math.abs(weight) / Math.pow(2, asksInARow);
+        askArrow++;
         BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(valueOf(bigWeight));
+        //System.out.println("ask ["+ bidArrow +"] trend [" + trendArrow + "] weight [" + weight + "] bigweight [" + bigWeight +"] balance [" + traderAgent.getCurrencyBalance() + "] About to ask [" + quantityToSell + "]");
+        //System.out.println("About to ask [" + quantityToSell + "]");
         return quantityToSell;
     }
 
     private BigDecimal getAmountToBid() {
-        double weight = (askArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
-        double bigWeight = weight / Math.pow(2, bidsInARow);
-        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(valueOf(bigWeight));
-        return quantityToSell;
+        double weight = (double)(askArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
+        double bigWeight = Math.abs(weight) / Math.pow(2, bidsInARow);
+        bidsInARow++;
+        BigDecimal quantityToBuy = traderAgent.getCurrencyBalance().multiply(valueOf(bigWeight));
+        //System.out.println("weight [" + weight + "] bigweight [" + bigWeight +"] balance [" + traderAgent.getCurrencyBalance() + "] About to bid [" + quantityToBuy + "]");
+        //System.out.println("About to ask [" + quantityToBuy + "]");
+        return quantityToBuy;
     }
 
 }
