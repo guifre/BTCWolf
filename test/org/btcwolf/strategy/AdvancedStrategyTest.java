@@ -41,12 +41,12 @@ public class AdvancedStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
 
-        int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
-
-        TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchStrategy(strategyProvider.getAdvancedStrategy(testerAgent));
-
-        StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
+        for (int i = 0; i < 20; i++) {
+            int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
+            TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
+            strategyProvider.switchToAdvancedStrategy();
+            StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
+        }
     }
 
 }

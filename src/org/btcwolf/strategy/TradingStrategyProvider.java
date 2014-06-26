@@ -34,7 +34,7 @@ public class TradingStrategyProvider {
     public TradingStrategyProvider(TraderAgent traderAgent, boolean useTwitter) {
         this.traderAgent = traderAgent;
         //this.strategy = getDefaultTurtleStrategy(traderAgent);
-        this.strategy = getDefaultWinWinStrategy(traderAgent);
+        this.strategy = getDefaultWinWinStrategy();
         this.useTwitter = useTwitter;
     }
 
@@ -42,7 +42,7 @@ public class TradingStrategyProvider {
         return this.strategy;
     }
 
-    protected TradingStrategy getDefaultWinWinStrategy(TraderAgent traderAgent) {
+    protected TradingStrategy getDefaultWinWinStrategy() {
         return new SimpleWinWinTradingStrategy(this, traderAgent, useTwitter);
     }
 
@@ -60,12 +60,12 @@ public class TradingStrategyProvider {
         );
     }
 
-    public TradingStrategy getAdvancedStrategy(TraderAgent traderAgent) {
-        return  new AdvancedStrategy(this, traderAgent, useTwitter);
+    public TradingStrategy getWinWinStrategy(BigDecimal opThreshold) {
+        return  new SimpleWinWinTradingStrategy(this, traderAgent, opThreshold, useTwitter);
     }
 
-    public TradingStrategy getWinWinStrategy(TraderAgent traderAgent, BigDecimal opThreshold) {
-        return  new SimpleWinWinTradingStrategy(this, traderAgent, opThreshold, useTwitter);
+    public TradingStrategy getAdvancedStrategy() {
+        return new AdvancedStrategy(this, traderAgent, useTwitter);
     }
 
     public void switchToDefaultTurtleStrategy() {
@@ -73,11 +73,15 @@ public class TradingStrategyProvider {
     }
 
     public void switchToDefaultWinWinStrategy() {
-        this.strategy = getDefaultWinWinStrategy(traderAgent);
+        this.strategy = getDefaultWinWinStrategy();
+    }
+
+    public void switchToAdvancedStrategy() {
+        this.strategy = getAdvancedStrategy();
     }
 
     public void switchStrategy(TradingStrategy tradingStrategy) {
-       this.strategy = tradingStrategy;
+        this.strategy = tradingStrategy;
     }
 
     public TradingStrategy getTradingStrategy() {

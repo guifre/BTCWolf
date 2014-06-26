@@ -212,15 +212,21 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     @Override
     protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
-
+        BigDecimal price;
+        if (orderType == OrderType.BID) {
+            price = ticker.getBid();
+        } else {
+            price = ticker.getAsk();
+        }
+       // System.out.println("order [" + orderType + "] price [" + price + "]  $[" + bitCoinsToBuy + "] result [" + orderResult + "]" );
     }
 
     private boolean shouldAskEMA(Ticker ticker) { // if short ema is lower than long ema, market trending down, buy btc
-        return shortEMA.compareTo(longEMA) == -1 && ticker.getLast().compareTo(vwap) == 1;
+        return shortEMA.compareTo(longEMA) == -1;// && ticker.getLast().compareTo(vwap) == 1;
     }
 
     private boolean shouldBidEMA(Ticker ticker) { // if short ema is higher than long ema, market trending up, sell btc
-        return shortEMA.compareTo(longEMA) == 1 && ticker.getLast().compareTo(vwap) == -1;
+        return shortEMA.compareTo(longEMA) == 1;// && ticker.getLast().compareTo(vwap) == -1;
     }
     private BigDecimal getAmountToAsk() {
         double weight = (double)(bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize

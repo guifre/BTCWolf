@@ -56,7 +56,8 @@ public class StrategyTestHelper {
                 " end$ [" + String.format("%.5f", finalMoney) + "][" +
                 " profit [" + String.format("%.6f", profit) + "] [" +
                 String.format("%.1f", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
-                " index [" + indexes[0] + "-" + indexes[1] + "] dynamic [" + strategyProvider.isSwitchStrategy() + "]");
+                " index [" + indexes[0] + "-" + indexes[1] + "] dynamic [" + strategyProvider.isSwitchStrategy() +
+                "] strategy [" + strategyProvider.getStrategy().getClass().getName() + "]");
     }
 
     public static void runWinWinTest(int opThreshold, int[] indexes,
@@ -105,7 +106,7 @@ public class StrategyTestHelper {
         BigDecimal lastAsk = null;
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {
-            strategyProvider.getStrategy().onTickerReceived(ticker);
+            strategyProvider.getTradingStrategy().onTickerReceived(ticker);
             lastAsk = ticker.getAsk();
             ticker = testerAgent.pollTicker();
         }
