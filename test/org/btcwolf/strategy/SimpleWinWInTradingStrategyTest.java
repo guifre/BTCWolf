@@ -46,10 +46,10 @@ public class SimpleWinWInTradingStrategyTest {
                 int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
 
                 TestStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
-                strategyProviderWithSwitch.getWinWinStrategy(testerAgent, BigDecimal.valueOf(opThreshold));
+                strategyProviderWithSwitch.getWinWinStrategy( BigDecimal.valueOf(opThreshold));
 
                 TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-                strategyProviderWithSwitch.getWinWinStrategy(testerAgent, BigDecimal.valueOf(opThreshold));
+                strategyProviderWithSwitch.getWinWinStrategy(BigDecimal.valueOf(opThreshold));
 
                 StrategyTestHelper.runWinWinTest(opThreshold, indexes, testerAgent, strategyProviderWithSwitch);
                 StrategyTestHelper.runWinWinTest(opThreshold, indexes, testerAgent, strategyProvider);

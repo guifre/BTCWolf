@@ -17,6 +17,7 @@
 
 package org.btcwolf.strategy.impl;
 
+import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategyProvider;
@@ -70,16 +71,11 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             addTicker(ticker);
             processTicker(ticker);
         }
-//        System.out.println("New " + ticker.toString());
-//        System.out.println("bidA[" + bidArrow +  "] askA[" + askArrow + "] trendA[" +trendArrow +
-//                "] h[" + String.format("%.2f", highTicker.getLast()) +
-//                        "] l[" + String.format("%.2f", lowTicker.getLast()) +
-//                        "] vDiff[" + String.format("%.2f", volDiff) +
-//                        "] vwap[" + String.format("%.2f", vwap) +
-//                        "] shortEMA[" + String.format("%.2f", shortEMA) +
-//                        "] longEMA[" + String.format("%.2f", longEMA) +
-//                "].\n"
-//        );
+        printIndicators(ticker);
+        order(ticker);
+    }
+
+    private void order(Ticker ticker) {
         if (tickers.size() >= MIN_TICKERS) {
             if (shouldAskEMA(ticker)) {
                 placeOrder(OrderType.ASK, getAmountToAsk(), ticker);
@@ -123,7 +119,6 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         } else if (oldTicker.getLast().compareTo(previousTicker.getLast()) ==1) {
             trendArrow--;
         }
-
         // new last compare with high and low updates it
     }
 
@@ -210,17 +205,6 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         return 0;       //flat
     }
 
-    @Override
-    protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
-        BigDecimal price;
-        if (orderType == OrderType.BID) {
-            price = ticker.getBid();
-        } else {
-            price = ticker.getAsk();
-        }
-       // System.out.println("order [" + orderType + "] price [" + price + "]  $[" + bitCoinsToBuy + "] result [" + orderResult + "]" );
-    }
-
     private boolean shouldAskEMA(Ticker ticker) { // if short ema is lower than long ema, market trending down, buy btc
         return shortEMA.compareTo(longEMA) == -1;// && ticker.getLast().compareTo(vwap) == 1;
     }
@@ -228,6 +212,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     private boolean shouldBidEMA(Ticker ticker) { // if short ema is higher than long ema, market trending up, sell btc
         return shortEMA.compareTo(longEMA) == 1;// && ticker.getLast().compareTo(vwap) == -1;
     }
+
     private BigDecimal getAmountToAsk() {
         double weight = (double)(bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
         double bigWeight = Math.abs(weight) / Math.pow(2, asksInARow);
@@ -248,4 +233,27 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         return quantityToBuy;
     }
 
+    @Override
+    protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
+        BigDecimal price;
+        if (orderType == OrderType.BID) {
+            price = ticker.getBid();
+        } else {
+            price = ticker.getAsk();
+        }
+        // System.out.println("order [" + orderType + "] price [" + price + "]  $[" + bitCoinsToBuy + "] result [" + orderResult + "]" );
+    }
+
+    private void printIndicators(Ticker ticker) {
+//        System.out.println("New [" + ticker.toString() + "]");
+//        System.out.println("bidA[" + bidArrow +  "] askA[" + askArrow + "] trendA[" +trendArrow +
+//                "] h[" + String.format("%.2f", highTicker.getLast()) +
+//                        "] l[" + String.format("%.2f", lowTicker.getLast()) +
+//                        "] vDiff[" + String.format("%.2f", volDiff) +
+//                        "] vwap[" + String.format("%.2f", vwap) +
+//                        "] shortEMA[" + String.format("%.2f", shortEMA) +
+//                        "] longEMA[" + String.format("%.2f", longEMA) +
+//                "].\n"
+//        );
+    }
 }
