@@ -17,7 +17,6 @@
 
 package org.btcwolf.strategy.impl;
 
-import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategyProvider;
@@ -27,7 +26,7 @@ import java.math.BigDecimal;
 import java.util.LinkedList;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
-import static java.math.BigDecimal.*;
+import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
@@ -120,6 +119,42 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             trendArrow--;
         }
         // new last compare with high and low updates it
+    }
+
+    public int getTrendArrow() {
+        return trendArrow;
+    }
+
+    public int getBidArrow() {
+        return bidArrow;
+    }
+
+    public int getAskArrow() {
+        return askArrow;
+    }
+
+    public BigDecimal getVolDiff() {
+        return volDiff;
+    }
+
+    public BigDecimal getVwap() {
+        return vwap;
+    }
+
+    public BigDecimal getShortEMA() {
+        return shortEMA;
+    }
+
+    public BigDecimal getExpShortEMA() {
+        return expShortEMA;
+    }
+
+    public BigDecimal getExpLongEMA() {
+        return expLongEMA;
+    }
+
+    public BigDecimal getLongEMA() {
+        return longEMA;
     }
 
     private void initTickers(Ticker ticker) {

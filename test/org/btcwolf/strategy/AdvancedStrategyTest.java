@@ -17,10 +17,14 @@
 
 package org.btcwolf.strategy;
 
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.Stage;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.helpers.StrategyTestHelper;
 import org.btcwolf.helpers.TestStrategyProvider;
+import org.btcwolf.persistance.plot.Plotting;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -48,5 +52,44 @@ public class AdvancedStrategyTest {
             StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
         }
     }
+
+    @Test
+    public void testA() throws InterruptedException {
+        int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
+        MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
+        final Plotting plotting = new Plotting();
+        int[] indexes = StrategyTestHelper.getIndexes(50, 1000);
+        System.out.println("init " + indexes[0] + " end "  + indexes[1]);
+        TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
+        strategyProvider.switchToAdvancedStrategy();
+        StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider, plotting);
+
+
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                new JFXPanel(); // Initializes the JavaFx Platform
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+
+                            plotting.start(new Stage()); // Create and
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+
+        thread.start();// Initialize the thread
+        Thread.sleep(1000000); // Time to use the app, with out this, the thread
+        // will be killed before you can tell.
+    }
+
+
 
 }

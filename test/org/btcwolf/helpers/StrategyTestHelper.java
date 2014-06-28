@@ -19,6 +19,7 @@ package org.btcwolf.helpers;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.btcwolf.agent.TraderAgent;
+import org.btcwolf.persistance.plot.Plotting;
 import org.btcwolf.strategy.TradingStrategyProvider;
 
 import java.math.BigDecimal;
@@ -91,13 +92,24 @@ public class StrategyTestHelper {
     }
 
     public static int[] getIndexes(int max) {
-        int minimalTickersAmount = 1000;
+        int minimalTickersAmount = 100;
         Random rand = new Random(System.nanoTime());
         int s = rand.nextInt(max);
         int f = rand.nextInt(max);
         while (s > f || f - s < minimalTickersAmount ) {
             s = rand.nextInt(max);
             f = rand.nextInt(max);
+        }
+        return new int[] {s, f};
+    }
+
+    public static int[] getIndexes(int num, int max) {
+        Random rand = new Random(System.nanoTime());
+        int f = rand.nextInt(max);
+        int s = f - num;
+        while ( s < 0 || f < 0) {
+             f = rand.nextInt(max);
+             s = f - num;
         }
         return new int[] {s, f};
     }
@@ -112,8 +124,20 @@ public class StrategyTestHelper {
         }
         return lastAsk;
     }
+    private static BigDecimal runTest(TraderAgent testerAgent, TradingStrategyProvider strategyProvider, Plotting plotting) {
+        BigDecimal lastAsk = null;
+        Ticker ticker = testerAgent.pollTicker();
+        while(ticker != null) {
+            strategyProvider.getTradingStrategy().onTickerReceived(ticker);
+            lastAsk = ticker.getAsk();
+            plotting.getPlottingDataProvider().add(ticker.getBid(), ticker.getAsk());
+            ticker = testerAgent.pollTicker();
+        }
+        return lastAsk;
+    }
 
-    public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent, TestStrategyProvider strategyProvider) {
+    public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent,
+                                               TestStrategyProvider strategyProvider, Plotting plotting) {
         //setup
         BigDecimal cny = BigDecimal.valueOf(200);
         BigDecimal btc = BigDecimal.valueOf(4);
@@ -121,7 +145,43 @@ public class StrategyTestHelper {
         testerAgent.setDataRange(indexes);
 
         //run
-        BigDecimal lastAsk = runTest(testerAgent, strategyProvider);
+        BigDecimal lastAsk = runTest(testerAgent, strategyProvider, plotting);
+
+
+        //validation
+        BigDecimal finalMoney = testerAgent.getBitCoinBalance()
+                .add(testerAgent.getCurrencyBalance().divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN));
+
+        BigDecimal profit = finalMoney.subtract(btc).subtract(cny.divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN));
+
+        if (profit.compareTo(BigDecimal.ZERO) == 1) {
+            System.out.print("OK ");
+        } else {
+            System.out.print("KOO ");
+        }
+        System.out.println("start$ [" + String.format("%f.4", btc.doubleValue()) + "]" +
+                " end$ [" + String.format("%f.4", finalMoney.doubleValue()) + "][" +
+                " profit [" + String.format("%f.4", profit) + "] [" +
+                String.format("%f.1", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
+                " index [" + indexes[0] + "-" + indexes[1] + "] dynamic [" + strategyProvider.isSwitchStrategy() + "]");
+    }
+
+    public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent,
+                                               TestStrategyProvider strategyProvider) {
+        //setup
+        BigDecimal cny = BigDecimal.valueOf(200);
+        BigDecimal btc = BigDecimal.valueOf(4);
+        testerAgent.setBalance(cny, btc);
+        testerAgent.setDataRange(indexes);
+
+        //run
+        BigDecimal lastAsk = null;
+        Ticker ticker = testerAgent.pollTicker();
+        while(ticker != null) {
+            strategyProvider.getTradingStrategy().onTickerReceived(ticker);
+            lastAsk = ticker.getAsk();
+            ticker = testerAgent.pollTicker();
+        }
 
         //validation
         BigDecimal finalMoney = testerAgent.getBitCoinBalance()
