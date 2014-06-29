@@ -18,13 +18,10 @@
 package org.btcwolf.persistance.plot;
 
 import javafx.application.Application;
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
-import javafx.scene.control.SplitPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
 public class Plotting  extends Application {
@@ -49,36 +46,55 @@ public class Plotting  extends Application {
         xAxis.setLabel("Time");
         //creating the chart
         final LineChart<Number,Number> lineChart =  new LineChart<Number,Number>(xAxis,yAxis);
-        lineChart.setCreateSymbols(false);
+        //lineChart.setCreateSymbols(false);
 
         lineChart.getData().addAll(
                 plottingDataProvider.getBid(),
                 plottingDataProvider.getAsk(),
                 plottingDataProvider.getShortEMA(),
-                plottingDataProvider.getLongEMA()
+                plottingDataProvider.getLongEMA(),
+                plottingDataProvider.getOpsA(),
+                plottingDataProvider.getOpsB()
 
         );
 
-//        final NumberAxis x2Axis = new NumberAxis(0, 10, 1);
-//        final NumberAxis y2Axis = new NumberAxis(-100, 500, 100);
-        final ScatterChart sc = new ScatterChart<Number,Number>(xAxis,yAxis);
-        sc.getData().addAll(plottingDataProvider.getOps());
-        SplitPane splitPane1 = new SplitPane();
-        StackPane stackpane = new StackPane();
-        stackpane.getChildren().add(sc);
-        stackpane.getChildren().add(lineChart);
+//        final ScatterChart sc = new ScatterChart<Number,Number>(xAxis,yAxis);
+//        sc.getData().addAll(plottingDataProvider.getOps());
+//
+//        sc.setLegendVisible(false);
+//        sc.setAnimated(false);
+//
+//        lineChart.setLegendVisible(false);
+//        lineChart.setAnimated(false);
+//
+//        configureOverlayChart(sc);
+//        configureOverlayChart(lineChart);
+//
+//        StackPane stackpane = new StackPane();
+//        stackpane.getChildren().add(sc);
+//        stackpane.getChildren().add(lineChart);
 
-        splitPane1.setOrientation(Orientation.VERTICAL);
-        splitPane1.getItems().addAll(stackpane);
-        splitPane1.setDividerPosition(0, 1);
-
-        Scene scene = new Scene(splitPane1, 1000, 1000);
+        Scene scene = new Scene(lineChart, 1200, 1000);
 
         stage.setScene(scene);
         stage.show();
 
     }
+    private void configureOverlayChart(final XYChart chart) {
+        chart.setAlternativeRowFillVisible(false);
+        chart.setAlternativeColumnFillVisible(false);
+        chart.setHorizontalGridLinesVisible(false);
+        chart.setVerticalGridLinesVisible(false);
+        chart.getXAxis().setVisible(false);
+        chart.getYAxis().setVisible(false);
 
+        chart.getStylesheets().addAll(".chart-plot-background { \n" +
+                "  -fx-background-color: transparent; \n" +
+                "}\n" +
+                ".default-color0.chart-series-line { \n" +
+                "  -fx-stroke: forestgreen; \n" +
+                "}");
+    }
     public static void main(String[] args) {
         launch(args);
     }

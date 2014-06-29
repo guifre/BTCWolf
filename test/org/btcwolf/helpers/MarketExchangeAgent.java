@@ -96,7 +96,7 @@ public class MarketExchangeAgent implements TraderAgent {
             }
             mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
             mBitCoins = mBitCoins.subtract(amount);
-            plotting.getPlottingDataProvider().addOp(ticker.getAsk());
+            plotting.getPlottingDataProvider().addOpA(ticker.getAsk());
 
         } else if (orderType == BID) {
             if (amount.multiply(ticker.getBid()).compareTo(mCurrency) == 1) {
@@ -105,7 +105,7 @@ public class MarketExchangeAgent implements TraderAgent {
             }
             mBitCoins = mBitCoins.add(amount);
             mCurrency = mCurrency.subtract(amount.multiply(ticker.getBid()));
-            plotting.getPlottingDataProvider().addOp(ticker.getBid());
+            plotting.getPlottingDataProvider().addOpB(ticker.getBid());
         }
         LOGGER.info("wallet of [" + mBitCoins + "]BTC and [" + mCurrency + "]CNY");
         return "ok";

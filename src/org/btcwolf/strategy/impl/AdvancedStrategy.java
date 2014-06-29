@@ -26,11 +26,12 @@ import java.math.BigDecimal;
 import java.util.LinkedList;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
+import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 280; //about 2h
+    private static final int MAX_TICKERS = 240; //about 2h
     private static final int MIN_TICKERS = 32; //about 16 mins
 
     private final LinkedList<Ticker> tickers;
@@ -58,6 +59,8 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     private int time;
 
+    private int lastOpTime = 15;
+
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new LinkedList<Ticker>();
@@ -66,6 +69,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     @Override
     public void onTickerReceived(Ticker ticker) {
+        lastOpTime++;
         super.onTickerReceived(ticker);
         time++;
         if (previousTicker == null || highTicker == null || lowTicker == null) {
@@ -75,7 +79,30 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             processTicker(ticker);
         }
         printIndicators(ticker);
-        order(ticker);
+        //order(ticker);
+        newOrder(ticker);
+    }
+
+    private void newOrder(Ticker ticker) {
+        if (shortEMA == null || longEMA == null) {
+            return;
+        }
+        double res = shortEMA.subtract(longEMA).doubleValue();
+        if (Math.abs(res) < 0.2) {
+            if (lastOpTime > 15) {
+                lastOpTime = 0;
+                OrderType type = getOrderType();
+                System.out.println("about to order, price [" +ticker.getLast() + "] getVWAPCrossTrend[" + getVWAPCrossTrend(ticker) +
+                        "] getOrderType[" + type + "] ");
+                BigDecimal amount;
+                if (type == OrderType.BID) {
+                    amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN).subtract(BigDecimal.valueOf(0.00001));
+                } else {
+                    amount = traderAgent.getBitCoinBalance().subtract(BigDecimal.valueOf(0.00001));
+                }
+                placeOrder(getOrderType(), amount, ticker);
+            }
+        }
     }
 
     private void order(Ticker ticker) {

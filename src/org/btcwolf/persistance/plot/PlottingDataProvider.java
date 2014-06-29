@@ -31,7 +31,8 @@ public class PlottingDataProvider {
     private final Series shortEMA;
     private final Series longEMA;
 
-    private final Series ops;
+    private final Series opsA;
+    private final Series opsB;
 
     private final Series vmwp;
 
@@ -42,8 +43,10 @@ public class PlottingDataProvider {
 
     public PlottingDataProvider() {
 
-        this.ops = new Series();
-        this.ops.setName("Ops");
+        this.opsA = new Series();
+        this.opsA.setName("OpsA");
+        this.opsB = new Series();
+        this.opsB.setName("OpsB");
 
         this.ask = new Series();
         this.ask.setName("ASK");
@@ -121,11 +124,17 @@ public class PlottingDataProvider {
        return ask;
     }
 
-    public Series getOps() {
-        return longEMA;
+    public Series getOpsB() {
+        return opsB;
+    }
+    public Series getOpsA() {
+        return opsA;
     }
 
-    public void addOp(BigDecimal price) {
-        ops.getData().add(new XYChart.Data(time, price.doubleValue()));
+    public void addOpA(BigDecimal price) {
+        opsA.getData().add(new XYChart.Data(time, price.doubleValue()));
+    }
+    public void addOpB(BigDecimal price) {
+        opsB.getData().add(new XYChart.Data(time, price.doubleValue()));
     }
 }
