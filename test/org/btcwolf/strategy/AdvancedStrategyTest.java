@@ -58,38 +58,30 @@ public class AdvancedStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
         final Plotting plotting = new Plotting();
-        int[] indexes = StrategyTestHelper.getIndexes(50, 1000);
+        int[] indexes = StrategyTestHelper.getIndexes(500, 2000);
         System.out.println("init " + indexes[0] + " end "  + indexes[1]);
         TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
         strategyProvider.switchToAdvancedStrategy();
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider, plotting);
 
-
         Thread thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
-                new JFXPanel(); // Initializes the JavaFx Platform
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-
-                            plotting.start(new Stage()); // Create and
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+            new JFXPanel();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        plotting.start(new Stage());
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
+            });
             }
         });
-
         thread.start();// Initialize the thread
         Thread.sleep(1000000); // Time to use the app, with out this, the thread
-        // will be killed before you can tell.
     }
-
-
-
 }

@@ -41,14 +41,19 @@ public class Plotting  extends Application {
 
         stage.setTitle("Line Chart Sample");
         //defining the axes
-        final NumberAxis yAxis = new NumberAxis();
-        final NumberAxis xAxis = new NumberAxis(plottingDataProvider.getMin(), plottingDataProvider.getMax(), 0.1);
+        final NumberAxis xAxis = new NumberAxis();
+        final NumberAxis yAxis = new NumberAxis(plottingDataProvider.getMin(), plottingDataProvider.getMax(), 0.01);
         xAxis.setLabel("Number of Month");
         //creating the chart
         final LineChart<Number,Number> lineChart =  new LineChart<Number,Number>(xAxis,yAxis);
 
-        lineChart.getData().addAll(plottingDataProvider.getLine(), plottingDataProvider.getLine2());
-         Scene scene  = new Scene(lineChart,800,600);
+        lineChart.getData().addAll(plottingDataProvider.getBid(),
+                plottingDataProvider.getAsk(),
+                plottingDataProvider.getShortEMA(),
+                plottingDataProvider.getLongEMA()
+
+        );
+         Scene scene  = new Scene(lineChart,1000,800);
         stage.setScene(scene);
         stage.show();
     }
