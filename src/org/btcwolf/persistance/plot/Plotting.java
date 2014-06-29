@@ -18,9 +18,13 @@
 package org.btcwolf.persistance.plot;
 
 import javafx.application.Application;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ScatterChart;
+import javafx.scene.control.SplitPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class Plotting  extends Application {
@@ -31,7 +35,6 @@ public class Plotting  extends Application {
 
     private PlottingDataProvider plottingDataProvider;
 
-
     public Plotting() {
         plottingDataProvider = new PlottingDataProvider();
     }
@@ -39,23 +42,41 @@ public class Plotting  extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        stage.setTitle("Line Chart Sample");
+        stage.setTitle("BTCWolf Chart");
         //defining the axes
         final NumberAxis xAxis = new NumberAxis();
-        final NumberAxis yAxis = new NumberAxis(plottingDataProvider.getMin(), plottingDataProvider.getMax(), 0.01);
-        xAxis.setLabel("Number of Month");
+        final NumberAxis yAxis = new NumberAxis(plottingDataProvider.getMin(), plottingDataProvider.getMax(), 0.1);
+        xAxis.setLabel("Time");
         //creating the chart
         final LineChart<Number,Number> lineChart =  new LineChart<Number,Number>(xAxis,yAxis);
+        lineChart.setCreateSymbols(false);
 
-        lineChart.getData().addAll(plottingDataProvider.getBid(),
+        lineChart.getData().addAll(
+                plottingDataProvider.getBid(),
                 plottingDataProvider.getAsk(),
                 plottingDataProvider.getShortEMA(),
                 plottingDataProvider.getLongEMA()
 
         );
-         Scene scene  = new Scene(lineChart,1000,800);
+
+//        final NumberAxis x2Axis = new NumberAxis(0, 10, 1);
+//        final NumberAxis y2Axis = new NumberAxis(-100, 500, 100);
+        final ScatterChart sc = new ScatterChart<Number,Number>(xAxis,yAxis);
+        sc.getData().addAll(plottingDataProvider.getOps());
+        SplitPane splitPane1 = new SplitPane();
+        StackPane stackpane = new StackPane();
+        stackpane.getChildren().add(sc);
+        stackpane.getChildren().add(lineChart);
+
+        splitPane1.setOrientation(Orientation.VERTICAL);
+        splitPane1.getItems().addAll(stackpane);
+        splitPane1.setDividerPosition(0, 1);
+
+        Scene scene = new Scene(splitPane1, 1000, 1000);
+
         stage.setScene(scene);
         stage.show();
+
     }
 
     public static void main(String[] args) {

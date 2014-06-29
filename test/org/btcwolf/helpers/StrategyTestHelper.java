@@ -135,7 +135,9 @@ public class StrategyTestHelper {
                     ticker.getBid(),
                     ticker.getAsk(),
                     ((AdvancedStrategy)strategyProvider.getStrategy()).getShortEMA(),
-                    ((AdvancedStrategy)strategyProvider.getStrategy()).getLongEMA());
+                    ((AdvancedStrategy)strategyProvider.getStrategy()).getLongEMA(),
+                    ((AdvancedStrategy)strategyProvider.getStrategy()).getTime()
+            );
             ticker = testerAgent.pollTicker();
         }
         return lastAsk;

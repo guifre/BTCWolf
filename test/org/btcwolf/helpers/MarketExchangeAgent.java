@@ -27,6 +27,7 @@ import com.xeiam.xchange.dto.trade.Wallet;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.Serializer;
+import org.btcwolf.persistance.plot.Plotting;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
@@ -43,10 +44,19 @@ public class MarketExchangeAgent implements TraderAgent {
     private final List<Ticker> data;
 
     private int index = 0;
+
     private BigDecimal mCurrency;
     private BigDecimal mBitCoins;
+
     private int startTicker;
     private int finalTicker;
+
+    private Plotting plotting;
+
+    public MarketExchangeAgent(BigDecimal bitcoins, BigDecimal currency, Plotting plotting) {
+        this(bitcoins, currency);
+        this.plotting = plotting;
+    }
 
     public MarketExchangeAgent(BigDecimal bitcoins, BigDecimal currency) {
         mBitCoins = bitcoins;
@@ -64,7 +74,7 @@ public class MarketExchangeAgent implements TraderAgent {
     public void setDataRange(int[] indexes) {
         this.startTicker = indexes[0];
         this.finalTicker = indexes[1];
-        index = startTicker;
+        this.index = startTicker;
     }
 
     @Override
@@ -86,6 +96,8 @@ public class MarketExchangeAgent implements TraderAgent {
             }
             mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
             mBitCoins = mBitCoins.subtract(amount);
+            plotting.getPlottingDataProvider().addOp(ticker.getAsk());
+
         } else if (orderType == BID) {
             if (amount.multiply(ticker.getBid()).compareTo(mCurrency) == 1) {
                 LOGGER.info("ERROR no money to  [" + orderType + "] of [" + amount.multiply(ticker.getBid()) + "] only [" + mCurrency);
@@ -93,6 +105,7 @@ public class MarketExchangeAgent implements TraderAgent {
             }
             mBitCoins = mBitCoins.add(amount);
             mCurrency = mCurrency.subtract(amount.multiply(ticker.getBid()));
+            plotting.getPlottingDataProvider().addOp(ticker.getBid());
         }
         LOGGER.info("wallet of [" + mBitCoins + "]BTC and [" + mCurrency + "]CNY");
         return "ok";

@@ -23,31 +23,49 @@ import java.math.BigDecimal;
 
 import static javafx.scene.chart.XYChart.Series;
 
-/**
- * Created by guifre on 28/06/14.
- */
 public class PlottingDataProvider {
 
     private Series bid;
     private Series ask;
-    private final Series shortEMA;
 
+    private final Series shortEMA;
     private final Series longEMA;
-    private int count;
+
+    private final Series ops;
+
+    private final Series vmwp;
 
     private double max;
     private double min;
 
+    private int time;
+
     public PlottingDataProvider() {
+
+        this.ops = new Series();
+        this.ops.setName("Ops");
+
         this.ask = new Series();
+        this.ask.setName("ASK");
+
         this.bid = new Series();
+        this.bid.setName("BID");
+
+        this.vmwp = new Series();
+        this.vmwp.setName("VMWP");
+
         this.shortEMA = new Series();
+        this.shortEMA.setName("shortEMA");
+
         this.longEMA = new Series();
+        this.longEMA.setName("longEMA");
+
         this.max = -1;
         this.min = -1;
     }
 
-    public void add(BigDecimal bid, BigDecimal ask, BigDecimal shortEMA, BigDecimal longEMA) {
+    public void add(BigDecimal bid, BigDecimal ask, BigDecimal shortEMA, BigDecimal longEMA, int time) {
+        this.time = time;
         if (ask.doubleValue() > max) {
             max = ask.doubleValue();
         }
@@ -64,13 +82,15 @@ public class PlottingDataProvider {
             min = bid.doubleValue();
             max = bid.doubleValue();
         }
-        this.ask.getData().add(new XYChart.Data(count, ask.doubleValue()));
-        this.bid.getData().add(new XYChart.Data(count, bid.doubleValue()));
+        this.ask.getData().add(new XYChart.Data(time, ask.doubleValue()));
+        this.bid.getData().add(new XYChart.Data(time, bid.doubleValue()));
+
         if (shortEMA != null) {
-            this.shortEMA.getData().add(new XYChart.Data(count, shortEMA.doubleValue()));
+            this.shortEMA.getData().add(new XYChart.Data(time, shortEMA.doubleValue()));
         }
+
         if (longEMA != null) {
-            this.longEMA.getData().add(new XYChart.Data(count++, longEMA.doubleValue()));
+            this.longEMA.getData().add(new XYChart.Data(time, longEMA.doubleValue()));
         }
     }
 
@@ -80,6 +100,10 @@ public class PlottingDataProvider {
 
     public Series getLongEMA() {
         return longEMA;
+    }
+
+    public Series getVmwp() {
+        return vmwp;
     }
 
     public Series getShortEMA() {
@@ -95,5 +119,13 @@ public class PlottingDataProvider {
 
     public Series getAsk() {
        return ask;
+    }
+
+    public Series getOps() {
+        return longEMA;
+    }
+
+    public void addOp(BigDecimal price) {
+        ops.getData().add(new XYChart.Data(time, price.doubleValue()));
     }
 }

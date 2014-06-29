@@ -30,7 +30,7 @@ import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 240; //about 2h
+    private static final int MAX_TICKERS = 280; //about 2h
     private static final int MIN_TICKERS = 32; //about 16 mins
 
     private final LinkedList<Ticker> tickers;
@@ -56,14 +56,18 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     private BigDecimal expLongEMA;
     private BigDecimal longEMA;
 
+    private int time;
+
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new LinkedList<Ticker>();
+        time = 0;
     }
 
     @Override
     public void onTickerReceived(Ticker ticker) {
         super.onTickerReceived(ticker);
+        time++;
         if (previousTicker == null || highTicker == null || lowTicker == null) {
             initTickers(ticker);
         } else {
@@ -98,21 +102,21 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     }
 
     private void revertTickerInfo(Ticker oldTicker) {
-        // new bid compare with previous determines bidarrow
+        // new bid compare with previous determines bid arrow
         if (oldTicker.getBid().compareTo(previousTicker.getBid()) == -1) {
             bidArrow++;
         } else if (oldTicker.getBid().compareTo(previousTicker.getBid()) == 1) {
             bidArrow--;
         }
 
-        // new ask compare with previous determines askarrow
+        // new ask compare with previous determines ask arrow
         if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == -1) {
             askArrow++;
         } else if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == 1) {
             askArrow--;
         }
 
-        // new last compare with previous last trendarrow
+        // new last compare with previous last trend arrow
         if (oldTicker.getLast().compareTo(previousTicker.getLast()) == -1) {
             trendArrow++;
         } else if (oldTicker.getLast().compareTo(previousTicker.getLast()) ==1) {
@@ -171,6 +175,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         expShortEMA = BigDecimal.valueOf((double) 2 / (shortEMASize + 1));
 
         expLongEMA = BigDecimal.valueOf((double) 2 / (MAX_TICKERS + 1));
+
         longEMA = ticker.getLast();
 
         tickers.addFirst(ticker);
@@ -178,21 +183,21 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     private void processTicker(Ticker ticker) {
 
-        // new bid compare with previous determines bidarrow
+        // new bid compare with previous determines bid arrow
         if (ticker.getBid().compareTo(previousTicker.getBid()) == 1) {
             bidArrow++;
         } else if (ticker.getBid().compareTo(previousTicker.getBid()) == -1) {
             bidArrow--;
         }
 
-        // new ask compare with previous determines askarrow
+        // new ask compare with previous determines ask arrow
         if (ticker.getAsk().compareTo(previousTicker.getAsk()) == 1) {
             askArrow++;
         } else if (ticker.getAsk().compareTo(previousTicker.getAsk()) == -1) {
             askArrow--;
         }
 
-        // new last compare with previous last trendarrow
+        // new last compare with previous last trend arrow
         if (ticker.getLast().compareTo(previousTicker.getLast()) == 1) {
             trendArrow++;
         } else if (ticker.getLast().compareTo(previousTicker.getLast()) == -1) {
@@ -235,7 +240,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         if (ticker.getBid().compareTo(vwap) == 1) {
             return 1;   // Current bid prices above the VWAP
          } else if (ticker.getAsk().compareTo(vwap) == -1) {
-            return -1;   // Current ask price is below the VWAP
+            return -1;  // Current ask price is below the VWAP
         }
         return 0;       //flat
     }
@@ -266,6 +271,10 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         //System.out.println("weight [" + weight + "] bigweight [" + bigWeight +"] balance [" + traderAgent.getCurrencyBalance() + "] About to bid [" + quantityToBuy + "]");
         //System.out.println("About to ask [" + quantityToBuy + "]");
         return quantityToBuy;
+    }
+
+    public int getTime() {
+        return time;
     }
 
     @Override
