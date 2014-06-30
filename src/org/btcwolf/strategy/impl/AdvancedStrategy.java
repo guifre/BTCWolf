@@ -31,8 +31,8 @@ import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 100; //about 2h
-    private static final int MIN_TICKERS = 12; //about 16 mins
+    private static final int MAX_TICKERS = 160; //about 2h
+    private static final int MIN_TICKERS = 32; //about 16 mins
 
     private final LinkedList<Ticker> tickers;
 
@@ -95,8 +95,8 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             if (lastOpTime > 15) {
                 lastOpTime = 0;
                 OrderType type = newGetOrderType();
-                System.out.println("about to order, price [" +ticker.getLast() + "] getVWAPCrossTrend["
-                        + getVWAPCrossTrend(ticker) + "] getOrderType[" + type + "] getVolDiff [" + getVolDiff() +
+                System.out.println("about to order, price [" +ticker.getLast() + "] newGetOrderType["
+                        + newGetOrderType() + "] getOrderType[" + type + "] getVolDiff [" + getVolDiff() +
                         "] getAskArrow[" + getAskArrow() + "] getBidArrow [" + getBidArrow() +
                         "] getTrendArrow [" + getTrendArrow() + "]");
                 BigDecimal amount;
@@ -113,19 +113,22 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     }
 
     private OrderType newGetOrderType () {
-        boolean bid = true;
+        int highers = 0;
+        int lowers = 0;
         for (BigDecimal bigDecimal : historicShortEMA) {
             if (shortEMA.compareTo(bigDecimal) == 1) {
-                bid = false;
-                break;
+                highers++;
+            } else if (shortEMA.compareTo(bigDecimal) == -1) {
+                lowers++;
+
             }
         }
-        if (bid) {
-            return OrderType.BID;
-        } else {
+        if (highers > lowers) {
             return OrderType.ASK;
+        } else if (lowers > highers){
+            return OrderType.BID;
         }
-
+        return null;
     }
 
     private void order(Ticker ticker) {
