@@ -47,14 +47,13 @@ public class Plotting  extends Application {
         //creating the chart
         final LineChart<Number,Number> lineChart =  new LineChart<Number,Number>(xAxis,yAxis);
         //lineChart.setCreateSymbols(false);
-
         lineChart.getData().addAll(
                 plottingDataProvider.getBid(),
                 plottingDataProvider.getAsk(),
                 plottingDataProvider.getShortEMA(),
                 plottingDataProvider.getLongEMA(),
-                plottingDataProvider.getOpsA(),
-                plottingDataProvider.getOpsB()
+                plottingDataProvider.getOpsB(),
+                plottingDataProvider.getOpsA()
 
         );
 

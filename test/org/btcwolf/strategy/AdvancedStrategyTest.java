@@ -55,11 +55,11 @@ public class AdvancedStrategyTest {
     }
 
     @Test
-    public void testA() throws InterruptedException {
+    public void testAdvancedStrategyWithPlot() throws InterruptedException {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         final Plotting plotting = new Plotting();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0), plotting);
-        int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex); //{199, 699 }, {10557, 11057};//
+        int[] indexes = {12202 , 12502};//StrategyTestHelper.getIndexes(300, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};
         System.out.println("init " + indexes[0] + " end "  + indexes[1] + " total " + maxIndex);
         TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
         strategyProvider.switchToAdvancedStrategy();

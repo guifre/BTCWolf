@@ -44,9 +44,9 @@ public class PlottingDataProvider {
     public PlottingDataProvider() {
 
         this.opsA = new Series();
-        this.opsA.setName("OpsA");
+        this.opsA.setName("Ops Ask");
         this.opsB = new Series();
-        this.opsB.setName("OpsB");
+        this.opsB.setName("Ops BId");
 
         this.ask = new Series();
         this.ask.setName("ASK");
