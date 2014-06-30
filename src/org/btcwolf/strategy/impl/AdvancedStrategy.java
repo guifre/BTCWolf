@@ -31,7 +31,7 @@ import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 160; //about 2h
+    private static final int MAX_TICKERS = 60; //about 2h
     private static final int MIN_TICKERS = 32; //about 16 mins
 
     private final LinkedList<Ticker> tickers;
@@ -117,9 +117,9 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         int lowers = 0;
         for (BigDecimal bigDecimal : historicShortEMA) {
             if (shortEMA.compareTo(bigDecimal) == 1) {
-                highers++;
-            } else if (shortEMA.compareTo(bigDecimal) == -1) {
                 lowers++;
+            } else if (shortEMA.compareTo(bigDecimal) == -1) {
+                highers++;
 
             }
         }
