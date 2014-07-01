@@ -30,21 +30,21 @@ public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDeco
     @Override
     public void onTickerReceived(Ticker ticker) {
         super.onTickerReceived(ticker);
-        BigDecimal money = traderAgent.getBitCoinBalance().multiply(lastUsedBid).add(traderAgent.getCurrencyBalance());
-        if (myMoney == null) {
-            myMoney = money;
-        } else if (myMoney.compareTo(money) != 0) {
-            if (myMoney.compareTo(money) == 1) {
-                marketTrend--;
-            } else {
-                marketTrend++;
-            }
-            myMoney = money;
-            if (Math.abs(marketTrend) == MARKET_TREND_OP) {
-                changeStrategy();
-                marketTrend = 0;
-            }
-        }
+//        BigDecimal money = traderAgent.getBitCoinBalance().multiply(lastUsedBid).add(traderAgent.getCurrencyBalance());
+//        if (myMoney == null) {
+//            myMoney = money;
+//        } else if (myMoney.compareTo(money) != 0) {
+//            if (myMoney.compareTo(money) == 1) {
+//                marketTrend--;
+//            } else {
+//                marketTrend++;
+//            }
+//            myMoney = money;
+//            if (Math.abs(marketTrend) == MARKET_TREND_OP) {
+//                changeStrategy();
+//                marketTrend = 0;
+//            }
+//        }
     }
 
     @Override

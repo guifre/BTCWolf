@@ -23,6 +23,8 @@ import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.LinkedList;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
@@ -31,26 +33,14 @@ import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 60; //about 2h
-    private static final int MIN_TICKERS = 32; //about 16 mins
+    private static final int MAX_TICKERS = 400; //about 2h
+    private static final int MIN_TICKERS = 82; //about 16 mins
 
-    private final LinkedList<Ticker> tickers;
+    private final Deque<Ticker> tickers;
 
-    private final LinkedList<BigDecimal> historicShortEMA;
-
-    private int trendArrow;
-    private int bidArrow;
-    private int askArrow;
-
-    private BigDecimal volDiff;
-    private BigDecimal vwap; //Volume Weighted Average Price
+    private final Deque<BigDecimal> historicShortEMA;
 
     private Ticker previousTicker;
-    private Ticker highTicker;
-    private Ticker lowTicker;
-
-    private int asksInARow;
-    private int bidsInARow;
 
     private static final int shortEMASize = MIN_TICKERS + 1; //elements to calculate the EMA short
     private BigDecimal shortEMA; //contains the value of the short EMA algorithm
@@ -65,8 +55,8 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
-        this.tickers = new LinkedList<Ticker>();
-        this.historicShortEMA = new LinkedList<BigDecimal>();
+        this.tickers = new ArrayDeque<Ticker>();
+        this.historicShortEMA = new ArrayDeque<BigDecimal>();
         time = 0;
     }
 
@@ -75,14 +65,13 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         lastOpTime++;
         super.onTickerReceived(ticker);
         time++;
-        if (previousTicker == null || highTicker == null || lowTicker == null) {
+        if (previousTicker == null) {
             initTickers(ticker);
         } else {
             addTicker(ticker);
             processTicker(ticker);
         }
         printIndicators(ticker);
-        //order(ticker);
         newOrder(ticker);
     }
 
@@ -94,11 +83,11 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         if (Math.abs(res) < 0.2) {
             if (lastOpTime > 15) {
                 lastOpTime = 0;
-                OrderType type = newGetOrderType();
-                System.out.println("about to order, price [" +ticker.getLast() + "] newGetOrderType["
-                        + newGetOrderType() + "] getOrderType[" + type + "] getVolDiff [" + getVolDiff() +
-                        "] getAskArrow[" + getAskArrow() + "] getBidArrow [" + getBidArrow() +
-                        "] getTrendArrow [" + getTrendArrow() + "]");
+                OrderType type = getOrderType();
+//                System.out.println("about to order, price [" +ticker.getLast() + "] getOrderType["
+//                        + getOrderType() + "] getOrderType[" + type + "] getVolDiff [" + getVolDiff() +
+//                        "] getAskArrow[" + getAskArrow() + "] getBidArrow [" + getBidArrow() +
+//                        "] getTrendArrow [" + getTrendArrow() + "]");
                 BigDecimal amount;
                 if (type == OrderType.BID) {
                     amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN).subtract(BigDecimal.valueOf(0.00001));
@@ -112,7 +101,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         }
     }
 
-    private OrderType newGetOrderType () {
+    private OrderType getOrderType() {
         int highers = 0;
         int lowers = 0;
         for (BigDecimal bigDecimal : historicShortEMA) {
@@ -131,21 +120,6 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         return null;
     }
 
-    private void order(Ticker ticker) {
-        if (tickers.size() >= MIN_TICKERS) {
-            if (shouldAskEMA(ticker)) {
-                placeOrder(OrderType.ASK, getAmountToAsk(), ticker);
-            } else {
-                askArrow = 0;
-            }
-            if (shouldBidEMA(ticker)) {
-                placeOrder(OrderType.BID, getAmountToBid(), ticker);
-            } else {
-                bidsInARow = 0;
-            }
-        }
-    }
-
     private void addTicker(Ticker ticker) {
         if (tickers.size() == MAX_TICKERS) {
             Ticker oldTicker = tickers.removeLast();
@@ -156,58 +130,30 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     private void revertTickerInfo(Ticker oldTicker) {
         // new bid compare with previous determines bid arrow
-        if (oldTicker.getBid().compareTo(previousTicker.getBid()) == -1) {
-            bidArrow++;
-        } else if (oldTicker.getBid().compareTo(previousTicker.getBid()) == 1) {
-            bidArrow--;
-        }
-
-        // new ask compare with previous determines ask arrow
-        if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == -1) {
-            askArrow++;
-        } else if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == 1) {
-            askArrow--;
-        }
-
-        // new last compare with previous last trend arrow
-        if (oldTicker.getLast().compareTo(previousTicker.getLast()) == -1) {
-            trendArrow++;
-        } else if (oldTicker.getLast().compareTo(previousTicker.getLast()) ==1) {
-            trendArrow--;
-        }
+//        if (oldTicker.getBid().compareTo(previousTicker.getBid()) == -1) {
+//            bidArrow++;
+//        } else if (oldTicker.getBid().compareTo(previousTicker.getBid()) == 1) {
+//            bidArrow--;
+//        }
+//
+//        // new ask compare with previous determines ask arrow
+//        if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == -1) {
+//            askArrow++;
+//        } else if (oldTicker.getAsk().compareTo(previousTicker.getAsk()) == 1) {
+//            askArrow--;
+//        }
+//
+//        // new last compare with previous last trend arrow
+//        if (oldTicker.getLast().compareTo(previousTicker.getLast()) == -1) {
+//            trendArrow++;
+//        } else if (oldTicker.getLast().compareTo(previousTicker.getLast()) ==1) {
+//            trendArrow--;
+//        }
         // new last compare with high and low updates it
-    }
-
-    public int getTrendArrow() {
-        return trendArrow;
-    }
-
-    public int getBidArrow() {
-        return bidArrow;
-    }
-
-    public int getAskArrow() {
-        return askArrow;
-    }
-
-    public BigDecimal getVolDiff() {
-        return volDiff;
-    }
-
-    public BigDecimal getVwap() {
-        return vwap;
     }
 
     public BigDecimal getShortEMA() {
         return shortEMA;
-    }
-
-    public BigDecimal getExpShortEMA() {
-        return expShortEMA;
-    }
-
-    public BigDecimal getExpLongEMA() {
-        return expLongEMA;
     }
 
     public BigDecimal getLongEMA() {
@@ -216,14 +162,6 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     private void initTickers(Ticker ticker) {
         previousTicker = ticker;
-        lowTicker = ticker;
-        highTicker = ticker;
-        trendArrow = 0;
-        askArrow = 0;
-        bidArrow = 0;
-        asksInARow = 0;
-        bidsInARow = 0;
-        vwap = valueOf(0);
 
         expShortEMA = BigDecimal.valueOf((double) 2 / (shortEMASize + 1));
 
@@ -237,41 +175,38 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     private void processTicker(Ticker ticker) {
 
         // new bid compare with previous determines bid arrow
-        if (ticker.getBid().compareTo(previousTicker.getBid()) == 1) {
-            bidArrow++;
-        } else if (ticker.getBid().compareTo(previousTicker.getBid()) == -1) {
-            bidArrow--;
-        }
+//        if (ticker.getBid().compareTo(previousTicker.getBid()) == 1) {
+//            bidArrow++;
+//        } else if (ticker.getBid().compareTo(previousTicker.getBid()) == -1) {
+//            bidArrow--;
+//        }
+//
+//        // new ask compare with previous determines ask arrow
+//        if (ticker.getAsk().compareTo(previousTicker.getAsk()) == 1) {
+//            askArrow++;
+//        } else if (ticker.getAsk().compareTo(previousTicker.getAsk()) == -1) {
+//            askArrow--;
+//        }
+//
+//        // new last compare with previous last trend arrow
+//        if (ticker.getLast().compareTo(previousTicker.getLast()) == 1) {
+//            trendArrow++;
+//        } else if (ticker.getLast().compareTo(previousTicker.getLast()) == -1) {
+//            trendArrow--;
+//        }
+//
+//        // new last compare with high and low updates it
+//        if (ticker.getLast().compareTo(highTicker.getLast()) == 1) {
+//            highTicker = ticker;
+//        } else if (ticker.getLast().compareTo(lowTicker.getLast()) == -1) {
+//            lowTicker = ticker;
+//        }
 
-        // new ask compare with previous determines ask arrow
-        if (ticker.getAsk().compareTo(previousTicker.getAsk()) == 1) {
-            askArrow++;
-        } else if (ticker.getAsk().compareTo(previousTicker.getAsk()) == -1) {
-            askArrow--;
-        }
-
-        // new last compare with previous last trend arrow
-        if (ticker.getLast().compareTo(previousTicker.getLast()) == 1) {
-            trendArrow++;
-        } else if (ticker.getLast().compareTo(previousTicker.getLast()) == -1) {
-            trendArrow--;
-        }
-
-        // new last compare with high and low updates it
-        if (ticker.getLast().compareTo(highTicker.getLast()) == 1) {
-            highTicker = ticker;
-        } else if (ticker.getLast().compareTo(lowTicker.getLast()) == -1) {
-            lowTicker = ticker;
-        }
-
-        volDiff = ticker.getVolume().subtract(previousTicker.getVolume());
-        vwap = vwap.add(ticker.getLast().multiply(volDiff));
+        //volDiff = ticker.getVolume().subtract(previousTicker.getVolume());
+      //  vwap = vwap.add(ticker.getLast().multiply(volDiff));
         if (shortEMA == null) {
             shortEMA = ticker.getLast();
         } else {
-            if (tickers.size() > shortEMASize) {
-
-            }
             shortEMA = ticker.getLast().multiply(expShortEMA).add(shortEMA.multiply(valueOf(1).subtract(expShortEMA)));
             if (historicShortEMA.size() == 5) {
                 historicShortEMA.removeLast();
@@ -282,52 +217,6 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         longEMA = ticker.getLast().multiply(expLongEMA).add(longEMA.multiply(valueOf(1).subtract(expLongEMA)));
 
         previousTicker = ticker;
-    }
-
-    private OrderType getOrderType() { // Advance/Decline Spread to decide trade action
-        if (trendArrow > 0 && bidArrow > 0) {
-            return OrderType.BID;   // market trending down
-        } else if(trendArrow < 0 && askArrow < 0 ){
-            return OrderType.ASK;   // market trending up
-        }
-        return null;    //market trending flat
-    }
-
-    private int getVWAPCrossTrend(Ticker ticker) {
-        if (ticker.getBid().compareTo(vwap) == 1) {
-            return 1;   // Current bid prices above the VWAP
-         } else if (ticker.getAsk().compareTo(vwap) == -1) {
-            return -1;  // Current ask price is below the VWAP
-        }
-        return 0;       //flat
-    }
-
-    private boolean shouldAskEMA(Ticker ticker) { // if short ema is lower than long ema, market trending down, buy btc
-        return shortEMA.compareTo(longEMA) == -1;// && ticker.getLast().compareTo(vwap) == 1;
-    }
-
-    private boolean shouldBidEMA(Ticker ticker) { // if short ema is higher than long ema, market trending up, sell btc
-        return shortEMA.compareTo(longEMA) == 1;// && ticker.getLast().compareTo(vwap) == -1;
-    }
-
-    private BigDecimal getAmountToAsk() {
-        double weight = (double)(bidArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
-        double bigWeight = Math.abs(weight) / Math.pow(2, asksInARow);
-        askArrow++;
-        BigDecimal quantityToSell = traderAgent.getCurrencyBalance().multiply(valueOf(bigWeight));
-        //System.out.println("ask ["+ bidArrow +"] trend [" + trendArrow + "] weight [" + weight + "] bigweight [" + bigWeight +"] balance [" + traderAgent.getCurrencyBalance() + "] About to ask [" + quantityToSell + "]");
-        //System.out.println("About to ask [" + quantityToSell + "]");
-        return quantityToSell;
-    }
-
-    private BigDecimal getAmountToBid() {
-        double weight = (double)(askArrow + trendArrow) / tickers.size(); // low risk askArrow / tickerSize * (double)trendArrow / tickerSize
-        double bigWeight = Math.abs(weight) / Math.pow(2, bidsInARow);
-        bidsInARow++;
-        BigDecimal quantityToBuy = traderAgent.getCurrencyBalance().multiply(valueOf(bigWeight));
-        //System.out.println("weight [" + weight + "] bigweight [" + bigWeight +"] balance [" + traderAgent.getCurrencyBalance() + "] About to bid [" + quantityToBuy + "]");
-        //System.out.println("About to ask [" + quantityToBuy + "]");
-        return quantityToBuy;
     }
 
     public int getTime() {
