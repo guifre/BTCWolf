@@ -25,7 +25,6 @@ import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
 import static java.math.BigDecimal.ROUND_DOWN;
@@ -33,16 +32,18 @@ import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 300; //about 2h
-    private static final int MIN_TICKERS = 102; //about 16 mins
+    private static final int MAX_TICKERS = 20; //about 2h
+    private static final int MIN_TICKERS = 12; //about 16 mins
 
     private final Deque<Ticker> tickers;
 
     private final Deque<BigDecimal> historicShortEMA;
+    private final int minTickers;
+    private final int maxTickers;
 
     private Ticker previousTicker;
 
-    private static final int shortEMASize = MIN_TICKERS + 1; //elements to calculate the EMA short
+    private int shortEMASize ; //;//elements to calculate the EMA short
     private BigDecimal shortEMA; //contains the value of the short EMA algorithm
     private BigDecimal expShortEMA;
 
@@ -54,13 +55,25 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     private int time;
 
-    private int lastOpTime = 15;
+    private int lastOpTime = 3;
 
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
         time = 0;
+        this.minTickers = MIN_TICKERS;
+        this.maxTickers = MAX_TICKERS;
+        shortEMASize = minTickers + 1; //
+    }
+    public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max) {
+        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
+        this.tickers = new ArrayDeque<Ticker>();
+        this.historicShortEMA = new ArrayDeque<BigDecimal>();
+        time = 0;
+        this.minTickers = min;
+        this.maxTickers = max;
+        shortEMASize = minTickers + 1; //
     }
 
     @Override
@@ -87,11 +100,15 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
                 lastOpTime = 0;
                 OrderType type = getOrderType();
                 BigDecimal amount;
-                if (type == OrderType.BID && (lastAsk == null || lastAsk.compareTo(ticker.getBid()) == 1)) {
-                    amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN).subtract(BigDecimal.valueOf(0.00001));
+                if (type == OrderType.BID
+                        //&& (lastAsk == null || lastAsk.compareTo(ticker.getBid()) == 1)
+                        && traderAgent.getCurrencyBalance().compareTo(BigDecimal.valueOf(0.1)) == 1) {
+                    amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN);
                     lastBid = ticker.getBid();
-                } else if (type == OrderType.ASK && (lastBid == null || lastBid.compareTo(ticker.getAsk()) == -1)) {
-                    amount = traderAgent.getBitCoinBalance().subtract(BigDecimal.valueOf(0.00001));
+                } else if (type == OrderType.ASK
+                        //&& (lastBid == null || lastBid.compareTo(ticker.getAsk()) == -1)
+                        && traderAgent.getBitCoinBalance().compareTo(BigDecimal.valueOf(0.01)) == 1) {
+                    amount = traderAgent.getBitCoinBalance();
                     lastAsk = ticker.getAsk();
                 } else {
                     return;
@@ -121,7 +138,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
     }
 
     private void addTicker(Ticker ticker) {
-        if (tickers.size() == MAX_TICKERS) {
+        if (tickers.size() == maxTickers) {
             Ticker oldTicker = tickers.removeLast();
             revertTickerInfo(oldTicker);
         }
@@ -144,7 +161,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
         expShortEMA = BigDecimal.valueOf((double) 2 / (shortEMASize + 1));
 
-        expLongEMA = BigDecimal.valueOf((double) 2 / (MAX_TICKERS + 1));
+        expLongEMA = BigDecimal.valueOf((double) 2 / (maxTickers + 1));
 
         longEMA = ticker.getLast();
 
@@ -179,7 +196,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         } else {
             price = ticker.getAsk();
         }
-        System.out.println("order [" + orderType + "] price [" + price + "]  $[" + bitCoinsToBuy + "] result [" + orderResult + "]" );
+        //System.out.println("order [" + orderType + "] price [" + price + "]  $[" + bitCoinsToBuy + "] result [" + orderResult + "]" );
     }
 }
 //                System.out.println("about to order, price [" +ticker.getLast() + "] getOrderType["

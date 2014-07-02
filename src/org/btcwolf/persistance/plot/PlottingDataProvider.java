@@ -25,16 +25,14 @@ import static javafx.scene.chart.XYChart.Series;
 
 public class PlottingDataProvider {
 
-    private Series bid;
-    private Series ask;
+    private final Series bid;
+    private final Series ask;
 
     private final Series shortEMA;
     private final Series longEMA;
 
     private final Series opsA;
     private final Series opsB;
-
-    private final Series vmwp;
 
     private double max;
     private double min;
@@ -45,17 +43,15 @@ public class PlottingDataProvider {
 
         this.opsA = new Series();
         this.opsA.setName("Ops Ask");
+
         this.opsB = new Series();
-        this.opsB.setName("Ops BId");
+        this.opsB.setName("Ops Bid");
 
         this.ask = new Series();
         this.ask.setName("ASK");
 
         this.bid = new Series();
         this.bid.setName("BID");
-
-        this.vmwp = new Series();
-        this.vmwp.setName("VMWP");
 
         this.shortEMA = new Series();
         this.shortEMA.setName("shortEMA");
@@ -105,10 +101,6 @@ public class PlottingDataProvider {
 
     public Series getLongEMA() {
         return longEMA;
-    }
-
-    public Series getVmwp() {
-        return vmwp;
     }
 
     public Series getShortEMA() {

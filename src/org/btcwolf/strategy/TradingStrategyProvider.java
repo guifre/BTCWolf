@@ -67,6 +67,9 @@ public class TradingStrategyProvider {
     public TradingStrategy getAdvancedStrategy() {
         return new AdvancedStrategy(this, traderAgent, useTwitter);
     }
+    public TradingStrategy getAdvancedStrategy(int min, int max) {
+        return new AdvancedStrategy(this, traderAgent, useTwitter, min, max);
+    }
 
     public void switchToDefaultTurtleStrategy() {
         this.strategy = getDefaultTurtleStrategy(traderAgent);
@@ -78,6 +81,9 @@ public class TradingStrategyProvider {
 
     public void switchToAdvancedStrategy() {
         this.strategy = getAdvancedStrategy();
+    }
+    public void switchToAdvancedStrategy(int min, int max) {
+        this.strategy = getAdvancedStrategy(min, max);
     }
 
     public void switchStrategy(TradingStrategy tradingStrategy) {
