@@ -49,7 +49,7 @@ public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDeco
 
     @Override
     protected String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
-        lastUsedBid = ticker.getBid();
+        //lastUsedBid = ticker.getBid();
         String orderResult = super.placeOrder(orderType, amount, ticker);
         onOrdered(ticker, amount, orderType, orderResult);
         return orderResult;

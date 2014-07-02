@@ -69,24 +69,26 @@ public class PlottingDataProvider {
 
     public void add(BigDecimal bid, BigDecimal ask, BigDecimal shortEMA, BigDecimal longEMA, int time) {
         this.time = time;
-        if (ask.doubleValue() > max) {
-            max = ask.doubleValue();
+        double askV = ask.doubleValue();
+        double bidV = bid.doubleValue();
+        if (askV > max) {
+            max = askV;
         }
-        if (ask.doubleValue() < min) {
-            min = ask.doubleValue();
+        if (askV < min) {
+            min = askV;
         }
-        if (bid.doubleValue() > max) {
-            max = bid.doubleValue();
+        if (bidV > max) {
+            max = bidV;
         }
-        if (bid.doubleValue() < min) {
-            min = bid.doubleValue();
+        if (bidV < min) {
+            min = bidV;
         }
         if (max == -1 || min == -1) {
-            min = bid.doubleValue();
-            max = bid.doubleValue();
+            min = bidV;
+            max = bidV;
         }
-        this.ask.getData().add(new XYChart.Data(time, ask.doubleValue()));
-        this.bid.getData().add(new XYChart.Data(time, bid.doubleValue()));
+        this.ask.getData().add(new XYChart.Data(time, askV));
+        this.bid.getData().add(new XYChart.Data(time, bidV));
 
         if (shortEMA != null) {
             this.shortEMA.getData().add(new XYChart.Data(time, shortEMA.doubleValue()));
