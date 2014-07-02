@@ -38,7 +38,7 @@ public class TickerHistoricBuilder {
     @Test
     public void parseLogAndPersistTickers() throws IOException {
         List<Ticker> tickerList = new ArrayList<Ticker>();
-        String file = "../t/log/BTCWolf_debug.log";
+        String file = "..//log/data/BTCWolf_debug.log";
         BufferedReader br = new BufferedReader(new FileReader(new File(file)));
         String line = null;
         Pattern pattern = Pattern.compile("last=([0-9]*.[0-9]*), bid=([0-9]*.[0-9]*), ask=([0-9]*.[0-9]*), high=([0-9]*.[0-9]*), low=([0-9]*.[0-9]*), volume=([0-9]*.[0-9]*),");

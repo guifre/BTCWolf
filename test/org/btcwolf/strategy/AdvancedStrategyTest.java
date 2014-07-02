@@ -87,7 +87,7 @@ public class AdvancedStrategyTest {
         int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
 
         TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchToAdvancedStrategy(11, 11);
+        strategyProvider.switchToAdvancedStrategy(180, 30);
         System.out.println("testing advanced strategy best 11 11 ");
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
 
@@ -118,7 +118,7 @@ public class AdvancedStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         final Plotting plotting = new Plotting();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0), plotting);
-        int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
+        int[] indexes = StrategyTestHelper.getIndexes(2500, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
         System.out.println("init " + indexes[0] + " end "  + indexes[1] + " total " + maxIndex);
         TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
         strategyProvider.switchToAdvancedStrategy();

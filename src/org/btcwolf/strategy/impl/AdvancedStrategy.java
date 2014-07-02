@@ -32,8 +32,8 @@ import static java.math.BigDecimal.valueOf;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 20; //about 2h
-    private static final int MIN_TICKERS = 12; //about 16 mins
+    private static final int MAX_TICKERS = 120; //about 2h
+    private static final int MIN_TICKERS = 30; //about 16 mins
 
     private final Deque<Ticker> tickers;
 
@@ -61,19 +61,20 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
-        time = 0;
+        this.time = 0;
         this.minTickers = MIN_TICKERS;
         this.maxTickers = MAX_TICKERS;
-        shortEMASize = minTickers + 1; //
+        this.shortEMASize = minTickers + 1; //
     }
+
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
-        time = 0;
+        this.time = 0;
         this.minTickers = min;
         this.maxTickers = max;
-        shortEMASize = minTickers + 1; //
+        this.shortEMASize = minTickers + 1; //
     }
 
     @Override
@@ -101,7 +102,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
                 OrderType type = getOrderType();
                 BigDecimal amount;
                 if (type == OrderType.BID
-                        //&& (lastAsk == null || lastAsk.compareTo(ticker.getBid()) == 1)
+                       // && (lastAsk == null || lastAsk.compareTo(ticker.getBid()) == 1)
                         && traderAgent.getCurrencyBalance().compareTo(BigDecimal.valueOf(0.1)) == 1) {
                     amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN);
                     lastBid = ticker.getBid();

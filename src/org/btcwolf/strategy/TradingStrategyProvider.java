@@ -34,7 +34,8 @@ public class TradingStrategyProvider {
     public TradingStrategyProvider(TraderAgent traderAgent, boolean useTwitter) {
         this.traderAgent = traderAgent;
         //this.strategy = getDefaultTurtleStrategy(traderAgent);
-        this.strategy = getDefaultWinWinStrategy();
+        //this.strategy = getDefaultWinWinStrategy();
+        this.strategy = getAdvancedStrategy();
         this.useTwitter = useTwitter;
     }
 
