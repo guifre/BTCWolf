@@ -32,7 +32,7 @@ import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
-public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
+public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDecorator {
 
     private static final int MAX_TICKERS = 120; //about 2h
     private static final int MIN_TICKERS = 30; //about 16 mins
@@ -74,7 +74,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
     private int limitOrdersCount;
 
-    public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
+    public ExponentialMovingAverageStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
@@ -86,7 +86,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         this.limitOrdersCount = 0;
     }
 
-    public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max, boolean onlyWin) {
+    public ExponentialMovingAverageStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max, boolean onlyWin) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();

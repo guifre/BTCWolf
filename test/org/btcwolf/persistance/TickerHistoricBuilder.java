@@ -30,9 +30,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by guifre on 13/06/14.
- */
 public class TickerHistoricBuilder {
 
     @Test

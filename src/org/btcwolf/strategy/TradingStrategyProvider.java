@@ -18,7 +18,7 @@
 package org.btcwolf.strategy;
 
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.impl.AdvancedStrategy;
+import org.btcwolf.strategy.impl.ExponentialMovingAverageStrategy;
 import org.btcwolf.strategy.impl.SimpleWinWinTradingStrategy;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
@@ -66,10 +66,10 @@ public class TradingStrategyProvider {
     }
 
     public TradingStrategy getAdvancedStrategy() {
-        return new AdvancedStrategy(this, traderAgent, useTwitter);
+        return new ExponentialMovingAverageStrategy(this, traderAgent, useTwitter);
     }
-    public TradingStrategy getAdvancedStrategy(int min, int max, boolean onlyWin) {
-        return new AdvancedStrategy(this, traderAgent, useTwitter, min, max, onlyWin);
+    public TradingStrategy getExponentialMovingAverageStrategy(int min, int max, boolean onlyWin) {
+        return new ExponentialMovingAverageStrategy(this, traderAgent, useTwitter, min, max, onlyWin);
     }
 
     public void switchToDefaultTurtleStrategy() {
@@ -80,11 +80,11 @@ public class TradingStrategyProvider {
         this.strategy = getDefaultWinWinStrategy();
     }
 
-    public void switchToAdvancedStrategy() {
+    public void switchToExponentialMovingAverageStrategy() {
         this.strategy = getAdvancedStrategy();
     }
-    public void switchToAdvancedStrategy(int min, int max, boolean onlyWin) {
-        this.strategy = getAdvancedStrategy(min, max, onlyWin);
+    public void switchToExponentialMovingAverageStrategy(int min, int max, boolean onlyWin) {
+        this.strategy = getExponentialMovingAverageStrategy(min, max, onlyWin);
     }
 
     public void switchStrategy(TradingStrategy tradingStrategy) {

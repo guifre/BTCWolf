@@ -23,9 +23,6 @@ import javafx.stage.Stage;
 import org.btcwolf.persistance.plot.Plotting;
 import org.junit.Test;
 
-/**
- * Created by guifre on 28/06/14.
- */
 public class PlottingTest  {
 
     @Test
@@ -34,7 +31,7 @@ public class PlottingTest  {
 
             @Override
             public void run() {
-                new JFXPanel(); // Initializes the JavaFx Platform
+                new JFXPanel();
                 Platform.runLater(new Runnable() {
 
                     @Override
@@ -44,16 +41,12 @@ public class PlottingTest  {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        // initialize
-                        // your app.
-
                     }
                 });
             }
         });
-        thread.start();// Initialize the thread
-        Thread.sleep(10000); // Time to use the app, with out this, the thread
-        // will be killed before you can tell.
+        thread.start();
+        Thread.sleep(10000);
     }
 
 }

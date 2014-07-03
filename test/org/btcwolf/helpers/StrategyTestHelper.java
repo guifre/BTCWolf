@@ -21,7 +21,7 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.plot.Plotting;
 import org.btcwolf.strategy.TradingStrategyProvider;
-import org.btcwolf.strategy.impl.AdvancedStrategy;
+import org.btcwolf.strategy.impl.ExponentialMovingAverageStrategy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -135,9 +135,9 @@ public class StrategyTestHelper {
             plotting.getPlottingDataProvider().add(
                     ticker.getBid(),
                     ticker.getAsk(),
-                    ((AdvancedStrategy)strategyProvider.getStrategy()).getShortEMA(),
-                    ((AdvancedStrategy)strategyProvider.getStrategy()).getLongEMA(),
-                    ((AdvancedStrategy)strategyProvider.getStrategy()).getTime()
+                    ((ExponentialMovingAverageStrategy)strategyProvider.getStrategy()).getShortEMA(),
+                    ((ExponentialMovingAverageStrategy)strategyProvider.getStrategy()).getLongEMA(),
+                    ((ExponentialMovingAverageStrategy)strategyProvider.getStrategy()).getTime()
             );
             ticker = testerAgent.pollTicker();
         }

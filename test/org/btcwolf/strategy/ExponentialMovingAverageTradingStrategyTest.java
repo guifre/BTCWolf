@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
-public class AdvancedStrategyTest {
+public class ExponentialMovingAverageTradingStrategyTest {
 
     private static final String LOG4J_PATH = "./resources/log4j.properties";
 
@@ -42,20 +42,20 @@ public class AdvancedStrategyTest {
     }
 
     @Test
-    public void testAdvancedStrategy() {
+    public void testExponentialMovingAverageStrategy() {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
 
         for (int i = 0; i < 20; i++) {
             int[] indexes = StrategyTestHelper.getIndexes(500);
             TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-            strategyProvider.switchToAdvancedStrategy();
+            strategyProvider.switchToExponentialMovingAverageStrategy();
             StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
         }
     }
 
     @Test
-    public void findBestAdvancedSettings() {
+    public void findBestExponentialMovingAverageSettings() {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
         int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
@@ -73,7 +73,7 @@ public class AdvancedStrategyTest {
                 }
                 System.out.println("min " + i + " max " + j);
                 TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-                strategyProvider.switchToAdvancedStrategy(i,j, false);
+                strategyProvider.switchToExponentialMovingAverageStrategy(i, j, false);
                 StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
             }
         }
@@ -86,7 +86,7 @@ public class AdvancedStrategyTest {
         int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
 
         TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchToAdvancedStrategy(180, 30, false);
+        strategyProvider.switchToExponentialMovingAverageStrategy(180, 30, false);
         System.out.println("testing advanced strategy best 11 11 ");
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
 
@@ -106,17 +106,17 @@ public class AdvancedStrategyTest {
                 }
                 indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
 
-                System.out.println("testing advanced strategy min " + i + " max " + j);
+                System.out.println("testing ExponentialMovingAverage strategy min " + i + " max " + j);
                  strategyProvider = new TestStrategyProvider(testerAgent, false);
-//                strategyProvider.switchToAdvancedStrategy(i,j, false);
-                strategyProvider.switchToAdvancedStrategy();
+//                strategyProvider.switchToExponentialMovingAverageStrategy(i,j, false);
+                strategyProvider.switchToExponentialMovingAverageStrategy();
                 StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
             }
         }
     }
 
     @Test
-    public void compareOnlyWinAdvancedWithNormalAdvanced() {
+    public void compareOnlyWinExponentialMovingAverageWithNormalExponentialMovingAverage() {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
         boolean onlyWin;
@@ -126,14 +126,14 @@ public class AdvancedStrategyTest {
             if (i%2 == 0) {
                 indexes = StrategyTestHelper.getIndexes(500, maxIndex);
                 onlyWin = true;
-                message = "Adv str OnlyWin " + onlyWin + "  indexes from " + indexes[0] + " to " + indexes[1] + " ";
+                message = "ExponentialMovingAverage str OnlyWin " + onlyWin + "  indexes from " + indexes[0] + " to " + indexes[1] + " ";
             } else {
                 onlyWin = false;
-                message = "Adv str OnlyWin " + onlyWin + " indexes from " + indexes[0] + " to " + indexes[1] + " ";
+                message = "ExponentialMovingAverage str OnlyWin " + onlyWin + " indexes from " + indexes[0] + " to " + indexes[1] + " ";
             }
             System.out.print(message);
             TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-            strategyProvider.switchToAdvancedStrategy(30,160, onlyWin);
+            strategyProvider.switchToExponentialMovingAverageStrategy(30, 160, onlyWin);
             StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
         }
     }
@@ -146,7 +146,7 @@ public class AdvancedStrategyTest {
         int[] indexes = StrategyTestHelper.getIndexes(1500, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
         System.out.println("init " + indexes[0] + " end "  + indexes[1] + " total " + maxIndex);
         TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchToAdvancedStrategy();
+        strategyProvider.switchToExponentialMovingAverageStrategy();
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider, plotting);
 
         Thread thread = new Thread(new Runnable() {
@@ -166,7 +166,7 @@ public class AdvancedStrategyTest {
                 });
             }
         });
-        thread.start();// Initialize the thread
-        Thread.sleep(1000000); // Time to use the app, with out this, the thread
+        thread.start();
+        Thread.sleep(1000000);
     }
 }
