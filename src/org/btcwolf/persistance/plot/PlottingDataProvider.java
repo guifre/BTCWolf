@@ -42,10 +42,10 @@ public class PlottingDataProvider {
     public PlottingDataProvider() {
 
         this.opsA = new Series();
-        this.opsA.setName("Ops Ask");
+        this.opsA.setName("Ask Orders");
 
         this.opsB = new Series();
-        this.opsB.setName("Ops Bid");
+        this.opsB.setName("Bid Orders");
 
         this.ask = new Series();
         this.ask.setName("ASK");
