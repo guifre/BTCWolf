@@ -38,7 +38,7 @@ public class AdvancedStrategyTest {
     @BeforeClass
     public static void setup() {
         PropertyConfigurator.configure(LOG4J_PATH);
-        //Logger.getRootLogger().removeAllAppenders();
+        Logger.getRootLogger().removeAllAppenders();
     }
 
     @Test

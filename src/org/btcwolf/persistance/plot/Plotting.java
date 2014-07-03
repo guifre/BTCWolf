@@ -56,7 +56,7 @@ public class Plotting  extends Application {
                 plottingDataProvider.getOpsA()
 
         );
-        Scene scene = new Scene(lineChart, 800, 800);
+        Scene scene = new Scene(lineChart, 1200, 1200);
         stage.setScene(scene);
         stage.show();
 
