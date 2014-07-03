@@ -104,9 +104,12 @@ public class AdvancedStrategyTest {
                 if (i > j) {
                     continue;
                 }
+                indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
+
                 System.out.println("testing advanced strategy min " + i + " max " + j);
                  strategyProvider = new TestStrategyProvider(testerAgent, false);
-                strategyProvider.switchToAdvancedStrategy(i,j, false);
+//                strategyProvider.switchToAdvancedStrategy(i,j, false);
+                strategyProvider.switchToAdvancedStrategy();
                 StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
             }
         }
@@ -150,17 +153,17 @@ public class AdvancedStrategyTest {
 
             @Override
             public void run() {
-            new JFXPanel();
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        plotting.start(new Stage());
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                new JFXPanel();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            plotting.start(new Stage());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
+                });
             }
         });
         thread.start();// Initialize the thread

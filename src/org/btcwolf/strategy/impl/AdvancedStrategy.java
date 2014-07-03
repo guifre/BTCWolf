@@ -18,78 +18,90 @@
 package org.btcwolf.strategy.impl;
 
 import com.xeiam.xchange.dto.marketdata.Ticker;
+import com.xeiam.xchange.dto.trade.LimitOrder;
+import com.xeiam.xchange.dto.trade.OpenOrders;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategyProvider;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.*;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
-import static java.math.BigDecimal.*;
 import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
 public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 160; //about 2h
-    private static final int MIN_TICKERS = 50; //about 16 mins
+    private static final int MAX_TICKERS = 120; //about 2h
+    private static final int MIN_TICKERS = 30; //about 16 mins
 
-    private static final int MIN_TICKERS_BETWEEN_ORDERS = 1;
-    private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(0.2);
+    private static final int MIN_TICKERS_BETWEEN_ORDERS = 25;
+
+    private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(0.0002);
+
+    private static final int CHECK_DEAD_ORDERS_FREQ = 10; // every 10 tickers check hard limits
+    private static final int MAX_MINUTES_ORDER_TO_PROCESSED = 10;
 
     private static final double MIN_AVAILABLE_BTC_TO_OP = 0.001;
     private static final double MIN_AVAILABLE_CNY_TO_OP = 0.1;
 
+    private static final int MAX_HISTORIC_SHORT_EMA = 5; // determines orderType
+    private static final BigDecimal PLAIN_EMA_THRESHOLD = valueOf(0.05); // threshold for unchanged EMA
+
     private final Deque<Ticker> tickers;
-
-    private final Deque<BigDecimal> historicShortEMA;
     private final int minTickers;
+
     private final int maxTickers;
-
     private Ticker previousTicker;
-
     private int shortEMASize ; //;//elements to calculate the EMA short
     private BigDecimal shortEMA; //contains the value of the short EMA algorithm
+
     private BigDecimal expShortEMA;
+    private final Deque<BigDecimal> historicShortEMA;
 
     private BigDecimal expLongEMA;
     private BigDecimal longEMA;
 
     private BigDecimal lastAsk;
-    private BigDecimal lastBid;
 
-    private boolean onlyWin = false;
+    private BigDecimal lastBid;
+    private boolean onlyWin; // enforces only orders that will generate profit
 
     private int time;
-    private int lastOpTime = 3;
+    private int lastOpTime;
+
+    private int limitOrdersCount;
 
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
-        this.time = 0;
         this.minTickers = MIN_TICKERS;
         this.maxTickers = MAX_TICKERS;
         this.shortEMASize = MIN_TICKERS + 1;
+        this.onlyWin = false;
+        this.time = 0;
+        this.limitOrdersCount = 0;
     }
 
     public AdvancedStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max, boolean onlyWin) {
         super(tradingStrategyProvider, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
-        this.time = 0;
         this.minTickers = min;
         this.maxTickers = max;
         this.shortEMASize = minTickers + 1;
         this.onlyWin = onlyWin;
+        this.time = 0;
+        this.limitOrdersCount = 0;
     }
 
     @Override
     public void onTickerReceived(Ticker ticker) {
         super.onTickerReceived(ticker);
+        checkDeadLimitOrders();
         lastOpTime++;
         time++;
         if (previousTicker == null) {
@@ -109,12 +121,16 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         return longEMA;
     }
 
+    public int getTime() {
+        return time;
+    }
+
     private void order(Ticker ticker) {
         if (shortEMA == null || longEMA == null) {
             return;
         }
         if (shortEMA.subtract(longEMA).abs().compareTo(MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP) == 1
-                &&lastOpTime > MIN_TICKERS_BETWEEN_ORDERS) {
+                && lastOpTime > MIN_TICKERS_BETWEEN_ORDERS) {
 
             lastOpTime = 0;
             OrderType type = getOrderType();
@@ -125,6 +141,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
                     && traderAgent.getCurrencyBalance().compareTo(valueOf(MIN_AVAILABLE_CNY_TO_OP)) == 1) {
 
                 amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN);
+                logger.info("About to order BID price [" + ticker.getBid() + "] last ask was [" + lastBid + "] amount [" + amount + "]");
                 lastBid = ticker.getBid();
 
             } else if (type == OrderType.ASK
@@ -132,6 +149,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
                     && traderAgent.getBitCoinBalance().compareTo(valueOf(MIN_AVAILABLE_BTC_TO_OP)) == 1) {
 
                 amount = traderAgent.getBitCoinBalance();
+                logger.info("About to order ASK price [" + ticker.getAsk() + "] last ask was [" + lastAsk + "] amount [" + amount + "]");
                 lastAsk = ticker.getAsk();
 
             } else {
@@ -151,6 +169,9 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             } else if (shortEMA.compareTo(bigDecimal) == -1) {
                 highers++;
             }
+        }
+        if (isLinear()) {
+            return null;
         }
         if (highers > lowers) {
             return OrderType.ASK;
@@ -184,7 +205,7 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
             shortEMA = ticker.getLast();
         } else {
             shortEMA = ticker.getLast().multiply(expShortEMA).add(shortEMA.multiply(valueOf(1).subtract(expShortEMA)));
-            if (historicShortEMA.size() == 5) {
+            if (historicShortEMA.size() == MAX_HISTORIC_SHORT_EMA) {
                 historicShortEMA.removeLast();
             }
             historicShortEMA.addFirst(shortEMA);
@@ -193,14 +214,48 @@ public class AdvancedStrategy extends TradingStrategyMonitorDecorator {
         previousTicker = ticker;
     }
 
-    public int getTime() {
-        return time;
-    }
-
     @Override
     protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
             logOrder(ticker, bitCoinsToBuy, orderType);
         }
+    }
+
+    private void checkDeadLimitOrders() {
+        if (limitOrdersCount < CHECK_DEAD_ORDERS_FREQ) {
+            limitOrdersCount++;
+            return;
+        }
+        limitOrdersCount = 0;
+        OpenOrders openOrders = traderAgent.getOpenOrders();
+        if (openOrders == null || openOrders.getOpenOrders() == null || openOrders.getOpenOrders().size() == 0) {
+            return;
+        }
+        Date time = new Date();
+        for (LimitOrder limitOrder : openOrders.getOpenOrders()) {
+            int timeSincePlaced = (int) (time.getTime() - limitOrder.getTimestamp().getTime());
+            int minutesSincePlacedLimit = timeSincePlaced / 60 / 1000;
+            if (minutesSincePlacedLimit > MAX_MINUTES_ORDER_TO_PROCESSED) {
+                boolean cancelled = traderAgent.cancelLimitOrder(limitOrder);
+                logger.info("Limit placed [" + minutesSincePlacedLimit + "] mins ago, cancelled [" + cancelled + "] limit [" + limitOrder);
+            } else {
+                logger.debug("Limit placed [" + minutesSincePlacedLimit + "] mins ago, on time, limit [" + limitOrder);
+            }
+        }
+    }
+
+    private boolean isLinear() {
+        int plain = 0;
+        List<BigDecimal> list = new ArrayList<BigDecimal>(historicShortEMA);
+        for (int i = 0; i < historicShortEMA.size() - 1; i++) {
+            if (list.get(i).subtract(list.get(i + 1)).abs().compareTo(PLAIN_EMA_THRESHOLD) != 1) {
+                plain++;
+            }
+        }
+        if (plain > MAX_HISTORIC_SHORT_EMA / 2 + 1) {
+            logger.info("plain price, not ordering");
+            return true;
+        }
+        return false;
     }
 }

@@ -118,9 +118,10 @@ public class StrategyTestHelper {
     private static BigDecimal runTest(TraderAgent testerAgent, TradingStrategyProvider strategyProvider) {
         BigDecimal lastAsk = null;
         Ticker ticker = testerAgent.pollTicker();
+        lastAsk= ticker.getAsk();
         while(ticker != null) {
             strategyProvider.getTradingStrategy().onTickerReceived(ticker);
-            lastAsk = ticker.getAsk();
+            //lastAsk = ticker.getAsk();
             ticker = testerAgent.pollTicker();
         }
         return lastAsk;
@@ -132,7 +133,7 @@ public class StrategyTestHelper {
             strategyProvider.getTradingStrategy().onTickerReceived(ticker);
             lastAsk = ticker.getAsk();
             plotting.getPlottingDataProvider().add(
-                    ticker.getLast(),
+                    ticker.getBid(),
                     ticker.getAsk(),
                     ((AdvancedStrategy)strategyProvider.getStrategy()).getShortEMA(),
                     ((AdvancedStrategy)strategyProvider.getStrategy()).getLongEMA(),
@@ -146,8 +147,8 @@ public class StrategyTestHelper {
     public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent,
                                                TestStrategyProvider strategyProvider, Plotting plotting) {
         //setup
-        BigDecimal cny = BigDecimal.valueOf(200);
-        BigDecimal btc = BigDecimal.valueOf(4);
+        BigDecimal cny = BigDecimal.valueOf(40);
+        BigDecimal btc = BigDecimal.valueOf(0.01);
         testerAgent.setBalance(cny, btc);
         testerAgent.setDataRange(indexes);
 
