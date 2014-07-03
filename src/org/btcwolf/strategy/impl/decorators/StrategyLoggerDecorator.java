@@ -64,10 +64,10 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     void logStatus() {
         logger.debug(
                 "BTC Balance[" + traderAgent.getBitCoinBalance() +
-                        "] CNY Balance[" + traderAgent.getCurrencyBalance() +
-                        "]" + " Open Orders[" + traderAgent.getOpenOrders().toString() + "].");
+                "] CNY Balance[" + traderAgent.getCurrencyBalance() +
+                "]" + " Open Orders[" + traderAgent.getOpenOrders().toString() +
+                "].");
     }
-
 
     protected void logOrder(BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult) {
         logger.info("Ordered " + orderType.toString() + " [ " + bitCoinsToBuy + "]CNY, result [" + orderResult + "]CNY");

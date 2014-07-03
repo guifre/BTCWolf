@@ -56,43 +56,10 @@ public class Plotting  extends Application {
                 plottingDataProvider.getOpsA()
 
         );
-
-//        final ScatterChart sc = new ScatterChart<Number,Number>(xAxis,yAxis);
-//        sc.getData().addAll(plottingDataProvider.getOps());
-//
-//        sc.setLegendVisible(false);
-//        sc.setAnimated(false);
-//
-//        lineChart.setLegendVisible(false);
-//        lineChart.setAnimated(false);
-//
-//        configureOverlayChart(sc);
-//        configureOverlayChart(lineChart);
-//
-//        StackPane stackpane = new StackPane();
-//        stackpane.getChildren().add(sc);
-//        stackpane.getChildren().add(lineChart);
-
-        Scene scene = new Scene(lineChart, 1200, 1000);
-
+        Scene scene = new Scene(lineChart, 800, 800);
         stage.setScene(scene);
         stage.show();
 
-    }
-    private void configureOverlayChart(final XYChart chart) {
-        chart.setAlternativeRowFillVisible(false);
-        chart.setAlternativeColumnFillVisible(false);
-        chart.setHorizontalGridLinesVisible(false);
-        chart.setVerticalGridLinesVisible(false);
-        chart.getXAxis().setVisible(false);
-        chart.getYAxis().setVisible(false);
-
-        chart.getStylesheets().addAll(".chart-plot-background { \n" +
-                "  -fx-background-color: transparent; \n" +
-                "}\n" +
-                ".default-color0.chart-series-line { \n" +
-                "  -fx-stroke: forestgreen; \n" +
-                "}");
     }
     public static void main(String[] args) {
         launch(args);

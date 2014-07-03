@@ -132,7 +132,7 @@ public class StrategyTestHelper {
             strategyProvider.getTradingStrategy().onTickerReceived(ticker);
             lastAsk = ticker.getAsk();
             plotting.getPlottingDataProvider().add(
-                    ticker.getBid(),
+                    ticker.getLast(),
                     ticker.getAsk(),
                     ((AdvancedStrategy)strategyProvider.getStrategy()).getShortEMA(),
                     ((AdvancedStrategy)strategyProvider.getStrategy()).getLongEMA(),
