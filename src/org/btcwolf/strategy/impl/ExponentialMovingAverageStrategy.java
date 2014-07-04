@@ -34,12 +34,12 @@ import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
 public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 60; //about 2h
-    private static final int MIN_TICKERS = 30; //about 16 mins
+    private static final int MAX_TICKERS = 100; //about 2h
+    private static final int MIN_TICKERS = 60; //about 16 mins
 
     private static final int MIN_TICKERS_BETWEEN_ORDERS = 25;
 
-    private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(0.0002);
+    private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(1);
 
     private static final int CHECK_DEAD_ORDERS_FREQ = 10; // every 10 tickers check hard limits
     private static final int MAX_MINUTES_ORDER_TO_PROCESSED = 10;
@@ -48,7 +48,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     private static final double MIN_AVAILABLE_CNY_TO_OP = 0.1;
 
     private static final int MAX_HISTORIC_SHORT_EMA = 5; // determines orderType
-    private static final BigDecimal PLAIN_EMA_THRESHOLD = valueOf(0.05); // threshold for unchanged EMA
+    private static final BigDecimal PLAIN_EMA_THRESHOLD = valueOf(0.03); // threshold for unchanged EMA
 
     private final Deque<Ticker> tickers;
     private final int minTickers;
@@ -129,7 +129,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         if (shortEMA == null || longEMA == null) {
             return;
         }
-        if (shortEMA.subtract(longEMA).abs().compareTo(MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP) == 1
+        if (shortEMA.subtract(longEMA).abs().compareTo(MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP) == -1
                 && lastOpTime > MIN_TICKERS_BETWEEN_ORDERS) {
 
             lastOpTime = 0;
