@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.helpers.StrategyTestHelper;
-import org.btcwolf.helpers.TestStrategyProvider;
+import org.btcwolf.helpers.TestStrategyFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -46,11 +46,11 @@ public class TurtleTradingStrategyTest {
                 for (int l = 0; l < 10; l++) {
                     int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
 
-                    TestStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
-                    strategyProviderWithSwitch.geTurtleStrategy(testerAgent, turtleSpeed, amount);
+                    TestStrategyFactory strategyProviderWithSwitch = new TestStrategyFactory(testerAgent, true);
+                    strategyProviderWithSwitch.buildTurtleStrategy(testerAgent, turtleSpeed, amount);
 
-                    TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-                    strategyProvider.geTurtleStrategy(testerAgent, 2, 4);
+                    TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+                    strategyProvider.buildTurtleStrategy(testerAgent, 2, 4);
 
                     StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProviderWithSwitch);
                     StrategyTestHelper.runTurtleTest(turtleSpeed, indexes, amount, testerAgent, strategyProvider);
@@ -66,11 +66,11 @@ public class TurtleTradingStrategyTest {
         for (int l = 0; l < 20; l++) {
             int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
 
-            TestStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
-            strategyProviderWithSwitch.getDefaultTurtleStrategy(testerAgent);
+            TestStrategyFactory strategyProviderWithSwitch = new TestStrategyFactory(testerAgent, true);
+            strategyProviderWithSwitch.buildTurtleStrategy(testerAgent);
 
-            TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-            strategyProvider.getDefaultTurtleStrategy(testerAgent);
+            TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+            strategyProvider.buildTurtleStrategy(testerAgent);
 
             StrategyTestHelper.runTurtleTest(4, indexes, 2, testerAgent, strategyProviderWithSwitch);
             StrategyTestHelper.runTurtleTest(4, indexes, 2, testerAgent, strategyProvider);

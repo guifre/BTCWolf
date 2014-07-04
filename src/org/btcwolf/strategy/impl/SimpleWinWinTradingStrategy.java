@@ -22,7 +22,7 @@ import com.xeiam.xchange.dto.marketdata.Trade;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.SettingsProvider;
-import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.strategy.TradingStrategyFactory;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
@@ -46,16 +46,16 @@ public class SimpleWinWinTradingStrategy extends TradingStrategyMonitorDecorator
     private BigDecimal opThreshold;
     private BigDecimal previousPriceUsed;
 
-    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider,
+    public SimpleWinWinTradingStrategy(TradingStrategyFactory tradingStrategyFactory,
                                        TraderAgent traderAgent, boolean useTwitterAgent) {
-        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
+        super(tradingStrategyFactory, traderAgent, useTwitterAgent);
         getThreshold();
         processHistoricOrders();
     }
 
-    public SimpleWinWinTradingStrategy(TradingStrategyProvider tradingStrategyProvider,
+    public SimpleWinWinTradingStrategy(TradingStrategyFactory tradingStrategyFactory,
                                        TraderAgent traderAgent, BigDecimal opThreshold, boolean useTwitterAgent) {
-        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
+        super(tradingStrategyFactory, traderAgent, useTwitterAgent);
         this.opThreshold = opThreshold;
         processHistoricOrders();
     }

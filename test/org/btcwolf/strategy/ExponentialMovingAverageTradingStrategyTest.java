@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.helpers.StrategyTestHelper;
-import org.btcwolf.helpers.TestStrategyProvider;
+import org.btcwolf.helpers.TestStrategyFactory;
 import org.btcwolf.persistance.plot.Plotting;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,8 +48,8 @@ public class ExponentialMovingAverageTradingStrategyTest {
 
         for (int i = 0; i < 20; i++) {
             int[] indexes = StrategyTestHelper.getIndexes(500);
-            TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-            strategyProvider.switchToExponentialMovingAverageStrategy();
+            TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+            strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy());
             StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
         }
     }
@@ -72,8 +72,8 @@ public class ExponentialMovingAverageTradingStrategyTest {
                     continue;
                 }
                 System.out.println("min " + i + " max " + j);
-                TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-                strategyProvider.switchToExponentialMovingAverageStrategy(i, j, false);
+                TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+                strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy(i, j, false));
                 StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
             }
         }
@@ -85,18 +85,18 @@ public class ExponentialMovingAverageTradingStrategyTest {
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
         int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
 
-        TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchToExponentialMovingAverageStrategy(180, 30, false);
+        TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+        strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy(180, 30, false));
         System.out.println("testing advanced strategy best 11 11 ");
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
 
-        strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchToDefaultWinWinStrategy();
+        strategyProvider = new TestStrategyFactory(testerAgent, false);
+        strategyProvider.switchStrategy(strategyProvider.buildWinWinStrategy());
         System.out.println("testing winwin strategy");
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
 
-        strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchToDefaultTurtleStrategy();
+        strategyProvider = new TestStrategyFactory(testerAgent, false);
+        strategyProvider.switchStrategy(strategyProvider.buildTurtleStrategy(testerAgent));
         System.out.println("testing turtle strategy");
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
         for (int i = 1; i < 50; i+=40) {
@@ -107,9 +107,9 @@ public class ExponentialMovingAverageTradingStrategyTest {
                 indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
 
                 System.out.println("testing ExponentialMovingAverage strategy min " + i + " max " + j);
-                 strategyProvider = new TestStrategyProvider(testerAgent, false);
-//                strategyProvider.switchToExponentialMovingAverageStrategy(i,j, false);
-                strategyProvider.switchToExponentialMovingAverageStrategy();
+                 strategyProvider = new TestStrategyFactory(testerAgent, false);
+//                strategyProvider.buildExponentialMovingAverageStrategy(i,j, false);
+                strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy());
                 StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
             }
         }
@@ -132,8 +132,8 @@ public class ExponentialMovingAverageTradingStrategyTest {
                 message = "ExponentialMovingAverage str OnlyWin " + onlyWin + " indexes from " + indexes[0] + " to " + indexes[1] + " ";
             }
             System.out.print(message);
-            TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-            strategyProvider.switchToExponentialMovingAverageStrategy(30, 160, onlyWin);
+            TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+            strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy(30, 160, onlyWin));
             StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
         }
     }
@@ -145,8 +145,8 @@ public class ExponentialMovingAverageTradingStrategyTest {
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0), plotting);
         int[] indexes = StrategyTestHelper.getIndexes(1500, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
         System.out.println("init " + indexes[0] + " end "  + indexes[1] + " total " + maxIndex);
-        TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-        strategyProvider.switchToExponentialMovingAverageStrategy();
+        TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+        strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy());
         StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider, plotting);
 
         Thread thread = new Thread(new Runnable() {

@@ -20,7 +20,7 @@ package org.btcwolf.helpers;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.persistance.plot.Plotting;
-import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.strategy.TradingStrategyFactory;
 import org.btcwolf.strategy.impl.ExponentialMovingAverageStrategy;
 
 import java.math.BigDecimal;
@@ -30,7 +30,7 @@ import java.util.Random;
 public class StrategyTestHelper {
 
     public static void runTurtleTest(int turtleSpeed, int[] indexes, int amount,
-                                     MarketExchangeAgent testerAgent, TestStrategyProvider strategyProvider) {
+                                     MarketExchangeAgent testerAgent, TestStrategyFactory strategyProvider) {
 
         //setup
         BigDecimal cny = BigDecimal.valueOf(0);
@@ -59,11 +59,11 @@ public class StrategyTestHelper {
                 " profit [" + String.format("%.6f", profit) + "] [" +
                 String.format("%.1f", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
                 " index [" + indexes[0] + "-" + indexes[1] + "] dynamic [" + strategyProvider.isSwitchStrategy() +
-                "] strategy [" + strategyProvider.getStrategy().getClass().getName() + "]");
+                "] strategy [" + strategyProvider.getTradingStrategy().getClass().getName() + "]");
     }
 
     public static void runWinWinTest(int opThreshold, int[] indexes,
-                                     MarketExchangeAgent testerAgent, TestStrategyProvider strategyProvider) {
+                                     MarketExchangeAgent testerAgent, TestStrategyFactory strategyProvider) {
 
         //setup
         BigDecimal cny = BigDecimal.valueOf(0);
@@ -115,7 +115,7 @@ public class StrategyTestHelper {
         return new int[] {s, f};
     }
 
-    private static BigDecimal runTest(TraderAgent testerAgent, TradingStrategyProvider strategyProvider) {
+    private static BigDecimal runTest(TraderAgent testerAgent, TradingStrategyFactory strategyProvider) {
         BigDecimal lastAsk = null;
         Ticker ticker = testerAgent.pollTicker();
         lastAsk= ticker.getAsk();
@@ -126,7 +126,7 @@ public class StrategyTestHelper {
         }
         return lastAsk;
     }
-    private static BigDecimal runTest(TraderAgent testerAgent, TradingStrategyProvider strategyProvider, Plotting plotting) {
+    private static BigDecimal runTest(TraderAgent testerAgent, TradingStrategyFactory strategyProvider, Plotting plotting) {
         BigDecimal lastAsk = null;
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {
@@ -135,9 +135,9 @@ public class StrategyTestHelper {
             plotting.getPlottingDataProvider().add(
                     ticker.getBid(),
                     ticker.getAsk(),
-                    ((ExponentialMovingAverageStrategy)strategyProvider.getStrategy()).getShortEMA(),
-                    ((ExponentialMovingAverageStrategy)strategyProvider.getStrategy()).getLongEMA(),
-                    ((ExponentialMovingAverageStrategy)strategyProvider.getStrategy()).getTime()
+                    ((ExponentialMovingAverageStrategy)strategyProvider.getTradingStrategy()).getShortEMA(),
+                    ((ExponentialMovingAverageStrategy)strategyProvider.getTradingStrategy()).getLongEMA(),
+                    ((ExponentialMovingAverageStrategy)strategyProvider.getTradingStrategy()).getTime()
             );
             ticker = testerAgent.pollTicker();
         }
@@ -145,7 +145,7 @@ public class StrategyTestHelper {
     }
 
     public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent,
-                                               TestStrategyProvider strategyProvider, Plotting plotting) {
+                                               TestStrategyFactory strategyProvider, Plotting plotting) {
         //setup
         BigDecimal cny = BigDecimal.valueOf(40);
         BigDecimal btc = BigDecimal.valueOf(0.01);
@@ -175,7 +175,7 @@ public class StrategyTestHelper {
     }
 
     public static void runAdvancedStrategyTest(int[] indexes, MarketExchangeAgent testerAgent,
-                                               TestStrategyProvider strategyProvider) {
+                                               TestStrategyFactory strategyProvider) {
         //setup
         BigDecimal cny = BigDecimal.valueOf(200);
         BigDecimal btc = BigDecimal.valueOf(4);

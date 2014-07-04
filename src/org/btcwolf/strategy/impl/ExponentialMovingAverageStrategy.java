@@ -21,7 +21,7 @@ import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.strategy.TradingStrategyFactory;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
@@ -34,7 +34,7 @@ import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
 public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 120; //about 2h
+    private static final int MAX_TICKERS = 60; //about 2h
     private static final int MIN_TICKERS = 30; //about 16 mins
 
     private static final int MIN_TICKERS_BETWEEN_ORDERS = 25;
@@ -74,8 +74,8 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
 
     private int limitOrdersCount;
 
-    public ExponentialMovingAverageStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent) {
-        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
+    public ExponentialMovingAverageStrategy(TradingStrategyFactory tradingStrategyFactory, TraderAgent traderAgent, boolean useTwitterAgent) {
+        super(tradingStrategyFactory, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
         this.minTickers = MIN_TICKERS;
@@ -86,8 +86,8 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         this.limitOrdersCount = 0;
     }
 
-    public ExponentialMovingAverageStrategy(TradingStrategyProvider tradingStrategyProvider, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max, boolean onlyWin) {
-        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
+    public ExponentialMovingAverageStrategy(TradingStrategyFactory tradingStrategyFactory, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max, boolean onlyWin) {
+        super(tradingStrategyFactory, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
         this.minTickers = min;
@@ -170,7 +170,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                 highers++;
             }
         }
-        if (isLinear()) {
+        if (isLinear() || isFakeTrend()) {
             return null;
         }
         if (highers > lowers) {
@@ -256,6 +256,10 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             logger.info("plain price, not ordering");
             return true;
         }
+        return false;
+    }
+    private boolean isFakeTrend() {
+        //TODO I should test tickers from 12644 end 14144 total 31075  check that we dont op for fake trending changes
         return false;
     }
 }

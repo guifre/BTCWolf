@@ -22,7 +22,7 @@ import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.strategy.TradingStrategyFactory;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
 
 import java.math.BigDecimal;
@@ -48,9 +48,9 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
     private final int opAmount;
 
     private int limitOrdersCount;
-    public TurtleTradingStrategy(TradingStrategyProvider tradingStrategyProvider,
+    public TurtleTradingStrategy(TradingStrategyFactory tradingStrategyFactory,
                                  TraderAgent traderAgent, int turtleSpeed, int opAmount, boolean useTwitterAgent) {
-        super(tradingStrategyProvider, traderAgent, useTwitterAgent);
+        super(tradingStrategyFactory, traderAgent, useTwitterAgent);
         this.turtleSpeed = turtleSpeed;
         this.opAmount = opAmount;
         this.historicData = new LinkedList<Ticker>();

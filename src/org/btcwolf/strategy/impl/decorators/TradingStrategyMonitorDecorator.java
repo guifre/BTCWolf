@@ -4,7 +4,7 @@ import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.strategy.TradingStrategyFactory;
 import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
 import java.math.BigDecimal;
@@ -14,16 +14,16 @@ public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDeco
     protected static final Logger logger = Logger.getLogger(TradingStrategyMonitorDecorator.class);
 
     private final int MARKET_TREND_OP = 4;
-    private final TradingStrategyProvider tradingStrategyProvider;
+    private final TradingStrategyFactory tradingStrategyFactory;
 
     private int marketTrend;
     private BigDecimal myMoney;
     private BigDecimal lastUsedBid = BigDecimal.valueOf(0);
 
-    public TradingStrategyMonitorDecorator(TradingStrategyProvider tradingStrategyProvider,
+    public TradingStrategyMonitorDecorator(TradingStrategyFactory tradingStrategyFactory,
                                            TraderAgent traderAgent, boolean useTwitterAgent) {
         super(traderAgent, useTwitterAgent);
-        this.tradingStrategyProvider = tradingStrategyProvider;
+        this.tradingStrategyFactory = tradingStrategyFactory;
         this.marketTrend = 0;
     }
 
@@ -56,8 +56,8 @@ public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDeco
     }
 
     private void changeStrategy() {
-        if (tradingStrategyProvider.getStrategy() instanceof TurtleTradingStrategy) {
-            TurtleTradingStrategy strategy = (TurtleTradingStrategy) tradingStrategyProvider.getStrategy();
+        if (tradingStrategyFactory.getTradingStrategy() instanceof TurtleTradingStrategy) {
+            TurtleTradingStrategy strategy = (TurtleTradingStrategy) tradingStrategyFactory.getTradingStrategy();
              int newTurtleSpeed;
             int newOpAmount;
             if (marketTrend > 0) { //doing bad
@@ -77,8 +77,8 @@ public abstract class TradingStrategyMonitorDecorator extends StrategyLoggerDeco
                 newTurtleSpeed = 2;
             }
             logger.info("Switching turtle strategy to speed [" + newTurtleSpeed + "] amount [" + newOpAmount);
-            tradingStrategyProvider.switchStrategy(
-                    tradingStrategyProvider.geTurtleStrategy(
+            tradingStrategyFactory.switchStrategy(
+                    tradingStrategyFactory.buildTurtleStrategy(
                             traderAgent,
                             newTurtleSpeed,
                             newOpAmount

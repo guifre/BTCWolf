@@ -24,67 +24,43 @@ import org.btcwolf.strategy.impl.TurtleTradingStrategy;
 
 import java.math.BigDecimal;
 
-public class TradingStrategyProvider {
+public class TradingStrategyFactory {
 
     private final boolean useTwitter;
 
     private final TraderAgent traderAgent;
     private TradingStrategy strategy;
 
-    public TradingStrategyProvider(TraderAgent traderAgent, boolean useTwitter) {
+    public TradingStrategyFactory(TraderAgent traderAgent, boolean useTwitter) {
         this.traderAgent = traderAgent;
-        //this.strategy = getDefaultTurtleStrategy(traderAgent);
+        //this.strategy = buildTurtleStrategy(traderAgent);
         //this.strategy = getDefaultWinWinStrategy();
-        this.strategy = getAdvancedStrategy();
+        this.strategy = buildExponentialMovingAverageStrategy();
         this.useTwitter = useTwitter;
     }
 
-    public TradingStrategy getStrategy() {
-        return this.strategy;
-    }
-
-    protected TradingStrategy getDefaultWinWinStrategy() {
+    public TradingStrategy buildWinWinStrategy() {
         return new SimpleWinWinTradingStrategy(this, traderAgent, useTwitter);
     }
 
-    protected TradingStrategy getDefaultTurtleStrategy(TraderAgent traderAgent) {
-        return geTurtleStrategy(traderAgent, 4, 2);
+    public TradingStrategy buildTurtleStrategy(TraderAgent traderAgent) {
+        return buildTurtleStrategy(traderAgent, 4, 2);
     }
 
-    public TradingStrategy geTurtleStrategy(TraderAgent traderAgent, int turtleSpeed, int amountToSell) {
-        return  new TurtleTradingStrategy(
-                this,
-                traderAgent,
-                turtleSpeed,
-                amountToSell,
-                useTwitter
-        );
+    public TradingStrategy buildTurtleStrategy(TraderAgent traderAgent, int turtleSpeed, int amountToSell) {
+        return  new TurtleTradingStrategy(  this, traderAgent,  turtleSpeed,  amountToSell, useTwitter);
     }
 
-    public TradingStrategy getWinWinStrategy(BigDecimal opThreshold) {
+    public TradingStrategy buildTestingWinWinStrategy(BigDecimal opThreshold) {
         return  new SimpleWinWinTradingStrategy(this, traderAgent, opThreshold, useTwitter);
     }
 
-    public TradingStrategy getAdvancedStrategy() {
+    public TradingStrategy buildExponentialMovingAverageStrategy() {
         return new ExponentialMovingAverageStrategy(this, traderAgent, useTwitter);
     }
-    public TradingStrategy getExponentialMovingAverageStrategy(int min, int max, boolean onlyWin) {
+
+    public TradingStrategy buildExponentialMovingAverageStrategy(int min, int max, boolean onlyWin) {
         return new ExponentialMovingAverageStrategy(this, traderAgent, useTwitter, min, max, onlyWin);
-    }
-
-    public void switchToDefaultTurtleStrategy() {
-        this.strategy = getDefaultTurtleStrategy(traderAgent);
-    }
-
-    public void switchToDefaultWinWinStrategy() {
-        this.strategy = getDefaultWinWinStrategy();
-    }
-
-    public void switchToExponentialMovingAverageStrategy() {
-        this.strategy = getAdvancedStrategy();
-    }
-    public void switchToExponentialMovingAverageStrategy(int min, int max, boolean onlyWin) {
-        this.strategy = getExponentialMovingAverageStrategy(min, max, onlyWin);
     }
 
     public void switchStrategy(TradingStrategy tradingStrategy) {

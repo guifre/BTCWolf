@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.agent.AgentsFactory;
 import org.btcwolf.agent.TraderAgent;
-import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.strategy.TradingStrategyFactory;
 
 public class BTCWolf {
 
@@ -35,13 +35,13 @@ public class BTCWolf {
         PropertyConfigurator.configure(LOG4J_PATH);
 
         TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
-        TradingStrategyProvider tradingStrategyProvider = new TradingStrategyProvider(traderAgent, true);
+        TradingStrategyFactory tradingStrategyFactory = new TradingStrategyFactory(traderAgent, true);
 
         Ticker previousTicker = traderAgent.pollTicker();
         while(true) {
             Ticker ticker = traderAgent.pollTicker();
             if (!isSameTicker(previousTicker, ticker)) {
-                tradingStrategyProvider.getStrategy().onTickerReceived(ticker);
+                tradingStrategyFactory.getTradingStrategy().onTickerReceived(ticker);
                 previousTicker = ticker;
             } else {
                 LOGGER.debug("discarding new [" + ticker + "]");

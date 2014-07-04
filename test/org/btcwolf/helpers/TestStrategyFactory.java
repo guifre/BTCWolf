@@ -19,13 +19,13 @@ package org.btcwolf.helpers;
 
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategy;
-import org.btcwolf.strategy.TradingStrategyProvider;
+import org.btcwolf.strategy.TradingStrategyFactory;
 
-public class TestStrategyProvider extends TradingStrategyProvider {
+public class TestStrategyFactory extends TradingStrategyFactory {
 
     private boolean switchStrategy;
 
-    public TestStrategyProvider(TraderAgent traderAgent, boolean switchStrategy) {
+    public TestStrategyFactory(TraderAgent traderAgent, boolean switchStrategy) {
         super(traderAgent, false);
         this.switchStrategy = switchStrategy;
     }

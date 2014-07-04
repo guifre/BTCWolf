@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.helpers.StrategyTestHelper;
-import org.btcwolf.helpers.TestStrategyProvider;
+import org.btcwolf.helpers.TestStrategyFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -45,11 +45,11 @@ public class SimpleWinWInTradingStrategyTest {
             for (int l = 0; l < 10; l++) {
                 int[] indexes = StrategyTestHelper.getIndexes(maxIndex);
 
-                TestStrategyProvider strategyProviderWithSwitch = new TestStrategyProvider(testerAgent, true);
-                strategyProviderWithSwitch.getWinWinStrategy( BigDecimal.valueOf(opThreshold));
+                TestStrategyFactory strategyProviderWithSwitch = new TestStrategyFactory(testerAgent, true);
+                strategyProviderWithSwitch.buildTestingWinWinStrategy(BigDecimal.valueOf(opThreshold));
 
-                TestStrategyProvider strategyProvider = new TestStrategyProvider(testerAgent, false);
-                strategyProviderWithSwitch.getWinWinStrategy(BigDecimal.valueOf(opThreshold));
+                TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+                strategyProviderWithSwitch.buildTestingWinWinStrategy(BigDecimal.valueOf(opThreshold));
 
                 StrategyTestHelper.runWinWinTest(opThreshold, indexes, testerAgent, strategyProviderWithSwitch);
                 StrategyTestHelper.runWinWinTest(opThreshold, indexes, testerAgent, strategyProvider);
