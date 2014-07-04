@@ -1,6 +1,7 @@
 What's BTCWolf?
 -------------
 BTCWolf a simple automated trader agent for the bitCoin exchange market. I is aimed at monitoring the bitCoin market to automatically take trade decisions and raise the user's capital. It relies on the xchange library so it can be used for any exchanger website.
+![BTCWolf](https://raw.githubusercontent.com/guifre/BTCWolf/master/resources/screenshot.png)
 
 You can see real time trades of my BTCWolf instance in its twitter at https://twitter.com/btcwolfbot
 
