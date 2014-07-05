@@ -48,6 +48,21 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     }
 
     @Override
+    protected String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
+        BigDecimal price;
+        if (orderType == Order.OrderType.ASK) {
+            price = ticker.getAsk();
+        } else {
+            price = ticker.getBid();
+        }
+        log("Ordered " + orderType.toString()
+                + " [" + String.format("%.5f", amount)
+                + "]BTC for [" + String.format("%.1f", price)
+                + "]CNY.");
+        return super.placeOrder(orderType, amount, ticker);
+    }
+
+    @Override
     public void onTickerReceived(Ticker ticker) {
         pollExchangeStatus(ticker);
     }
@@ -114,15 +129,16 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     }
 
     public  void logOrder(Ticker ticker, BigDecimal amount, Order.OrderType orderType) {
-        BigDecimal price = null;
+        BigDecimal price;
         if (orderType == Order.OrderType.ASK) {
             price = ticker.getAsk();
         } else {
             price = ticker.getBid();
         }
-        log("Ordered "+orderType.toString() +" [" +
-                String.format("%.5f", amount) + "]BTC for [" +
-                String.format("%.1f", price) + "]CNY.");
+        log("Ordered " + orderType.toString()
+                + " [" + String.format("%.5f", amount)
+                + "]BTC for [" + String.format("%.1f", price)
+                + "]CNY.");
     }
 
     void log(String message) {

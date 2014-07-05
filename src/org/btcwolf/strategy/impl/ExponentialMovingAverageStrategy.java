@@ -133,7 +133,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                 && lastOpTime > MIN_TICKERS_BETWEEN_ORDERS) {
 
             lastOpTime = 0;
-            OrderType type = getOrderType();
+            OrderType type = getOrderType(ticker);
             BigDecimal amount;
 
             if (type == OrderType.BID
@@ -160,7 +160,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         }
     }
 
-    private OrderType getOrderType() {
+    private OrderType getOrderType(Ticker ticker) {
         int highers = 0;
         int lowers = 0;
         for (BigDecimal bigDecimal : historicShortEMA) {
@@ -170,14 +170,17 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                 highers++;
             }
         }
-        if (isLinear() || isFakeTrend()) {
+
+        if (isLinear(ticker) || isFakeTrend()) {
             return null;
         }
+
         if (highers > lowers) {
             return OrderType.ASK;
         } else if (lowers > highers){
             return OrderType.BID;
         }
+
         return null;
     }
 
@@ -244,7 +247,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         }
     }
 
-    private boolean isLinear() {
+    private boolean isLinear(Ticker ticker) {
         int plain = 0;
         List<BigDecimal> list = new ArrayList<BigDecimal>(historicShortEMA);
         for (int i = 0; i < historicShortEMA.size() - 1; i++) {
@@ -253,7 +256,11 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             }
         }
         if (plain > MAX_HISTORIC_SHORT_EMA / 2 + 1) {
-            logger.info("plain price, not ordering");
+            String msg = "";
+            for (BigDecimal oldEMA : historicShortEMA) {
+                msg = msg.concat(String.format("%.1f", oldEMA));
+            }
+            logger.info("Plain Price old EMA [" + msg + "] ticker " + ticker);
             return true;
         }
         return false;

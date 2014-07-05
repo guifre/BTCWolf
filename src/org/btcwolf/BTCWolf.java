@@ -28,7 +28,7 @@ public class BTCWolf {
 
     private static final Logger LOGGER = Logger.getLogger(BTCWolf.class);
     private static final String LOG4J_PATH = "./resources/log4j.properties";
-    private static final long POLLING_TIME = 6000;
+    private static final long POLLING_TIME = 10000;
 
     public static void main(String[] args) {
 
@@ -44,7 +44,7 @@ public class BTCWolf {
                 tradingStrategyFactory.getTradingStrategy().onTickerReceived(ticker);
                 previousTicker = ticker;
             } else {
-                LOGGER.debug("discarding new [" + ticker + "]");
+                LOGGER.debug("discarding ticker");
             }
             makeSomeCoffee();
         }
@@ -52,8 +52,8 @@ public class BTCWolf {
 
     private static boolean isSameTicker(Ticker previousTicker, Ticker ticker) {
         return previousTicker.getBid().compareTo(ticker.getBid()) == 0 &&
-                previousTicker.getVolume().compareTo(ticker.getVolume()) == 0 &&
-                previousTicker.getLast().compareTo(ticker.getLast()) == 0 &&
+                 //previousTicker.getVolume().compareTo(ticker.getVolume()) == 0 &&
+                 //previousTicker.getLast().compareTo(ticker.getLast()) == 0 &&
                 previousTicker.getAsk().compareTo(ticker.getAsk()) == 0;
     }
 
