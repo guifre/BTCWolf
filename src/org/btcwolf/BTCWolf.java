@@ -28,7 +28,7 @@ public class BTCWolf {
 
     private static final Logger LOGGER = Logger.getLogger(BTCWolf.class);
     private static final String LOG4J_PATH = "./resources/log4j.properties";
-    private static final long POLLING_TIME = 24000;
+    private static final long POLLING_TIME = 6000;
 
     public static void main(String[] args) {
 
