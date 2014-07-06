@@ -71,12 +71,12 @@ public abstract class AbstractAgent implements TraderAgent {
     public String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
-                throw new RuntimeException("found potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
+                throw new RuntimeException("Detected potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
             }
         } catch (IOException e) {
             //
         }
-        logger.info("placing order " + orderType + " amount " + amount + "currency" + currencyPair + "limit price " + ticker.getAsk());
+        logger.info("Placing order [" + orderType + "] amount [" + amount + "] currency [" + currencyPair + "] limit price [" + ticker.getAsk() + "]");
         if (ASK.equals(orderType)) {
                 return attemptPlaceOrder(orderType, amount, ticker.getAsk(), 0);
         } else if (BID.equals(orderType)) {
@@ -178,9 +178,6 @@ public abstract class AbstractAgent implements TraderAgent {
                     new LimitOrder(orderType, amount, currencyPair, "0", new Date(), price));
         } catch (Exception e) {
             logger.warn("oops attempt "  + attempt + " " + e.getMessage() + " " + e.toString());
-            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-                //logger.warn(stackTraceElement.toString());
-            }
             return attemptPlaceOrder(orderType, amount, price, attempt + 1);
         }
     }
@@ -193,9 +190,6 @@ public abstract class AbstractAgent implements TraderAgent {
             return exchange.getPollingTradeService().cancelOrder(limitOrder.getId());
         } catch (Exception e) {
             logger.warn("oops attempt "  + attempt + " " + e.getMessage() + " " + e.toString());
-            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
-                //logger.warn(stackTraceElement.toString());
-            }
             return attemptCancelLimit(limitOrder, attempt + 1);
         }
     }

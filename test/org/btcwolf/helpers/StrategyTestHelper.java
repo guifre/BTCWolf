@@ -170,7 +170,7 @@ public class StrategyTestHelper {
         System.out.println("start$ [" + String.format("%f.4", btc.doubleValue()) + "]" +
                 " end$ [" + String.format("%f.4", finalMoney.doubleValue()) + "][" +
                 " profit [" + String.format("%f.4", profit) + "] [" +
-                String.format("%f.1", finalMoney.divide(btc, 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
+                String.format("%f.1", finalMoney.divide(btc.add(cny.divide(lastAsk, 80, BigDecimal.ROUND_HALF_EVEN)), 80, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(100))) + "]%]" +
                 " index [" + indexes[0] + "-" + indexes[1] + "] dynamic [" + strategyProvider.isSwitchStrategy() + "]");
     }
 

@@ -20,7 +20,6 @@ package org.btcwolf.strategy;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.btcwolf.helpers.MarketExchangeAgent;
 import org.btcwolf.helpers.StrategyTestHelper;
@@ -38,7 +37,7 @@ public class ExponentialMovingAverageTradingStrategyTest {
     @BeforeClass
     public static void setup() {
         PropertyConfigurator.configure(LOG4J_PATH);
-        Logger.getRootLogger().removeAllAppenders();
+        //Logger.getRootLogger().removeAllAppenders();
     }
 
     @Test
