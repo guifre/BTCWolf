@@ -171,9 +171,9 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             }
         }
 
-        if (isLinear(ticker) || isFakeTrend()) {
-            return null;
-        }
+//        if (isLinear(ticker) || isFakeTrend()) {
+//            return null;
+//        }
 
         if (highers > lowers) {
             return OrderType.ASK;
