@@ -1,6 +1,6 @@
 What's BTCWolf?
 -------------
-BTCWolf a simple automated bitcoin trading robot. I is aimed at monitoring bitcoin exchange markets to automatically take trade decisions and raise the user's capital. It supports multiple exchange markets, it comes out of the box with multiple trading strategies and a testing framework for those.
+BTCWolf a simple automated bitcoin trading robot. It is aimed at automatically take trading decisions by monitoring bitcoin exchange markets and raise the user's capital. It supports multiple exchange markets, it comes out of the box with multiple trading strategies and a testing framework for those.
 
 How BTCWolf works?
 -------------

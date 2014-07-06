@@ -39,7 +39,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
 
     private static final int MIN_TICKERS_BETWEEN_ORDERS = 25;
 
-    private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(1);
+    private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(0.8);
 
     private static final int CHECK_DEAD_ORDERS_FREQ = 10; // every 10 tickers check hard limits
     private static final int MAX_MINUTES_ORDER_TO_PROCESSED = 15;
@@ -240,9 +240,9 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             int minutesSincePlacedLimit = timeSincePlaced / 60 / 1000;
             if (minutesSincePlacedLimit > MAX_MINUTES_ORDER_TO_PROCESSED) {
                 boolean cancelled = traderAgent.cancelLimitOrder(limitOrder);
-                logger.info("Limit placed [" + minutesSincePlacedLimit + "] mins ago, cancelled [" + cancelled + "] limit [" + limitOrder);
+                logger.info("Limit placed [" + minutesSincePlacedLimit + "] mins ago, cancelled [" + cancelled + "] [" + limitOrder);
             } else {
-                logger.debug("Limit placed [" + minutesSincePlacedLimit + "] mins ago, on time, limit [" + limitOrder);
+                logger.debug("Limit placed [" + minutesSincePlacedLimit + "] mins ago, on time [" + limitOrder);
             }
         }
     }

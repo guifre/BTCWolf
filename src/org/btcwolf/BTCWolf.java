@@ -29,13 +29,14 @@ public class BTCWolf {
     private static final Logger LOGGER = Logger.getLogger(BTCWolf.class);
     private static final String LOG4J_PATH = "./resources/log4j.properties";
     private static final long POLLING_TIME = 10000;
+    private static final boolean TWITTER_AGENT = true;
 
     public static void main(String[] args) {
 
         PropertyConfigurator.configure(LOG4J_PATH);
 
         TraderAgent traderAgent = AgentsFactory.buildTraderAgent();
-        TradingStrategyFactory tradingStrategyFactory = new TradingStrategyFactory(traderAgent, true);
+        TradingStrategyFactory tradingStrategyFactory = new TradingStrategyFactory(traderAgent, TWITTER_AGENT);
 
         Ticker previousTicker = traderAgent.pollTicker();
         while(true) {

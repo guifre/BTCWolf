@@ -27,16 +27,13 @@ import java.math.BigDecimal;
 public class TradingStrategyFactory {
 
     private final boolean useTwitter;
-
     private final TraderAgent traderAgent;
     private TradingStrategy strategy;
 
     public TradingStrategyFactory(TraderAgent traderAgent, boolean useTwitter) {
-        this.traderAgent = traderAgent;
-        //this.strategy = buildTurtleStrategy(traderAgent);
-        //this.strategy = getDefaultWinWinStrategy();
-        this.strategy = buildExponentialMovingAverageStrategy();
         this.useTwitter = useTwitter;
+        this.traderAgent = traderAgent;
+        initDefaultTradingStrategy();
     }
 
     public TradingStrategy buildWinWinStrategy() {
@@ -69,5 +66,11 @@ public class TradingStrategyFactory {
 
     public TradingStrategy getTradingStrategy() {
         return this.strategy;
+    }
+
+    private void initDefaultTradingStrategy() {
+        //this.strategy = buildTurtleStrategy(traderAgent);
+        //this.strategy = getDefaultWinWinStrategy();
+        this.strategy = buildExponentialMovingAverageStrategy();
     }
 }
