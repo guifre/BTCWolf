@@ -77,7 +77,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
 
     protected void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
-            logOrder(ticker, amount, orderType);
+            logOrder(amount, orderType, orderResult);
         }
     }
 

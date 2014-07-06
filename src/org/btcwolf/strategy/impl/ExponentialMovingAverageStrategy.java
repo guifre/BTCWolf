@@ -37,7 +37,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     private static final int MAX_TICKERS = 100; //about 2h
     private static final int MIN_TICKERS = 60; //about 16 mins
 
-    private static final int MIN_TICKERS_BETWEEN_ORDERS = 25;
+    private static final int MIN_TICKERS_BETWEEN_ORDERS = 15;
 
     private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(0.8);
 
@@ -49,6 +49,8 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
 
     private static final int MAX_HISTORIC_SHORT_EMA = 5; // determines orderType
     private static final BigDecimal PLAIN_EMA_THRESHOLD = valueOf(0.03); // threshold for unchanged EMA
+
+    private final List<LimitOrder> ordersPlaced;
 
     private final Deque<Ticker> tickers;
     private final int minTickers;
@@ -78,6 +80,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         super(tradingStrategyFactory, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
+        this.ordersPlaced = new ArrayList<LimitOrder>();
         this.minTickers = MIN_TICKERS;
         this.maxTickers = MAX_TICKERS;
         this.shortEMASize = MIN_TICKERS + 1;
@@ -89,6 +92,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     public ExponentialMovingAverageStrategy(TradingStrategyFactory tradingStrategyFactory, TraderAgent traderAgent, boolean useTwitterAgent, int min, int max, boolean onlyWin) {
         super(tradingStrategyFactory, traderAgent, useTwitterAgent);
         this.tickers = new ArrayDeque<Ticker>();
+        this.ordersPlaced = new ArrayList<LimitOrder>();
         this.historicShortEMA = new ArrayDeque<BigDecimal>();
         this.minTickers = min;
         this.maxTickers = max;
@@ -220,7 +224,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     @Override
     protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
-            logOrder(ticker, bitCoinsToBuy, orderType);
+            logOrder(bitCoinsToBuy, orderType, "OK");
         }
     }
 
@@ -244,6 +248,15 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             } else {
                 logger.debug("Limit placed [" + minutesSincePlacedLimit + "] mins ago, on time [" + limitOrder);
             }
+            if (!ordersPlaced.contains(limitOrder)) {
+                ordersPlaced.add(limitOrder);
+            }
+        }
+        for (LimitOrder oldOrders : ordersPlaced) {
+            if (!openOrders.getOpenOrders().contains(oldOrders)) {
+                super.logSuccessfulOrder(oldOrders);
+                ordersPlaced.remove(oldOrders);
+            }
         }
     }
 
@@ -265,6 +278,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         }
         return false;
     }
+    
     private boolean isFakeTrend() {
         //TODO I should test tickers from 12644 end 14144 total 31075  check that we dont op for fake trending changes
         return false;

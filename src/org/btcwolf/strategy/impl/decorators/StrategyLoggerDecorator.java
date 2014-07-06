@@ -17,7 +17,6 @@
 
 package org.btcwolf.strategy.impl.decorators;
 
-import com.xeiam.xchange.dto.Order;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import org.apache.log4j.Logger;
@@ -27,6 +26,8 @@ import org.btcwolf.twitter.TwitterAgent;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import static com.xeiam.xchange.dto.Order.OrderType;
 
 public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
 
@@ -48,9 +49,9 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     }
 
     @Override
-    protected String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
+    protected String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
         BigDecimal price;
-        if (orderType == Order.OrderType.ASK) {
+        if (orderType == OrderType.ASK) {
             price = ticker.getAsk();
         } else {
             price = ticker.getBid();
@@ -67,15 +68,6 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
         pollExchangeStatus(ticker);
     }
 
-    void pollExchangeStatus(Ticker ticker) {
-        logger.debug("\nNew " + ticker);
-        if (pollingCounter > POLLING_FREQ) {
-            pollingCounter = 0;
-            logStatus();
-        }
-        pollingCounter++;
-    }
-
     void logStatus() {
         logger.debug(
                 "BTC Balance[" + traderAgent.getBitCoinBalance() +
@@ -84,7 +76,7 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
                 "].");
     }
 
-    protected void logOrder(BigDecimal bitCoinsToBuy, Order.OrderType orderType, String orderResult) {
+    protected void logOrder(BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
         logger.info("Ordered " + orderType.toString() + " [ " + bitCoinsToBuy + "]CNY, result [" + orderResult + "]CNY");
     }
 
@@ -128,20 +120,23 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
                 String.format("%.4f", opProfit) + "]CNY");
     }
 
-    public  void logOrder(Ticker ticker, BigDecimal amount, Order.OrderType orderType) {
-        BigDecimal price;
-        if (orderType == Order.OrderType.ASK) {
-            price = ticker.getAsk();
-        } else {
-            price = ticker.getBid();
-        }
-        log("Ordered " + orderType.toString()
-                + " [" + String.format("%.5f", amount)
-                + "]BTC for [" + String.format("%.1f", price)
+    protected void logSuccessfulOrder(LimitOrder order) {
+        log("Ordered " + order.toString()
+                + " [" + String.format("%.5f", order.getTradableAmount())
+                + "]BTC for [" + String.format("%.1f", order.getLimitPrice())
                 + "]CNY.");
     }
 
-    void log(String message) {
+    private void pollExchangeStatus(Ticker ticker) {
+        logger.debug("\nNew " + ticker);
+        if (pollingCounter > POLLING_FREQ) {
+            pollingCounter = 0;
+            logStatus();
+        }
+        pollingCounter++;
+    }
+
+    private void log(String message) {
         logger.info(message);
         if (twitterAgent != null) {
             twitterAgent.publish(message);
