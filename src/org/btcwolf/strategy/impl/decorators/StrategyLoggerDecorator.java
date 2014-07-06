@@ -56,10 +56,6 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
         } else {
             price = ticker.getBid();
         }
-        log("Ordered " + orderType.toString()
-                + " [" + String.format("%.5f", amount)
-                + "]BTC for [" + String.format("%.1f", price)
-                + "]CNY.");
         return super.placeOrder(orderType, amount, ticker);
     }
 

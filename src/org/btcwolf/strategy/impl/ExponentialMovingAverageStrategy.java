@@ -278,7 +278,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         }
         return false;
     }
-    
+
     private boolean isFakeTrend() {
         //TODO I should test tickers from 12644 end 14144 total 31075  check that we dont op for fake trending changes
         return false;
