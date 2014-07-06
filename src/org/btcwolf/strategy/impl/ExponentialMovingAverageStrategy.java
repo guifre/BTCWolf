@@ -42,7 +42,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(1);
 
     private static final int CHECK_DEAD_ORDERS_FREQ = 10; // every 10 tickers check hard limits
-    private static final int MAX_MINUTES_ORDER_TO_PROCESSED = 10;
+    private static final int MAX_MINUTES_ORDER_TO_PROCESSED = 15;
 
     private static final double MIN_AVAILABLE_BTC_TO_OP = 0.001;
     private static final double MIN_AVAILABLE_CNY_TO_OP = 0.1;

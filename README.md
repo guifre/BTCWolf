@@ -1,32 +1,27 @@
 What's BTCWolf?
 -------------
-BTCWolf a simple automated trader agent for the bitCoin exchange market. I is aimed at monitoring the bitCoin market to automatically take trade decisions and raise the user's capital. It relies on the xchange library so it can be used for any exchanger website.
-![BTCWolf](https://raw.githubusercontent.com/guifre/BTCWolf/master/resources/screenshot.png)
-
-You can see real time trades of my BTCWolf instance in its twitter at https://twitter.com/btcwolfbot
+BTCWolf a simple automated bitcoin trading robot. I is aimed at monitoring bitcoin exchange markets to automatically take trade decisions and raise the user's capital. It supports multiple exchange markets, it comes out of the box with multiple trading strategies and a testing framework for those.
 
 How BTCWolf works?
 -------------
-In a nutshell, its trading strategy is to sell stock when the price exceeds the one used at buying time, plus a specific threshold dynamically set by the market volatily. Likewise, it buys stock when the exchange rate decreased the one of buying time. 
+There currently are three different trading strategies implemented. The one that so fas has been more sucessful for me uses short term simple and exponential moving averages, plus other refinements, to determine when to order. The following chart has been generated with BTCWolf and shows how this strategy works.
+![BTCWolf](https://raw.githubusercontent.com/guifre/BTCWolf/master/resources/screenshot.png)
 
+You can also see real time trades of my BTCWolf instance in its twitter at https://twitter.com/btcwolfbot
 
 Why BTCWolf?
 ------------
-Due to its trading strategy, the user's capital can not decreased as a result of carrying out trading operations.
-
-Both the strategies and the exchange market are decoupled from the rest of the tool, so it is very easy to use new ones.
-
+BTCWolf provides and API to plug your own strategies, it contains thousands of historic market data, and a set of charts generators and unit tests to validate those before using them for real. 
 
 Requirements
 ------------
       - java >= 1.6
 
-
 Running BTCWolf
 ---------------------
-For security reasons, you need to specify at runtime the exchanger credentials, as follows:
+You need to set your credential in resources/settings.properties and run BTCWolf, as follows:
 
-    $ java -DAPIKey="xxxx" -DSecretKey="yyyy" -DPassword="zzzz" -jar dist/BTCWolf.jar
+    $ java -jar dist/BTCWolf.jar
 
 Bugs & Contact
 --------------

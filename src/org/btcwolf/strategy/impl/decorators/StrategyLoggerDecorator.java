@@ -37,7 +37,7 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     private TwitterAgent twitterAgent;
     private int pollingCounter;
 
-    public StrategyLoggerDecorator(TraderAgent traderAgent, boolean useTwitterAgent ) {
+    public StrategyLoggerDecorator(TraderAgent traderAgent, boolean useTwitterAgent) {
         super(traderAgent);
         this.pollingCounter = 0;
         if (useTwitterAgent) {
@@ -68,7 +68,7 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     }
 
     void pollExchangeStatus(Ticker ticker) {
-        logger.debug("\n\n New " + ticker);
+        logger.debug("\nNew " + ticker);
         if (pollingCounter > POLLING_FREQ) {
             pollingCounter = 0;
             logStatus();
@@ -145,6 +145,8 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
         logger.info(message);
         if (twitterAgent != null) {
             twitterAgent.publish(message);
+        } else {
+            logger.debug("twitter agent not activated");
         }
     }
 }
