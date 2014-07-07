@@ -45,7 +45,6 @@ public class ExponentialMovingAverageTradingStrategyTest {
 
     @Test
     public void testExponentialMovingAverageStrategy() {
-        int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
 
         for (int i = 0; i < 20; i++) {
@@ -61,13 +60,6 @@ public class ExponentialMovingAverageTradingStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
         int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex);
-        int[][] values = {
-                {10,10},
-                {10, 110},
-                {60, 10},
-                {160,160},
-                {210,210},
-        };
         for (int i = 1; i < 50; i+=10) {
             for (int j = 1; j < 100; j+=10) {
                 if (i> j) {
@@ -145,7 +137,7 @@ public class ExponentialMovingAverageTradingStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         final Plotting plotting = new Plotting();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0), plotting);
-        int[] indexes = StrategyTestHelper.getIndexes(1500, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
+        int[] indexes ={5421 , 7021};//StrategyTestHelper.getIndexes(1600, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
         System.out.println("init " + indexes[0] + " end "  + indexes[1] + " total " + maxIndex);
         TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
         strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy());

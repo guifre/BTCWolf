@@ -19,6 +19,7 @@ package org.btcwolf.helpers;
 
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
+import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.LimitOrder;
@@ -32,6 +33,7 @@ import org.btcwolf.persistance.plot.Plotting;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.xeiam.xchange.dto.Order.OrderType.ASK;
@@ -42,7 +44,7 @@ public class MarketExchangeAgent implements TraderAgent {
     private  final Logger LOGGER = Logger.getLogger(MarketExchangeAgent.class);
 
     private final List<Ticker> data;
-
+    private final List orderList;
     private int index = 0;
 
     private BigDecimal mCurrency;
@@ -69,6 +71,7 @@ public class MarketExchangeAgent implements TraderAgent {
         }
         this.startTicker = 0;
         this.finalTicker = data.size();
+        this.orderList = new ArrayList(0);
     }
 
     public void setDataRange(int[] indexes) {
@@ -88,6 +91,7 @@ public class MarketExchangeAgent implements TraderAgent {
 
     @Override
     public String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
+        orderList.clear();
         LOGGER.info("placed order [" + orderType + "] of [" + amount + "]");
         if (orderType == ASK) {
             if (amount.compareTo(mBitCoins) == 1) {
@@ -96,6 +100,7 @@ public class MarketExchangeAgent implements TraderAgent {
             }
             mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
             mBitCoins = mBitCoins.subtract(amount);
+            this.orderList.add(new LimitOrder(orderType, amount,CurrencyPair.BTC_CNY, "", new Date(), ticker.getAsk()));
             if (plotting != null) {
                 plotting.getPlottingDataProvider().addOpA(ticker.getAsk());
             }
@@ -107,6 +112,7 @@ public class MarketExchangeAgent implements TraderAgent {
             }
             mBitCoins = mBitCoins.add(amount);
             mCurrency = mCurrency.subtract(amount.multiply(ticker.getBid()));
+            this.orderList.add(new LimitOrder(orderType, amount,CurrencyPair.BTC_CNY, "", new Date(), ticker.getBid()));
             if (plotting != null) {
                 plotting.getPlottingDataProvider().addOpB(ticker.getBid());
             }
@@ -135,8 +141,12 @@ public class MarketExchangeAgent implements TraderAgent {
 
     @Override
     public OpenOrders getOpenOrders() {
-        List orderList = new ArrayList(1);
         return new OpenOrders(orderList);
+    }
+
+    @Override
+    public OrderBook getOrderBook() {
+        return new OrderBook(new Date(), new ArrayList<LimitOrder>(), new ArrayList<LimitOrder>());
     }
 
     @Override

@@ -49,6 +49,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
 
     private static final int MAX_HISTORIC_SHORT_EMA = 5; // determines orderType
     private static final BigDecimal PLAIN_EMA_THRESHOLD = valueOf(0.03); // threshold for unchanged EMA
+    private static final BigDecimal MASSIVE_EMA_INC_TO_NOT_OP = valueOf(2); // threshold for unchanged EMA
 
     private final List<LimitOrder> ordersPlaced;
 
@@ -67,8 +68,8 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     private BigDecimal longEMA;
 
     private BigDecimal lastAsk;
-
     private BigDecimal lastBid;
+
     private boolean onlyWin; // enforces only orders that will generate profit
 
     private int time;
@@ -175,9 +176,9 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             }
         }
 
-//        if (isLinear(ticker) || isFakeTrend()) {
-//            return null;
-//        }
+        if (isStillChangingToMuchToOp()) {
+            return null;
+        }
 
         if (highers > lowers) {
             return OrderType.ASK;
@@ -238,6 +239,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         if (openOrders == null || openOrders.getOpenOrders() == null || openOrders.getOpenOrders().size() == 0) {
             return;
         }
+        checkIfShouldReplaceOrdedrWithDifferentPrice(openOrders);
         Date time = new Date();
         for (LimitOrder limitOrder : openOrders.getOpenOrders()) {
             int timeSincePlaced = (int) (time.getTime() - limitOrder.getTimestamp().getTime());
@@ -260,6 +262,11 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         }
     }
 
+    private void checkIfShouldReplaceOrdedrWithDifferentPrice(OpenOrders openOrders) {
+        traderAgent.getOrderBook();
+        //TODO check if prices changed a lot and replace order
+    }
+
     private boolean isLinear(Ticker ticker) {
         int plain = 0;
         List<BigDecimal> list = new ArrayList<BigDecimal>(historicShortEMA);
@@ -279,8 +286,17 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         return false;
     }
 
-    private boolean isFakeTrend() {
-        //TODO I should test tickers from 12644 end 14144 total 31075  check that we dont op for fake trending changes
-        return false;
+    private boolean isStillChangingToMuchToOp() {
+        int massiveIncreases = 0;
+        List<BigDecimal> list = new ArrayList<BigDecimal>(historicShortEMA);
+        for (int i = 0; i < historicShortEMA.size() - 1; i++) {
+            if (list.get(i).subtract(list.get(i + 1)).abs().compareTo(MASSIVE_EMA_INC_TO_NOT_OP) == 1) {
+                massiveIncreases++;
+            }
+        }
+        if (massiveIncreases > 2) {
+            return false;
+        }
+        return true;
     }
 }

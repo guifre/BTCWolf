@@ -19,6 +19,7 @@ package org.btcwolf.agent;
 
 import com.xeiam.xchange.currency.CurrencyPair;
 import com.xeiam.xchange.dto.Order;
+import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.LimitOrder;
@@ -35,6 +36,7 @@ public interface TraderAgent {
     BigDecimal getCurrencyBalance();
     BigDecimal getBitCoinBalance();
     OpenOrders getOpenOrders();
+    OrderBook getOrderBook();
     Trades getTrades();
     CurrencyPair getCurrencyPair();
     boolean cancelLimitOrder(LimitOrder limitOrder);

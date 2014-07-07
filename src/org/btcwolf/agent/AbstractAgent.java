@@ -19,6 +19,7 @@ package org.btcwolf.agent;
 
 import com.xeiam.xchange.Exchange;
 import com.xeiam.xchange.currency.CurrencyPair;
+import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.marketdata.Trades;
 import com.xeiam.xchange.dto.trade.LimitOrder;
@@ -147,6 +148,16 @@ public abstract class AbstractAgent implements TraderAgent {
         } catch (IOException e) {
             logger.warn("oops " + e.getMessage());
             return getOpenOrders();
+        }
+    }
+
+    @Override
+    public OrderBook getOrderBook() {
+        try {
+            return this.exchange.getPollingMarketDataService().getOrderBook(currencyPair);
+        } catch (IOException e) {
+            logger.warn("oops " + e.getMessage());
+            return getOrderBook();
         }
     }
 
