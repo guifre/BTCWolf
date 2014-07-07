@@ -17,14 +17,13 @@
 
 package org.btcwolf.strategy.impl;
 
-import com.xeiam.xchange.dto.marketdata.Ticker;
 import org.apache.log4j.Logger;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategy;
 
 import java.math.BigDecimal;
 
-import static com.xeiam.xchange.dto.Order.*;
+import static com.xeiam.xchange.dto.Order.OrderType;
 
 public abstract class AbstractTradingStrategy implements TradingStrategy {
 
@@ -36,9 +35,9 @@ public abstract class AbstractTradingStrategy implements TradingStrategy {
         this.traderAgent = traderAgent;
     }
 
-    protected abstract void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult);
+    protected abstract void onOrdered(BigDecimal price, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult);
 
-    protected String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
-        return traderAgent.placeOrder(orderType, amount, ticker);
+    protected String placeOrder(OrderType orderType, BigDecimal amount, BigDecimal price) {
+        return traderAgent.placeOrder(orderType, amount, price);
     }
 }

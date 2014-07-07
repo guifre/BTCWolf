@@ -229,7 +229,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     }
 
     @Override
-    protected void onOrdered(Ticker ticker, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
+    protected void onOrdered(BigDecimal price, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
             logOrder(bitCoinsToBuy, orderType, "OK");
         }

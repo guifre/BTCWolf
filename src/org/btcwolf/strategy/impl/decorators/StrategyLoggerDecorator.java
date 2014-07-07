@@ -49,14 +49,8 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     }
 
     @Override
-    protected String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
-        BigDecimal price;
-        if (orderType == OrderType.ASK) {
-            price = ticker.getAsk();
-        } else {
-            price = ticker.getBid();
-        }
-        return super.placeOrder(orderType, amount, ticker);
+    protected String placeOrder(OrderType orderType, BigDecimal amount, BigDecimal price) {
+        return super.placeOrder(orderType, amount, price);
     }
 
     @Override

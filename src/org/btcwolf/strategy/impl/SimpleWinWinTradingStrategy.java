@@ -76,22 +76,22 @@ public class SimpleWinWinTradingStrategy extends TradingStrategyMonitorDecorator
         }
     }
 
-    protected void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
+    protected void onOrdered(BigDecimal price, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
 
         if (!FAILED_ORDER.equals(orderResult)) {
-            logOrder(amount, orderType, orderResult);
+            logOrder(bitCoinsToBuy, orderType, orderResult);
 
             if (BID == orderType) {
-                BigDecimal priceDifference = previousPriceUsed.subtract(ticker.getBid());
-                BigDecimal opProfit = priceDifference.multiply(amount);
-                logBID(ticker, amount, previousPriceUsed, priceDifference, opProfit);
-                previousPriceUsed = ticker.getBid();
+                BigDecimal priceDifference = previousPriceUsed.subtract(price);
+                BigDecimal opProfit = priceDifference.multiply(bitCoinsToBuy);
+                //logBID(ticker, bitCoinsToBuy, previousPriceUsed, priceDifference, opProfit);
+                previousPriceUsed = price;
 
             } else if (ASK == orderType) {
-                BigDecimal priceDifference = ticker.getAsk().subtract(previousPriceUsed);
-                BigDecimal opProfit = priceDifference.multiply(amount);
-                logASK(ticker, amount, previousPriceUsed, priceDifference, opProfit);
-                previousPriceUsed = ticker.getAsk();
+                BigDecimal priceDifference = price.subtract(previousPriceUsed);
+                BigDecimal opProfit = priceDifference.multiply(bitCoinsToBuy);
+                //logASK(price, bitCoinsToBuy, previousPriceUsed, priceDifference, opProfit);
+                previousPriceUsed = price;
             }
         }
     }
@@ -102,7 +102,7 @@ public class SimpleWinWinTradingStrategy extends TradingStrategyMonitorDecorator
             return;
         }
         if ((ticker.getAsk().compareTo(previousPriceUsed.add(opThreshold)) == 1 && myBitCoins.compareTo(ZERO) == 1) || lostTheTrend()) {
-            placeOrder(ASK, myBitCoins, ticker); // new ask higher than the last one plus the threshold and be have money
+            placeOrder(ASK, myBitCoins, ticker.getAsk()); // new ask higher than the last one plus the threshold and be have money
         } else {
             logNotASK(ticker, previousPriceUsed, opThreshold);
         }
@@ -116,7 +116,7 @@ public class SimpleWinWinTradingStrategy extends TradingStrategyMonitorDecorator
         if (previousPriceUsed.add(opThreshold).compareTo(ticker.getBid()) == 1 && myCurrency.compareTo(ZERO) == 1 || lostTheTrend()) {
              // old price plus threshold is higher than the bid one, and be have money
             BigDecimal bitCoinsToBuy = myCurrency.divide(ticker.getBid(), 80, ROUND_DOWN);
-            placeOrder(BID, bitCoinsToBuy, ticker);
+            placeOrder(BID, bitCoinsToBuy, ticker.getBid());
         } else {
             logNotBID(ticker, previousPriceUsed, opThreshold);
         }

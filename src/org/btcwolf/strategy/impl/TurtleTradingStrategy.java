@@ -75,9 +75,10 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
         historicData.addFirst(ticker);
     }
 
-    protected void onOrdered(Ticker ticker, BigDecimal amount, OrderType orderType, String orderResult) {
+    @Override
+    protected void onOrdered(BigDecimal price, BigDecimal bitCoinsToBuy, OrderType orderType, String orderResult) {
         if (!FAILED_ORDER.equals(orderResult)) {
-            logOrder(amount, orderType, orderResult);
+            logOrder(bitCoinsToBuy, orderType, orderResult);
         }
     }
 
@@ -85,7 +86,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
         BigDecimal mBitCoins = traderAgent.getBitCoinBalance();
         if (mBitCoins.compareTo(ZERO) == 1 && shouldAsk(ticker)) {
             BigDecimal amountToSell = mBitCoins.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN);
-            placeOrder(ASK, amountToSell, ticker);
+            placeOrder(ASK, amountToSell, ticker.getAsk());
             historicData.clear();
         }
     }
@@ -94,7 +95,7 @@ public class TurtleTradingStrategy extends TradingStrategyMonitorDecorator {
         BigDecimal mCurrency = traderAgent.getCurrencyBalance();
         if (mCurrency.compareTo(ZERO) == 1 && shouldBid(ticker)) {
             BigDecimal amountToBuy = mCurrency.divide(BigDecimal.valueOf(opAmount), 80, ROUND_HALF_EVEN);
-            placeOrder(BID, amountToBuy.divide(ticker.getBid(), 80, ROUND_HALF_EVEN), ticker);
+            placeOrder(BID, amountToBuy.divide(ticker.getBid(), 80, ROUND_HALF_EVEN), ticker.getBid());
             historicData.clear();
         }
     }
