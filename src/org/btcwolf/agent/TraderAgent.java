@@ -31,7 +31,7 @@ import java.util.List;
 
 public interface TraderAgent {
     Ticker pollTicker();
-    String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker);
+    String placeOrder(Order.OrderType orderType, BigDecimal amount, BigDecimal price);
     List<Wallet> getWallets();
     BigDecimal getCurrencyBalance();
     BigDecimal getBitCoinBalance();

@@ -34,8 +34,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
-import static com.xeiam.xchange.dto.Order.OrderType.ASK;
-import static com.xeiam.xchange.dto.Order.OrderType.BID;
 
 public abstract class AbstractAgent implements TraderAgent {
 
@@ -69,7 +67,7 @@ public abstract class AbstractAgent implements TraderAgent {
     }
 
     @Override
-    public String placeOrder(OrderType orderType, BigDecimal amount, Ticker ticker) {
+    public String placeOrder(OrderType orderType, BigDecimal amount, BigDecimal price) {
         try {
             if(exchange.getPollingAccountService().getAccountInfo().getTradingFee().compareTo(BigDecimal.ZERO) == 1) {
                 throw new RuntimeException("Detected potential trading fee, bye" + exchange.getPollingAccountService().getAccountInfo().getTradingFee());
@@ -77,15 +75,8 @@ public abstract class AbstractAgent implements TraderAgent {
         } catch (IOException e) {
             //
         }
-        logger.info("Placing order [" + orderType + "] amount [" + amount + "] currency [" + currencyPair + "] limit price [" + ticker.getAsk() + "]");
-        if (ASK.equals(orderType)) {
-                return attemptPlaceOrder(orderType, amount, ticker.getAsk(), 0);
-        } else if (BID.equals(orderType)) {
-            return attemptPlaceOrder(orderType, amount, ticker.getBid(), 0);
-        } else {
-            logger.error("Could not process " + orderType);
-            return "Error. Could not process " + orderType;
-        }
+        logger.info("Placing order [" + orderType + "] amount [" + amount + "] currency [" + currencyPair + "] limit price [" + price + "]");
+        return attemptPlaceOrder(orderType, amount, price, 0);
     }
 
     @Override

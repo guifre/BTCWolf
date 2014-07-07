@@ -28,8 +28,11 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.xeiam.xchange.dto.Order.OrderType;
+import static com.xeiam.xchange.dto.Order.OrderType.ASK;
+import static com.xeiam.xchange.dto.Order.OrderType.BID;
 import static java.math.BigDecimal.ROUND_DOWN;
 import static java.math.BigDecimal.valueOf;
+import static java.math.RoundingMode.HALF_EVEN;
 import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
 public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDecorator {
@@ -47,9 +50,12 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     private static final double MIN_AVAILABLE_BTC_TO_OP = 0.001;
     private static final double MIN_AVAILABLE_CNY_TO_OP = 0.1;
 
+    private static final BigDecimal MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER = valueOf(2);
+
+
     private static final int MAX_HISTORIC_SHORT_EMA = 5; // determines orderType
     private static final BigDecimal PLAIN_EMA_THRESHOLD = valueOf(0.03); // threshold for unchanged EMA
-    private static final BigDecimal MASSIVE_EMA_INC_TO_NOT_OP = valueOf(2); // threshold for unchanged EMA
+    private static final BigDecimal MASSIVE_EMA_INC_TO_NOT_OP = valueOf(0.2); // threshold for unchanged EMA
 
     private final List<LimitOrder> ordersPlaced;
 
@@ -141,7 +147,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             OrderType type = getOrderType(ticker);
             BigDecimal amount;
 
-            if (type == OrderType.BID
+            if (type == BID
                     && (lastAsk == null || !onlyWin || lastAsk.compareTo(ticker.getBid()) == 1)
                     && traderAgent.getCurrencyBalance().compareTo(valueOf(MIN_AVAILABLE_CNY_TO_OP)) == 1) {
 
@@ -183,7 +189,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         if (highers > lowers) {
             return OrderType.ASK;
         } else if (lowers > highers){
-            return OrderType.BID;
+            return BID;
         }
 
         return null;
@@ -264,7 +270,35 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
 
     private void checkIfShouldReplaceOrdedrWithDifferentPrice(OpenOrders openOrders) {
         traderAgent.getOrderBook();
-        //TODO check if prices changed a lot and replace order
+        BigDecimal averageBidPrice = new BigDecimal(0);
+        BigDecimal averageAskPrice = new BigDecimal(0);
+        int bids = 0, asks = 0;
+
+        for (LimitOrder otherPeopleOrder : ordersPlaced) {
+            if (otherPeopleOrder.getType() == BID) {
+                averageBidPrice.add(otherPeopleOrder.getLimitPrice());
+                bids++;
+            } else if (otherPeopleOrder.getType() == ASK) {
+                averageAskPrice.add(otherPeopleOrder.getLimitPrice());
+                asks++;
+            }
+        }
+        averageAskPrice = averageAskPrice.divide(valueOf(asks), 30, HALF_EVEN);
+        averageBidPrice = averageBidPrice.divide(valueOf(bids), 30, HALF_EVEN);
+
+        for (LimitOrder myLimitOrder : ordersPlaced) {
+           if (myLimitOrder.getType() == BID) {
+               if (myLimitOrder.getLimitPrice().add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER).compareTo(averageBidPrice) == -1) {
+                   traderAgent.cancelLimitOrder(myLimitOrder);
+                   traderAgent.placeOrder(myLimitOrder.getType(), myLimitOrder.getTradableAmount(), averageBidPrice);
+               }
+           } else if (myLimitOrder.getType() == ASK) {
+               if (myLimitOrder.getLimitPrice().compareTo(averageAskPrice.add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER)) == 1) {
+                   traderAgent.cancelLimitOrder(myLimitOrder);
+                   traderAgent.placeOrder(myLimitOrder.getType(), myLimitOrder.getTradableAmount(), averageAskPrice);
+               }
+           }
+        }
     }
 
     private boolean isLinear(Ticker ticker) {
@@ -294,9 +328,9 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                 massiveIncreases++;
             }
         }
-        if (massiveIncreases > 2) {
-            return false;
+        if (massiveIncreases >= 2) {
+            return true;
         }
-        return true;
+        return false;
     }
 }
