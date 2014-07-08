@@ -90,7 +90,7 @@ public class MarketExchangeAgent implements TraderAgent {
     }
 
     @Override
-    public String placeOrder(Order.OrderType orderType, BigDecimal amount, Ticker ticker) {
+    public String placeOrder(Order.OrderType orderType, BigDecimal amount, BigDecimal price) {
         orderList.clear();
         LOGGER.info("placed order [" + orderType + "] of [" + amount + "]");
         if (orderType == ASK) {
@@ -98,23 +98,23 @@ public class MarketExchangeAgent implements TraderAgent {
                 LOGGER.info("no money to  [" + orderType + "] of [" + amount + "]");
                 return "KO";
             }
-            mCurrency = mCurrency.add(amount.multiply(ticker.getAsk()));
+            mCurrency = mCurrency.add(amount.multiply(price));
             mBitCoins = mBitCoins.subtract(amount);
-            this.orderList.add(new LimitOrder(orderType, amount,CurrencyPair.BTC_CNY, "", new Date(), ticker.getAsk()));
+            this.orderList.add(new LimitOrder(orderType, amount,CurrencyPair.BTC_CNY, "", new Date(), price));
             if (plotting != null) {
-                plotting.getPlottingDataProvider().addOpA(ticker.getAsk());
+                plotting.getPlottingDataProvider().addOpA(price);
             }
 
         } else if (orderType == BID) {
-            if (amount.multiply(ticker.getBid()).compareTo(mCurrency) == 1) {
-                LOGGER.info("ERROR no money to  [" + orderType + "] of [" + amount.multiply(ticker.getBid()) + "] only [" + mCurrency);
+            if (amount.multiply(price).compareTo(mCurrency) == 1) {
+                LOGGER.info("ERROR no money to  [" + orderType + "] of [" + amount.multiply(price) + "] only [" + mCurrency);
                 return "KO";
             }
             mBitCoins = mBitCoins.add(amount);
-            mCurrency = mCurrency.subtract(amount.multiply(ticker.getBid()));
-            this.orderList.add(new LimitOrder(orderType, amount,CurrencyPair.BTC_CNY, "", new Date(), ticker.getBid()));
+            mCurrency = mCurrency.subtract(amount.multiply(price));
+            this.orderList.add(new LimitOrder(orderType, amount,CurrencyPair.BTC_CNY, "", new Date(), price));
             if (plotting != null) {
-                plotting.getPlottingDataProvider().addOpB(ticker.getBid());
+                plotting.getPlottingDataProvider().addOpB(price);
             }
         }
         LOGGER.info("wallet of [" + mBitCoins + "]BTC and [" + mCurrency + "]CNY");

@@ -58,7 +58,7 @@ public class BTCChinaAgentTest {
     @Test
     public void testBugTrade() throws IOException {
         BTCChinaAgent agent = new BTCChinaAgent();
-        agent.placeOrder(ASK, BigDecimal.ZERO,agent.pollTicker());
+        agent.placeOrder(ASK, BigDecimal.ZERO,agent.pollTicker().getAsk());
     }
 
     @Test

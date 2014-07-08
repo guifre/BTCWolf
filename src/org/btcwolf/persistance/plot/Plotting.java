@@ -21,6 +21,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ScatterChart;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
@@ -45,7 +46,7 @@ public class Plotting  extends Application {
         final NumberAxis yAxis = new NumberAxis(plottingDataProvider.getMin(), plottingDataProvider.getMax(), 0.1);
         xAxis.setLabel("Time");
         //creating the chart
-        final LineChart<Number,Number> lineChart =  new LineChart<Number,Number>(xAxis,yAxis);
+        final ScatterChart<Number,Number> lineChart =  new ScatterChart<Number,Number>(xAxis,yAxis);
         //lineChart.setCreateSymbols(false);
         lineChart.getData().addAll(
                 plottingDataProvider.getBid(),
@@ -56,7 +57,7 @@ public class Plotting  extends Application {
                 plottingDataProvider.getOpsA()
 
         );
-        Scene scene = new Scene(lineChart, 1200, 1200);
+        Scene scene = new Scene(lineChart, 800, 800);
         stage.setScene(scene);
         stage.show();
 

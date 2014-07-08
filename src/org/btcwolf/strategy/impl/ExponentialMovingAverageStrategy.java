@@ -17,6 +17,7 @@
 
 package org.btcwolf.strategy.impl;
 
+import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
@@ -154,6 +155,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                 amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN);
                 logger.info("About to order BID price [" + ticker.getBid() + "] last ask was [" + lastBid + "] amount [" + amount + "]");
                 lastBid = ticker.getBid();
+                placeOrder(type, amount, ticker.getBid());
 
             } else if (type == OrderType.ASK
                     && (lastBid == null || !onlyWin || lastBid.compareTo(ticker.getAsk()) == -1)
@@ -162,12 +164,9 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                 amount = traderAgent.getBitCoinBalance();
                 logger.info("About to order ASK price [" + ticker.getAsk() + "] last ask was [" + lastAsk + "] amount [" + amount + "]");
                 lastAsk = ticker.getAsk();
+                placeOrder(type, amount, ticker.getAsk());
 
-            } else {
-                return;
             }
-
-            placeOrder(type, amount, ticker);
         }
     }
 
@@ -241,13 +240,13 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             return;
         }
         limitOrdersCount = 0;
-        OpenOrders openOrders = traderAgent.getOpenOrders();
-        if (openOrders == null || openOrders.getOpenOrders() == null || openOrders.getOpenOrders().size() == 0) {
+        OpenOrders myOpenOrders = traderAgent.getOpenOrders();
+        if (myOpenOrders == null || myOpenOrders.getOpenOrders() == null || myOpenOrders.getOpenOrders().size() == 0) {
             return;
         }
-        checkIfShouldReplaceOrdedrWithDifferentPrice(openOrders);
+        checkIfShouldReplaceOrderedWithDifferentPrice(myOpenOrders);
         Date time = new Date();
-        for (LimitOrder limitOrder : openOrders.getOpenOrders()) {
+        for (LimitOrder limitOrder : myOpenOrders.getOpenOrders()) {
             int timeSincePlaced = (int) (time.getTime() - limitOrder.getTimestamp().getTime());
             int minutesSincePlacedLimit = timeSincePlaced / 60 / 1000;
             if (minutesSincePlacedLimit > MAX_MINUTES_ORDER_TO_PROCESSED) {
@@ -260,42 +259,43 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                 ordersPlaced.add(limitOrder);
             }
         }
-        for (LimitOrder oldOrders : ordersPlaced) {
-            if (!openOrders.getOpenOrders().contains(oldOrders)) {
-                super.logSuccessfulOrder(oldOrders);
-                ordersPlaced.remove(oldOrders);
+        for (int orderPlacedIndex = 0; orderPlacedIndex < ordersPlaced.size(); orderPlacedIndex++) {
+            LimitOrder order = ordersPlaced.get(orderPlacedIndex);
+            if (!myOpenOrders.getOpenOrders().contains(order)) {
+                super.logSuccessfulOrder(order);
+                ordersPlaced.remove(order);
             }
         }
     }
 
-    private void checkIfShouldReplaceOrdedrWithDifferentPrice(OpenOrders openOrders) {
-        traderAgent.getOrderBook();
+    private void checkIfShouldReplaceOrderedWithDifferentPrice(OpenOrders myOpenOrders) {
+        OrderBook orderBook  = traderAgent.getOrderBook();
         BigDecimal averageBidPrice = new BigDecimal(0);
         BigDecimal averageAskPrice = new BigDecimal(0);
-        int bids = 0, asks = 0;
 
-        for (LimitOrder otherPeopleOrder : ordersPlaced) {
-            if (otherPeopleOrder.getType() == BID) {
-                averageBidPrice.add(otherPeopleOrder.getLimitPrice());
-                bids++;
-            } else if (otherPeopleOrder.getType() == ASK) {
-                averageAskPrice.add(otherPeopleOrder.getLimitPrice());
-                asks++;
-            }
+        for (LimitOrder otherPeopleOrder : orderBook.getAsks()) {
+            averageAskPrice.add(otherPeopleOrder.getLimitPrice());
         }
-        averageAskPrice = averageAskPrice.divide(valueOf(asks), 30, HALF_EVEN);
-        averageBidPrice = averageBidPrice.divide(valueOf(bids), 30, HALF_EVEN);
+        for (LimitOrder otherPeopleOrder : orderBook.getBids()) {
+            averageBidPrice.add(otherPeopleOrder.getLimitPrice());
+        }
+        if (orderBook.getAsks().size() == 0 || orderBook.getBids().size() == 0) {
+            return;
+        }
 
-        for (LimitOrder myLimitOrder : ordersPlaced) {
-           if (myLimitOrder.getType() == BID) {
-               if (myLimitOrder.getLimitPrice().add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER).compareTo(averageBidPrice) == -1) {
-                   traderAgent.cancelLimitOrder(myLimitOrder);
-                   traderAgent.placeOrder(myLimitOrder.getType(), myLimitOrder.getTradableAmount(), averageBidPrice);
+        averageAskPrice = averageAskPrice.divide(valueOf(orderBook.getAsks().size()), 30, HALF_EVEN);
+        averageBidPrice = averageBidPrice.divide(valueOf(orderBook.getAsks().size()), 30, HALF_EVEN);
+
+        for (LimitOrder myOrder : myOpenOrders.getOpenOrders()) {
+           if (myOrder.getType() == BID) {
+               if (myOrder.getLimitPrice().add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER).compareTo(averageBidPrice) == -1) {
+                   traderAgent.cancelLimitOrder(myOrder);
+                   traderAgent.placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageBidPrice);
                }
-           } else if (myLimitOrder.getType() == ASK) {
-               if (myLimitOrder.getLimitPrice().compareTo(averageAskPrice.add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER)) == 1) {
-                   traderAgent.cancelLimitOrder(myLimitOrder);
-                   traderAgent.placeOrder(myLimitOrder.getType(), myLimitOrder.getTradableAmount(), averageAskPrice);
+           } else if (myOrder.getType() == ASK) {
+               if (myOrder.getLimitPrice().compareTo(averageAskPrice.add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER)) == 1) {
+                   traderAgent.cancelLimitOrder(myOrder);
+                   traderAgent.placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageAskPrice);
                }
            }
         }
