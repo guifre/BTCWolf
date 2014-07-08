@@ -111,7 +111,7 @@ public abstract class StrategyLoggerDecorator extends AbstractTradingStrategy {
     }
 
     protected void logSuccessfulOrder(LimitOrder order) {
-        log("Ordered " + order.toString()
+        log("Ordered " + order.getType()
                 + " [" + String.format("%.5f", order.getTradableAmount())
                 + "]BTC for [" + String.format("%.1f", order.getLimitPrice())
                 + "]CNY.");
