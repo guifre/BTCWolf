@@ -137,7 +137,7 @@ public class ExponentialMovingAverageTradingStrategyTest {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         final Plotting plotting = new Plotting();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0), plotting);
-        int[] indexes = StrategyTestHelper.getIndexes(1500, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
+        int[] indexes = StrategyTestHelper.getIndexes(1000, maxIndex); //{199, 699 }, {10557, 11057};// {9389, 9689};{12202 , 12502};//
         System.out.println("init " + indexes[0] + " end "  + indexes[1] + " total " + maxIndex);
         TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
         strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy());

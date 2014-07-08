@@ -19,10 +19,8 @@ package org.btcwolf.persistance.plot;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ScatterChart;
-import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
 public class Plotting  extends Application {
@@ -57,7 +55,7 @@ public class Plotting  extends Application {
                 plottingDataProvider.getOpsA()
 
         );
-        Scene scene = new Scene(lineChart, 800, 800);
+        Scene scene = new Scene(lineChart, 1000, 1000);
         stage.setScene(scene);
         stage.show();
 

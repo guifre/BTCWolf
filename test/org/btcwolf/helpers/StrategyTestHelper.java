@@ -118,10 +118,9 @@ public class StrategyTestHelper {
     private static BigDecimal runTest(TraderAgent testerAgent, TradingStrategyFactory strategyProvider) {
         BigDecimal lastAsk = null;
         Ticker ticker = testerAgent.pollTicker();
-        lastAsk= ticker.getAsk();
         while(ticker != null) {
+            lastAsk = ticker.getAsk();
             strategyProvider.getTradingStrategy().onTickerReceived(ticker);
-            //lastAsk = ticker.getAsk();
             ticker = testerAgent.pollTicker();
         }
         return lastAsk;
@@ -130,8 +129,8 @@ public class StrategyTestHelper {
         BigDecimal lastAsk = null;
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {
-            strategyProvider.getTradingStrategy().onTickerReceived(ticker);
             lastAsk = ticker.getAsk();
+            strategyProvider.getTradingStrategy().onTickerReceived(ticker);
             plotting.getPlottingDataProvider().add(
                     ticker.getBid(),
                     ticker.getAsk(),
@@ -186,8 +185,8 @@ public class StrategyTestHelper {
         BigDecimal lastAsk = null;
         Ticker ticker = testerAgent.pollTicker();
         while(ticker != null) {
-            strategyProvider.getTradingStrategy().onTickerReceived(ticker);
             lastAsk = ticker.getAsk();
+            strategyProvider.getTradingStrategy().onTickerReceived(ticker);
             ticker = testerAgent.pollTicker();
         }
 

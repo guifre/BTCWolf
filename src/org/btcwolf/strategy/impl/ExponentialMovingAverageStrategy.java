@@ -21,6 +21,7 @@ import com.xeiam.xchange.dto.marketdata.OrderBook;
 import com.xeiam.xchange.dto.marketdata.Ticker;
 import com.xeiam.xchange.dto.trade.LimitOrder;
 import com.xeiam.xchange.dto.trade.OpenOrders;
+import org.btcwolf.BTCWolf;
 import org.btcwolf.agent.TraderAgent;
 import org.btcwolf.strategy.TradingStrategyFactory;
 import org.btcwolf.strategy.impl.decorators.TradingStrategyMonitorDecorator;
@@ -41,12 +42,14 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     private static final int MAX_TICKERS = 100; //about 2h
     private static final int MIN_TICKERS = 60; //about 16 mins
 
-    private static final int MIN_TICKERS_BETWEEN_ORDERS = 15;
+    private static final int MIN_TICKERS_BETWEEN_ORDERS = 12;
 
     private static final BigDecimal MIN_DIFFERENCE_SHORT_LONG_EMA_TO_OP = valueOf(0.8);
 
-    private static final int CHECK_DEAD_ORDERS_FREQ = 10; // every 10 tickers check hard limits
+    private static final int CHECK_DEAD_ORDERS_FREQ = 3 * (int) (BTCWolf.POLLING_TIME / 1000); //every 5 mins
     private static final int MAX_MINUTES_ORDER_TO_PROCESSED = 15;
+
+    private static final BigDecimal PERCENTAGE_OF_PRICE_TO_ADD_IN_ORDER = valueOf(0.0001);
 
     private static final double MIN_AVAILABLE_BTC_TO_OP = 0.001;
     private static final double MIN_AVAILABLE_CNY_TO_OP = 0.1;
@@ -152,19 +155,21 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                     && (lastAsk == null || !onlyWin || lastAsk.compareTo(ticker.getBid()) == 1)
                     && traderAgent.getCurrencyBalance().compareTo(valueOf(MIN_AVAILABLE_CNY_TO_OP)) == 1) {
 
-                amount = traderAgent.getCurrencyBalance().divide(ticker.getBid(), 40, ROUND_DOWN);
-                logger.info("About to order BID price [" + ticker.getBid() + "] last ask was [" + lastBid + "] amount [" + amount + "]");
-                lastBid = ticker.getBid();
-                placeOrder(type, amount, ticker.getBid());
+                BigDecimal price = ticker.getBid().add(PERCENTAGE_OF_PRICE_TO_ADD_IN_ORDER.multiply(ticker.getBid()));
+                amount = traderAgent.getCurrencyBalance().divide(price, 40, ROUND_DOWN);
+                logger.info("About to order BID price [" + price + "] last ask was [" + lastBid + "] amount [" + amount + "]");
+                lastBid = price;
+                placeOrder(type, amount, price);
 
             } else if (type == OrderType.ASK
                     && (lastBid == null || !onlyWin || lastBid.compareTo(ticker.getAsk()) == -1)
                     && traderAgent.getBitCoinBalance().compareTo(valueOf(MIN_AVAILABLE_BTC_TO_OP)) == 1) {
 
+                BigDecimal price = ticker.getAsk().subtract(PERCENTAGE_OF_PRICE_TO_ADD_IN_ORDER.multiply(ticker.getAsk()));
                 amount = traderAgent.getBitCoinBalance();
-                logger.info("About to order ASK price [" + ticker.getAsk() + "] last ask was [" + lastAsk + "] amount [" + amount + "]");
-                lastAsk = ticker.getAsk();
-                placeOrder(type, amount, ticker.getAsk());
+                logger.info("About to order ASK price [" + price + "] last ask was [" + lastAsk + "] amount [" + amount + "]");
+                lastAsk = price;
+                placeOrder(type, amount, price);
 
             }
         }
@@ -289,11 +294,13 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         for (LimitOrder myOrder : myOpenOrders.getOpenOrders()) {
            if (myOrder.getType() == BID) {
                if (myOrder.getLimitPrice().add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER).compareTo(averageBidPrice) == -1) {
+                   logger.info("Canceling limit order [" + myOrder + "] and adding new with price [" + averageBidPrice + "]");
                    traderAgent.cancelLimitOrder(myOrder);
                    traderAgent.placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageBidPrice);
                }
            } else if (myOrder.getType() == ASK) {
                if (myOrder.getLimitPrice().compareTo(averageAskPrice.add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER)) == 1) {
+                   logger.info("Canceling limit order [" + myOrder + "] and adding new with price [" + averageAskPrice + "]");
                    traderAgent.cancelLimitOrder(myOrder);
                    traderAgent.placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageAskPrice);
                }
@@ -329,6 +336,8 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
             }
         }
         if (massiveIncreases >= 2) {
+            logger.info("Determined that EMA trend is changing too much to op ["
+                    + Arrays.toString(historicShortEMA.toArray()) + "]");
             return true;
         }
         return false;

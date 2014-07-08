@@ -28,6 +28,7 @@ public class TradingStrategyFactory {
 
     private final boolean useTwitter;
     private final TraderAgent traderAgent;
+
     private TradingStrategy strategy;
 
     public TradingStrategyFactory(TraderAgent traderAgent, boolean useTwitter) {
@@ -69,8 +70,8 @@ public class TradingStrategyFactory {
     }
 
     private void initDefaultTradingStrategy() {
+        this.strategy = buildExponentialMovingAverageStrategy();
         //this.strategy = buildTurtleStrategy(traderAgent);
         //this.strategy = getDefaultWinWinStrategy();
-        this.strategy = buildExponentialMovingAverageStrategy();
     }
 }
