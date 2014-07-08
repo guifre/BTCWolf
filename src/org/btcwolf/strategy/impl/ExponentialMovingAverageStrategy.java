@@ -284,12 +284,13 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         for (LimitOrder otherPeopleOrder : orderBook.getBids()) {
             averageBidPrice.add(otherPeopleOrder.getLimitPrice());
         }
-        if (orderBook.getAsks().size() == 0 || orderBook.getBids().size() == 0) {
+        if (orderBook.getAsks().size() < 0 || orderBook.getBids().size() == 0 ||
+                averageAskPrice.doubleValue() < 0.1 || averageBidPrice.doubleValue() < 0.1) {
             return;
         }
 
         averageAskPrice = averageAskPrice.divide(valueOf(orderBook.getAsks().size()), 30, HALF_EVEN);
-        averageBidPrice = averageBidPrice.divide(valueOf(orderBook.getAsks().size()), 30, HALF_EVEN);
+        averageBidPrice = averageBidPrice.divide(valueOf(orderBook.getBids().size()), 30, HALF_EVEN);
 
         for (LimitOrder myOrder : myOpenOrders.getOpenOrders()) {
            if (myOrder.getType() == BID) {
