@@ -39,8 +39,8 @@ import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
 public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 100; //about 2h
-    private static final int MIN_TICKERS = 60; //about 16 mins
+    private static final int MAX_TICKERS = 150; //about 2h
+    private static final int MIN_TICKERS = 80; //about 16 mins
 
     private static final int MIN_TICKERS_BETWEEN_ORDERS = 12;
 
@@ -155,21 +155,21 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                     && (lastAsk == null || !onlyWin || lastAsk.compareTo(ticker.getBid()) == 1)
                     && traderAgent.getCurrencyBalance().compareTo(valueOf(MIN_AVAILABLE_CNY_TO_OP)) == 1) {
 
-                BigDecimal price = ticker.getBid().add(PERCENTAGE_OF_PRICE_TO_ADD_IN_ORDER.multiply(ticker.getBid()));
+                BigDecimal price = ticker.getBid();
                 amount = traderAgent.getCurrencyBalance().divide(price, 40, ROUND_DOWN);
                 logger.info("About to order BID price [" + price + "] last ask was [" + lastBid + "] amount [" + amount + "]");
-                lastBid = price;
                 placeOrder(type, amount, price);
+                lastBid = price;
 
-            } else if (type == OrderType.ASK
+            } else if (type == ASK
                     && (lastBid == null || !onlyWin || lastBid.compareTo(ticker.getAsk()) == -1)
                     && traderAgent.getBitCoinBalance().compareTo(valueOf(MIN_AVAILABLE_BTC_TO_OP)) == 1) {
 
-                BigDecimal price = ticker.getAsk().subtract(PERCENTAGE_OF_PRICE_TO_ADD_IN_ORDER.multiply(ticker.getAsk()));
+                BigDecimal price = ticker.getAsk();
                 amount = traderAgent.getBitCoinBalance();
                 logger.info("About to order ASK price [" + price + "] last ask was [" + lastAsk + "] amount [" + amount + "]");
-                lastAsk = price;
                 placeOrder(type, amount, price);
+                lastAsk = price;
 
             }
         }
@@ -178,10 +178,10 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
     private OrderType getOrderType(Ticker ticker) {
         int highers = 0;
         int lowers = 0;
-        for (BigDecimal bigDecimal : historicShortEMA) {
-            if (shortEMA.compareTo(bigDecimal) == 1) {
+        for (BigDecimal historicShortEMAValue : historicShortEMA) {
+            if (shortEMA.compareTo(historicShortEMAValue) == 1) {
                 lowers++;
-            } else if (shortEMA.compareTo(bigDecimal) == -1) {
+            } else if (shortEMA.compareTo(historicShortEMAValue) == -1) {
                 highers++;
             }
         }
@@ -191,7 +191,7 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
         }
 
         if (highers > lowers) {
-            return OrderType.ASK;
+            return ASK;
         } else if (lowers > highers){
             return BID;
         }
@@ -296,13 +296,13 @@ public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDeco
                if (myOrder.getLimitPrice().add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER).compareTo(averageBidPrice) == -1) {
                    logger.info("Canceling limit order [" + myOrder + "] and adding new with price [" + averageBidPrice + "]");
                    traderAgent.cancelLimitOrder(myOrder);
-                   traderAgent.placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageBidPrice);
+                   placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageBidPrice);
                }
            } else if (myOrder.getType() == ASK) {
                if (myOrder.getLimitPrice().compareTo(averageAskPrice.add(MIN_DIFF_WITH_AVERAGE_PRICES_TO_CHANGE_ORDER)) == 1) {
                    logger.info("Canceling limit order [" + myOrder + "] and adding new with price [" + averageAskPrice + "]");
                    traderAgent.cancelLimitOrder(myOrder);
-                   traderAgent.placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageAskPrice);
+                   placeOrder(myOrder.getType(), myOrder.getTradableAmount(), averageAskPrice);
                }
            }
         }
