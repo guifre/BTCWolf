@@ -74,6 +74,23 @@ public class ExponentialMovingAverageTradingStrategyTest {
     }
 
     @Test
+    public void compareTwoExponentialMovingAverageSettings() {
+        int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
+        MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));
+        for (int i = 1; i < 50; i++) {
+            int[] indexes = StrategyTestHelper.getIndexes(500, maxIndex);
+            TestStrategyFactory strategyProvider = new TestStrategyFactory(testerAgent, false);
+            strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy(150, 200, false));
+            System.out.print("\n with 40 60 ");
+            StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
+
+            strategyProvider.switchStrategy(strategyProvider.buildExponentialMovingAverageStrategy());
+            System.out.print(" default      ");
+            StrategyTestHelper.runAdvancedStrategyTest(indexes, testerAgent, strategyProvider);
+        }
+    }
+
+    @Test
     public void compareStrategies() {
         int maxIndex = new MarketExchangeAgent(BigDecimal.ZERO, BigDecimal.ZERO).getTickers();
         MarketExchangeAgent testerAgent = new MarketExchangeAgent(BigDecimal.valueOf(0), BigDecimal.valueOf(0));

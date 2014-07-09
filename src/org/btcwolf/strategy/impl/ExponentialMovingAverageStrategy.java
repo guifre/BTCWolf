@@ -39,7 +39,7 @@ import static org.btcwolf.agent.AbstractAgent.FAILED_ORDER;
 
 public class ExponentialMovingAverageStrategy extends TradingStrategyMonitorDecorator {
 
-    private static final int MAX_TICKERS = 150; //about 2h
+    private static final int MAX_TICKERS = 100; //about 2h
     private static final int MIN_TICKERS = 80; //about 16 mins
 
     private static final int MIN_TICKERS_BETWEEN_ORDERS = 12;
